@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle, User } from 'lucide-react';
+import { PlusCircle, User, LogIn } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getCycleStatus } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 const DashboardSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -54,12 +55,13 @@ const ChildListItem = ({ child }: { child: Child }) => {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddChildOpen, setAddChildOpen] = useState(false);
 
   const fetchChildren = async () => {
-    if (user) {
+    if (user && user.role === 'parent') {
       // Don't show skeleton on refetch
       if(children.length === 0) setLoading(true);
       const userChildren = await getChildrenForUser(user.uid);
@@ -70,13 +72,40 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user) {
-        fetchChildren();
+        if (user.role === 'parent') {
+            fetchChildren();
+        } else if (user.role === 'child' && user.childProfile) {
+            // Child user should be redirected by AuthContext, but as a fallback:
+            router.replace(`/child/${user.childProfile.id}`);
+        } else {
+            // User role not determined yet, or some other state
+            setLoading(false);
+        }
+    } else {
+        // No user
+        setLoading(false);
     }
-  }, [user]);
+  }, [user, router]); // Add router to dependency array
   
   if (loading) {
       return <DashboardSkeleton />;
   }
+  
+  // This page is for parents only.
+  if (user?.role !== 'parent') {
+      // Fallback for non-parent users, maybe they are a child whose redirect is pending
+      // or an un-roled user. Show a simple message or skeleton.
+      return (
+        <div className="flex flex-col min-h-screen w-full bg-background items-center justify-center">
+            <div className="text-center">
+                <LogIn className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h1 className="mt-4 text-2xl font-bold">Loading your dashboard...</h1>
+                <p className="mt-2 text-muted-foreground">Please wait a moment.</p>
+            </div>
+        </div>
+      );
+  }
+
 
   return (
     <AuthGuard>

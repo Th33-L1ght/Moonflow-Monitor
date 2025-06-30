@@ -13,7 +13,6 @@ import { Button } from './ui/button';
 import { getCycleStatus } from '@/lib/utils';
 import type { Child, CrampLevel, Mood, SymptomLog } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { updateChild } from '@/lib/firebase/firestore';
 import { isSameDay } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 
@@ -33,21 +32,22 @@ const moods: { mood: Mood, emoji: string }[] = [
 
 interface SymptomTrackerProps {
     child: Child;
-    userId: string;
-    onUpdate: () => void;
+    onUpdate: (data: Partial<Omit<Child, 'id'>>) => void;
+    canEdit: boolean;
 }
 
 const toDate = (date: Date | Timestamp): Date => {
     return date instanceof Timestamp ? date.toDate() : date;
 }
 
-export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps) {
+export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps) {
   const [cramp, setCramp] = React.useState<string>('1');
   const [mood, setMood] = React.useState<string>('Happy');
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
 
   const { isOnPeriod, activeCycleId } = getCycleStatus(child);
+  const isButtonDisabled = !isOnPeriod || isLoading || !canEdit;
 
   // Set initial state based on today's log if it exists
   React.useEffect(() => {
@@ -103,12 +103,11 @@ export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps)
     });
 
     try {
-        await updateChild(userId, child.id, { cycles: updatedCycles });
+        onUpdate({ cycles: updatedCycles });
         toast({
             title: "Log Saved",
             description: "Today's symptoms have been saved successfully."
         });
-        onUpdate();
     } catch (error) {
         console.error(error);
         toast({
@@ -126,7 +125,7 @@ export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps)
       <CardHeader>
         <CardTitle className="font-body text-xl">Log Symptoms</CardTitle>
         <CardDescription>
-          {isOnPeriod ? "How is she feeling today?" : "Tracking is available during a period."}
+          {isOnPeriod ? (canEdit ? "How are you feeling today?" : "Viewing symptoms logged.") : "Tracking is available during a period."}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-8">
@@ -139,7 +138,7 @@ export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps)
               if (value) setCramp(value);
             }}
             className="grid grid-cols-4 gap-3"
-            disabled={!isOnPeriod || isLoading}
+            disabled={!canEdit || !isOnPeriod}
           >
             {crampLevels.map(({ level, emoji, label }) => (
               <ToggleGroupItem
@@ -163,7 +162,7 @@ export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps)
               if (value) setMood(value);
             }}
             className="grid grid-cols-4 gap-3"
-            disabled={!isOnPeriod || isLoading}
+            disabled={!canEdit || !isOnPeriod}
           >
             {moods.map(({ mood, emoji }) => (
               <ToggleGroupItem
@@ -177,9 +176,11 @@ export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps)
             ))}
           </ToggleGroup>
         </div>
-        <Button size="lg" className="w-full h-12 text-lg font-bold" onClick={handleSaveLog} disabled={!isOnPeriod || isLoading}>
-            {isLoading ? 'Saving...' : "Apply"}
-        </Button>
+        {canEdit && (
+          <Button size="lg" className="w-full h-12 text-lg font-bold" onClick={handleSaveLog} disabled={isButtonDisabled}>
+              {isLoading ? 'Saving...' : "Apply"}
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

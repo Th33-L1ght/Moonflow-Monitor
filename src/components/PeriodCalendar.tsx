@@ -22,16 +22,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Child, Cycle, Mood } from '@/lib/types';
-import { updateChild } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Timestamp } from 'firebase/firestore';
 
 interface PeriodCalendarProps {
   child: Child;
-  userId: string;
-  onUpdate: () => void;
+  onUpdate: (data: Partial<Omit<Child, 'id'>>) => void;
+  canEdit: boolean;
 }
 
 const toDate = (date: Date | Timestamp): Date => {
@@ -46,7 +44,7 @@ const moodEmojis: Record<Mood, string> = {
 };
 
 
-export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps) {
+export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
   const [isLoading, setIsLoading] = React.useState(false);
   const [isDialogOpen, setDialogOpen] = React.useState(false);
@@ -76,12 +74,11 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
 
     try {
       const updatedCycles = [...child.cycles, newCycleWithId];
-      await updateChild(userId, child.id, { cycles: updatedCycles });
+      onUpdate({ cycles: updatedCycles });
       toast({
         title: 'Success!',
         description: 'New cycle has been logged.',
       });
-      onUpdate();
       setDate(undefined);
       setDialogOpen(false);
     } catch (error) {
@@ -157,65 +154,67 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="gap-1">
-              <PlusCircle className="h-3.5 w-3.5" />
-              Log Period
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Log New Period</DialogTitle>
-              <DialogDescription>
-                Select the start and end date of the period.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-               <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="date"
-                      variant={'outline'}
-                      className={cn(
-                        'w-full justify-start text-left font-normal bg-card border-border',
-                        !date && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date?.from ? (
-                        date.to ? (
-                          <>
-                            {format(date.from, 'LLL dd, y')} -{' '}
-                            {format(date.to, 'LLL dd, y')}
-                          </>
+        {canEdit && (
+            <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+                <Button size="sm" className="gap-1">
+                <PlusCircle className="h-3.5 w-3.5" />
+                Log Period
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                <DialogTitle>Log New Period</DialogTitle>
+                <DialogDescription>
+                    Select the start and end date of the period.
+                </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                        id="date"
+                        variant={'outline'}
+                        className={cn(
+                            'w-full justify-start text-left font-normal bg-card border-border',
+                            !date && 'text-muted-foreground'
+                        )}
+                        >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date?.from ? (
+                            date.to ? (
+                            <>
+                                {format(date.from, 'LLL dd, y')} -{' '}
+                                {format(date.to, 'LLL dd, y')}
+                            </>
+                            ) : (
+                            format(date.from, 'LLL dd, y')
+                            )
                         ) : (
-                          format(date.from, 'LLL dd, y')
-                        )
-                      ) : (
-                        <span>Pick a date range</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={date?.from}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={1}
-                    />
-                  </PopoverContent>
-                </Popover>
-            </div>
-            <DialogFooter>
-              <Button onClick={handleSaveCycle} disabled={isLoading || !date?.from || !date?.to}>
-                {isLoading ? 'Saving...' : 'Save Cycle'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                            <span>Pick a date range</span>
+                        )}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={date?.from}
+                        selected={date}
+                        onSelect={setDate}
+                        numberOfMonths={1}
+                        />
+                    </PopoverContent>
+                    </Popover>
+                </div>
+                <DialogFooter>
+                <Button onClick={handleSaveCycle} disabled={isLoading || !date?.from || !date?.to}>
+                    {isLoading ? 'Saving...' : 'Save Cycle'}
+                </Button>
+                </DialogFooter>
+            </DialogContent>
+            </Dialog>
+        )}
       </div>
       <div className="flex justify-center">
         <style>{`

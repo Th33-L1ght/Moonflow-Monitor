@@ -8,8 +8,12 @@ import {
   updateDoc,
   Timestamp,
   query,
+  where,
+  limit,
+  serverTimestamp,
+  writeBatch
 } from 'firebase/firestore';
-import type { Child } from '@/lib/types';
+import type { Child, Invite } from '@/lib/types';
 
 // Helper function to recursively convert Firestore Timestamps to JS Date objects
 function convertTimestampsToDates(data: any): any {
@@ -64,12 +68,15 @@ const getMockChildren = (): Child[] => {
     {
       id: 'child-1',
       name: 'Olivia',
+      parentUid: 'mock-user-id',
+      childUid: 'mock-olivia-uid',
       avatarUrl: `https://placehold.co/100x100/e91e63/ffffff.png`,
       cycles: oliviaCycles
     },
     {
       id: 'child-2',
       name: 'Emma',
+      parentUid: 'mock-user-id',
       avatarUrl: `https://placehold.co/100x100/3f51b5/ffffff.png`,
       cycles: [
         {
@@ -83,26 +90,31 @@ const getMockChildren = (): Child[] => {
      {
       id: 'child-3',
       name: 'Sophia',
+      parentUid: 'mock-user-id',
       avatarUrl: `https://placehold.co/100x100/4caf50/ffffff.png`,
       cycles: [],
     },
   ];
 };
 
+const MOCK_INVITES: Invite[] = [
+    { id: 'mock-invite-id', parentUid: 'mock-user-id', childId: 'child-2', status: 'pending', createdAt: new Date() }
+]
 
-// Helper to get the children subcollection for a user
-const getChildrenCollection = (userId: string) => {
-    return collection(db, 'users', userId, 'children');
-}
 
-// Fetch all children for a given user
+// Helper to get the children collection
+const getChildrenCollection = () => collection(db, 'children');
+const getInvitesCollection = () => collection(db, 'invites');
+
+
+// Fetch all children for a given parent user
 export const getChildrenForUser = async (userId: string): Promise<Child[]> => {
   if (!isFirebaseConfigured) {
     return getMockChildren();
   }
   try {
-    const childrenCollection = getChildrenCollection(userId);
-    const snapshot = await getDocs(query(childrenCollection));
+    const q = query(getChildrenCollection(), where('parentUid', '==', userId));
+    const snapshot = await getDocs(q);
     
     if (snapshot.empty) {
       return [];
@@ -111,10 +123,7 @@ export const getChildrenForUser = async (userId: string): Promise<Child[]> => {
     return snapshot.docs.map((doc) => {
         const data = doc.data();
         const convertedData = convertTimestampsToDates(data);
-        return {
-            id: doc.id,
-            ...convertedData,
-        } as Child;
+        return { id: doc.id, ...convertedData } as Child;
     });
   } catch (error) {
     console.error("Error fetching children for user:", error);
@@ -122,13 +131,14 @@ export const getChildrenForUser = async (userId: string): Promise<Child[]> => {
   }
 };
 
-// Fetch a single child for a user
-export const getChildForUser = async (userId: string, childId: string): Promise<Child | null> => {
+
+// Fetch a single child by its ID
+export const getChild = async (childId: string): Promise<Child | null> => {
     if (!isFirebaseConfigured) {
         return getMockChildren().find(c => c.id === childId) || null;
     }
     try {
-        const childDocRef = doc(db, 'users', userId, 'children', childId);
+        const childDocRef = doc(db, 'children', childId);
         const docSnap = await getDoc(childDocRef);
 
         if (docSnap.exists()) {
@@ -145,6 +155,21 @@ export const getChildForUser = async (userId: string, childId: string): Promise<
     }
 }
 
+// Fetch a child profile for a given child user UID
+export const getChildProfileForChildUser = async (childUid: string): Promise<Child | null> => {
+    if (!isFirebaseConfigured) {
+        if (childUid === 'mock-olivia-uid') return getMockChildren().find(c => c.id === 'child-1') || null;
+        return null;
+    }
+    const q = query(getChildrenCollection(), where('childUid', '==', childUid), limit(1));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+        return null;
+    }
+    const childDoc = snapshot.docs[0];
+    return { id: childDoc.id, ...convertTimestampsToDates(childDoc.data()) } as Child;
+}
+
 // Add a new child for a user
 export const addChildForUser = async (userId: string, childName: string, avatarUrl: string): Promise<string | null> => {
     if (!isFirebaseConfigured) {
@@ -152,13 +177,13 @@ export const addChildForUser = async (userId: string, childName: string, avatarU
         return `mock-child-${Date.now()}`;
     }
     try {
-        const childrenCollection = getChildrenCollection(userId);
         const newChild: Omit<Child, 'id'> = {
             name: childName,
             avatarUrl: avatarUrl,
-            cycles: []
+            cycles: [],
+            parentUid: userId,
         };
-        const docRef = await addDoc(childrenCollection, newChild);
+        const docRef = await addDoc(getChildrenCollection(), newChild);
         return docRef.id;
     } catch (error) {
         console.error("Error adding child:", error);
@@ -167,15 +192,67 @@ export const addChildForUser = async (userId: string, childName: string, avatarU
 }
 
 // Update a child's document
-export const updateChild = async (userId: string, childId: string, data: Partial<Omit<Child, 'id'>>) => {
+export const updateChild = async (childId: string, data: Partial<Omit<Child, 'id'>>) => {
     if (!isFirebaseConfigured) {
         console.log(`Demo mode: Would update child "${childId}" with`, data, " This is not saved.");
         return;
     }
     try {
-        const childDocRef = doc(db, 'users', userId, 'children', childId);
+        const childDocRef = doc(db, 'children', childId);
         await updateDoc(childDocRef, data);
     } catch (error) {
         console.error("Error updating child:", error);
     }
+}
+
+
+// --- Invitation System ---
+
+export const createInvite = async (parentUid: string, childId: string): Promise<string> => {
+    if (!isFirebaseConfigured) {
+        return `mock-invite-${Date.now()}`;
+    }
+    const inviteData = {
+        parentUid,
+        childId,
+        status: 'pending',
+        createdAt: serverTimestamp()
+    };
+    const docRef = await addDoc(getInvitesCollection(), inviteData);
+    return docRef.id;
+}
+
+export const getInvite = async (inviteId: string): Promise<Invite | null> => {
+    if (!isFirebaseConfigured) {
+        return MOCK_INVITES.find(inv => inv.id === inviteId) || null;
+    }
+    const docRef = doc(db, 'invites', inviteId);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return null;
+    return { id: docSnap.id, ...convertTimestampsToDates(docSnap.data()) } as Invite;
+}
+
+export const acceptInvite = async (inviteId: string, childUid: string): Promise<void> => {
+    if (!isFirebaseConfigured) {
+        console.log(`Demo mode: Accepting invite ${inviteId} for child ${childUid}`);
+        return;
+    }
+    const batch = writeBatch(db);
+    
+    // 1. Get the invite
+    const inviteRef = doc(db, 'invites', inviteId);
+    const inviteSnap = await getDoc(inviteRef);
+    if (!inviteSnap.exists() || inviteSnap.data().status !== 'pending') {
+        throw new Error("Invite is invalid or has already been accepted.");
+    }
+    const invite = inviteSnap.data() as Omit<Invite, 'id'>;
+
+    // 2. Update the child document with the new child's UID
+    const childRef = doc(db, 'children', invite.childId);
+    batch.update(childRef, { childUid: childUid });
+
+    // 3. Update the invite status to "accepted"
+    batch.update(inviteRef, { status: 'accepted' });
+
+    await batch.commit();
 }

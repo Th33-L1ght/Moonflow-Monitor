@@ -3,10 +3,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '@/lib/firebase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import type { AppUser } from '@/lib/types';
+import { getChildProfileForChildUser } from '@/lib/firebase/firestore';
 
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
   signIn: (email: string, pass: string) => Promise<any>;
   signUp: (email: string, pass: string) => Promise<any>;
@@ -16,57 +18,83 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
-      // Use mock user in demo mode
-      setUser({
-          uid: 'mock-user-id',
-          email: 'parent@example.com',
-          displayName: 'Mock Parent',
-          photoURL: `https://placehold.co/100x100.png`,
-      } as User);
       setLoading(false);
+      // In demo mode, let's check the path to determine the mock user
+      if (pathname.startsWith('/invite')) {
+        // Don't set a user on the invite page
+         setUser(null);
+      } else {
+        // Mock parent user for the main app
+        setUser({
+            uid: 'mock-user-id',
+            email: 'parent@example.com',
+            displayName: 'Mock Parent',
+            photoURL: `https://placehold.co/100x100.png`,
+            role: 'parent',
+        } as AppUser);
+      }
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Check if user is a child
+        const childProfile = await getChildProfileForChildUser(firebaseUser.uid);
+        if (childProfile) {
+            setUser({
+                ...firebaseUser,
+                role: 'child',
+                childProfile: childProfile
+            });
+            // If child is not on their page, redirect them
+            if (!pathname.startsWith(`/child/${childProfile.id}`)) {
+                router.replace(`/child/${childProfile.id}`);
+            }
+        } else {
+            // Assume parent
+             setUser({
+                ...firebaseUser,
+                role: 'parent',
+            });
+             // If parent lands on invite page, redirect to home
+            if (pathname.startsWith('/invite')) {
+                router.replace('/');
+            }
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [pathname, router]);
   
   const signIn = (email: string, pass: string) => {
-    if (!isFirebaseConfigured) {
-        console.log("Demo mode: Sign in clicked");
-        router.push('/');
-        return Promise.resolve();
-    }
     return signInWithEmailAndPassword(auth, email, pass);
   }
 
   const signUp = (email: string, pass: string) => {
-    if (!isFirebaseConfigured) {
-        console.log("Demo mode: Sign up clicked");
-        // In a real app, you might want to show a toast here.
-        return Promise.resolve();
-    }
+    // This is for parent signup
     return createUserWithEmailAndPassword(auth, email, pass);
   }
 
   const signOut = async () => {
     if (!isFirebaseConfigured) {
-        console.log("Demo mode: Sign out clicked");
         setUser(null);
         router.push('/login');
         return;
     }
     await firebaseSignOut(auth);
+    // After sign out, clear user and redirect to login
+    setUser(null);
     router.push('/login');
   };
 
