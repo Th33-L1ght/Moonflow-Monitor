@@ -64,13 +64,13 @@ const getMockChildren = (): Child[] => {
     {
       id: 'child-1',
       name: 'Olivia',
-      avatarUrl: `https://placehold.co/100x100.png`,
+      avatarUrl: `https://placehold.co/100x100/e91e63/ffffff.png`,
       cycles: oliviaCycles
     },
     {
       id: 'child-2',
       name: 'Emma',
-      avatarUrl: `https://placehold.co/100x100.png`,
+      avatarUrl: `https://placehold.co/100x100/3f51b5/ffffff.png`,
       cycles: [
         {
           id: 'cycle-2-1',
@@ -83,7 +83,7 @@ const getMockChildren = (): Child[] => {
      {
       id: 'child-3',
       name: 'Sophia',
-      avatarUrl: `https://placehold.co/100x100.png`,
+      avatarUrl: `https://placehold.co/100x100/4caf50/ffffff.png`,
       cycles: [],
     },
   ];
@@ -146,7 +146,7 @@ export const getChildForUser = async (userId: string, childId: string): Promise<
 }
 
 // Add a new child for a user
-export const addChildForUser = async (userId: string, childName: string): Promise<string | null> => {
+export const addChildForUser = async (userId: string, childName: string, avatarUrl: string): Promise<string | null> => {
     if (!isFirebaseConfigured) {
         console.log(`Demo mode: Would add child "${childName}". This is not saved.`);
         return `mock-child-${Date.now()}`;
@@ -155,7 +155,7 @@ export const addChildForUser = async (userId: string, childName: string): Promis
         const childrenCollection = getChildrenCollection(userId);
         const newChild: Omit<Child, 'id'> = {
             name: childName,
-            avatarUrl: `https://placehold.co/100x100.png`,
+            avatarUrl: avatarUrl,
             cycles: []
         };
         const docRef = await addDoc(childrenCollection, newChild);
