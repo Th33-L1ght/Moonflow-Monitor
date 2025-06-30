@@ -45,7 +45,7 @@ const getMockChildren = (): Child[] => {
       startDate: new Date(today.getFullYear(), today.getMonth() - 1, 5),
       endDate: new Date(today.getFullYear(), today.getMonth() - 1, 9),
       symptoms: [
-        { date: new Date(today.getFullYear(), today.getMonth() - 1, 5), crampLevel: 3, mood: 'Irritable' as const },
+        { date: new Date(today.getFullYear(), today.getMonth() - 1, 5), crampLevel: 3, mood: 'Moody' as const },
         { date: new Date(today.getFullYear(), today.getMonth() - 1, 6), crampLevel: 2, mood: 'Sad' as const },
       ],
     },
@@ -55,7 +55,7 @@ const getMockChildren = (): Child[] => {
       startDate: new Date(today.getFullYear(), today.getMonth(), 2),
       endDate: new Date(today.getFullYear(), today.getMonth(), 6),
       symptoms: [
-          { date: new Date(today.getFullYear(), today.getMonth(), 2), crampLevel: 4, mood: 'Anxious' as const },
+          { date: new Date(today.getFullYear(), today.getMonth(), 2), crampLevel: 4, mood: 'Moody' as const },
           { date: new Date(), crampLevel: 2, mood: 'Happy' as const }
       ],
     },

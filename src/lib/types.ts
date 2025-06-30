@@ -1,5 +1,5 @@
 export type CrampLevel = 1 | 2 | 3 | 4;
-export type Mood = 'Happy' | 'Sad' | 'Irritable' | 'Calm' | 'Anxious';
+export type Mood = 'Happy' | 'Moody' | 'Fine' | 'Sad';
 
 export interface SymptomLog {
   date: Date;

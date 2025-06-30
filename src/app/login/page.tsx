@@ -1,7 +1,6 @@
 'use client';
 
 import Image from "next/image"
-import Link from "next/link"
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -59,28 +58,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
-      <div className="flex items-center justify-center py-12">
-        <form onSubmit={handleLogin} className="mx-auto grid w-[350px] gap-6">
-          <div className="grid gap-2 text-center">
-            <div className="flex justify-center mb-4">
+    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-background">
+        <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center">
+            <div className="mb-8">
               <Logo />
             </div>
-            <h1 className="text-3xl font-bold font-headline">Welcome</h1>
-            <p className="text-balance text-muted-foreground">
-              Enter your credentials to access your account
+            <h1 className="text-3xl font-bold font-body text-center">Welcome Back</h1>
+            <p className="text-balance text-muted-foreground text-center mt-2">
+              Log in to continue your journey.
             </p>
-          </div>
 
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+            <form onSubmit={handleLogin} className="w-full mt-8 space-y-4">
+            {error && (
+                <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
 
-          <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -91,19 +87,11 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
+                className="bg-card border-border"
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm underline"
-                  tabIndex={-1}
-                >
-                  Forgot your password?
-                </Link>
-              </div>
+              <Label htmlFor="password">Password</Label>
               <Input 
                 id="password" 
                 type="password" 
@@ -111,27 +99,17 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
+                className="bg-card border-border"
               />
             </div>
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </Button>
             <Button variant="outline" className="w-full" type="button" onClick={handleSignUp} disabled={loading}>
               Sign Up
             </Button>
-          </div>
-        </form>
-      </div>
-      <div className="hidden bg-muted lg:block">
-        <Image
-          src="https://placehold.co/1080/1920/d1b0ff/f0f0f0.png?text=+"
-          alt="Abstract lavender background"
-          data-ai-hint="calm lavender"
-          width="1080"
-          height="1920"
-          className="h-full w-full object-cover dark:brightness-[0.3]"
-        />
-      </div>
+            </form>
+        </div>
     </div>
   )
 }

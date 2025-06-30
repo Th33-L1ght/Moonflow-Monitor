@@ -14,9 +14,8 @@ import { getCycleStatus } from '@/lib/utils';
 import type { Child, CrampLevel, Mood, SymptomLog } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { updateChild } from '@/lib/firebase/firestore';
-import { isSameDay, startOfDay } from 'date-fns';
+import { isSameDay } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
-
 
 const crampLevels = [
   { level: 1, emoji: '😌', label: 'None' },
@@ -25,12 +24,11 @@ const crampLevels = [
   { level: 4, emoji: '😫', label: 'Severe' },
 ];
 
-const moods = [
+const moods: { mood: Mood, emoji: string }[] = [
   { mood: 'Happy', emoji: '😊' },
+  { mood: 'Moody', emoji: '😠' },
+  { mood: 'Fine', emoji: '🙂' },
   { mood: 'Sad', emoji: '😢' },
-  { mood: 'Irritable', emoji: '😠' },
-  { mood: 'Calm', emoji: '🧘‍♀️' },
-  { mood: 'Anxious', emoji: '😟' },
 ];
 
 interface SymptomTrackerProps {
@@ -123,25 +121,24 @@ export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps)
     }
   }
 
-
   return (
-    <Card>
+    <Card className="bg-card border-none shadow-none">
       <CardHeader>
-        <CardTitle>Symptom Log</CardTitle>
+        <CardTitle className="font-body text-xl">Log Symptoms</CardTitle>
         <CardDescription>
-          {isOnPeriod ? "How are you feeling today? Tap to select." : "Tracking is available during a period."}
+          {isOnPeriod ? "How is she feeling today?" : "Tracking is available during a period."}
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-6">
+      <CardContent className="grid gap-8">
         <div>
-          <h3 className="text-sm font-medium mb-2">Cramps</h3>
+          <h3 className="text-lg font-medium mb-3">Cramp Level</h3>
           <ToggleGroup
             type="single"
             value={cramp}
             onValueChange={(value) => {
               if (value) setCramp(value);
             }}
-            className="grid grid-cols-4 gap-2"
+            className="grid grid-cols-4 gap-3"
             disabled={!isOnPeriod || isLoading}
           >
             {crampLevels.map(({ level, emoji, label }) => (
@@ -149,23 +146,23 @@ export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps)
                 key={level}
                 value={String(level)}
                 aria-label={label}
-                className="flex flex-col h-auto p-2 gap-1"
+                className="flex flex-col h-20 w-full rounded-lg gap-1 data-[state=on]:bg-primary/20 data-[state=on]:text-primary"
               >
-                <span className="text-2xl">{emoji}</span>
-                <span className="text-xs">{label}</span>
+                <span className="text-3xl">{emoji}</span>
+                <span className="text-xs font-body">{label}</span>
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
         </div>
         <div>
-          <h3 className="text-sm font-medium mb-2">Mood</h3>
+          <h3 className="text-lg font-medium mb-3">Mood</h3>
           <ToggleGroup
             type="single"
             value={mood}
             onValueChange={(value) => {
               if (value) setMood(value);
             }}
-            className="grid grid-cols-5 gap-2"
+            className="grid grid-cols-4 gap-3"
             disabled={!isOnPeriod || isLoading}
           >
             {moods.map(({ mood, emoji }) => (
@@ -173,15 +170,15 @@ export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps)
                 key={mood}
                 value={mood}
                 aria-label={mood}
-                className="h-14 w-14 text-2xl"
+                className="h-20 w-full text-3xl rounded-lg data-[state=on]:bg-primary/20 data-[state=on]:text-primary"
               >
                 {emoji}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
         </div>
-        <Button className="w-full" onClick={handleSaveLog} disabled={!isOnPeriod || isLoading}>
-            {isLoading ? 'Saving...' : "Save Today's Log"}
+        <Button size="lg" className="w-full h-12 text-lg font-bold" onClick={handleSaveLog} disabled={!isOnPeriod || isLoading}>
+            {isLoading ? 'Saving...' : "Apply"}
         </Button>
       </CardContent>
     </Card>

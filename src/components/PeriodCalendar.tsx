@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Calendar as CalendarIcon, PlusCircle } from 'lucide-react';
-import { addDays, format } from 'date-fns';
+import { addDays, format, isSameDay } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 
 import { cn } from '@/lib/utils';
@@ -14,13 +14,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from './ui/card';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -29,7 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import type { Child, Cycle } from '@/lib/types';
+import type { Child, Cycle, Mood } from '@/lib/types';
 import { updateChild } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Timestamp } from 'firebase/firestore';
@@ -39,6 +32,18 @@ interface PeriodCalendarProps {
   userId: string;
   onUpdate: () => void;
 }
+
+const toDate = (date: Date | Timestamp): Date => {
+  return date instanceof Timestamp ? date.toDate() : date;
+}
+
+const moodEmojis: Record<Mood, string> = {
+  Happy: '😊',
+  Moody: '😠',
+  Fine: '🙂',
+  Sad: '😢',
+};
+
 
 export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
@@ -90,38 +95,69 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
     }
   };
 
-  const periodDays = child.cycles.flatMap((cycle) => {
-    const days = [];
-    let day = cycle.startDate instanceof Timestamp ? cycle.startDate.toDate() : new Date(cycle.startDate);
-    let endDate = cycle.endDate instanceof Timestamp ? cycle.endDate.toDate() : new Date(cycle.endDate);
+  const periodDays: Date[] = [];
+  const moodDays: { date: Date, mood: Mood }[] = [];
+
+  child.cycles.forEach((cycle) => {
+    let day = toDate(cycle.startDate);
+    const endDate = toDate(cycle.endDate);
     
     while (day <= endDate) {
-      days.push(new Date(day));
+      periodDays.push(new Date(day));
       day = addDays(day, 1);
     }
-    return days;
+
+    cycle.symptoms.forEach(symptom => {
+        moodDays.push({ date: toDate(symptom.date), mood: symptom.mood });
+    });
   });
 
   const modifiers = {
     period: periodDays,
+    ...Object.fromEntries(
+        Object.keys(moodEmojis).map(mood => [
+            mood.toLowerCase(),
+            moodDays.filter(md => md.mood === mood).map(md => md.date)
+        ])
+    )
   };
 
   const modifiersStyles = {
     period: {
-      backgroundColor: 'hsl(var(--accent))',
-      color: 'hsl(var(--accent-foreground))',
+      backgroundColor: 'hsl(var(--primary) / 0.3)',
+      color: 'hsl(var(--foreground))',
     },
     today: {
-      fontWeight: 'bold',
       borderColor: 'hsl(var(--primary))'
+    },
+    ...Object.fromEntries(
+        Object.keys(moodEmojis).map(mood => [
+            mood.toLowerCase(),
+            {
+              // Custom styling will be done via DayContent
+            }
+        ])
+    )
+  };
+
+  const DayContent = (props: { date: Date; displayMonth: Date }) => {
+    const moodEntry = moodDays.find(md => isSameDay(md.date, props.date));
+    if (moodEntry) {
+      return (
+        <div className="relative w-full h-full flex items-center justify-center">
+          {format(props.date, 'd')}
+          <span className="absolute bottom-0 text-xs">{moodEmojis[moodEntry.mood]}</span>
+        </div>
+      );
     }
+    return format(props.date, 'd');
   };
 
   return (
-    <Card>
+    <Card className="bg-card border-none shadow-none">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Cycle Calendar</CardTitle>
+          <CardTitle className="font-body text-xl">Calendar</CardTitle>
           <CardDescription>
             Visualize the current and past cycles.
           </CardDescription>
@@ -130,9 +166,7 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1">
               <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Log Period
-              </span>
+              Log Period
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -143,14 +177,13 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className={cn('grid gap-2')}>
-                <Popover>
+               <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       id="date"
                       variant={'outline'}
                       className={cn(
-                        'w-full justify-start text-left font-normal',
+                        'w-full justify-start text-left font-normal bg-card border-border',
                         !date && 'text-muted-foreground'
                       )}
                     >
@@ -176,11 +209,10 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
                       defaultMonth={date?.from}
                       selected={date}
                       onSelect={setDate}
-                      numberOfMonths={2}
+                      numberOfMonths={1}
                     />
                   </PopoverContent>
                 </Popover>
-              </div>
             </div>
             <DialogFooter>
               <Button onClick={handleSaveCycle} disabled={isLoading || !date?.from || !date?.to}>
@@ -191,13 +223,22 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
         </Dialog>
       </CardHeader>
       <CardContent className="flex justify-center">
+        <style>{`
+            .rdp-day { border-radius: 9999px; }
+            .rdp-day_selected { background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+            .rdp-head_cell { text-transform: uppercase; font-size: 0.75rem; color: hsl(var(--muted-foreground)); }
+        `}</style>
         <Calendar
           mode="single"
           selected={new Date()}
           modifiers={modifiers}
           modifiersStyles={modifiersStyles}
-          className="rounded-md border"
           showOutsideDays
+          components={{ DayContent }}
+          classNames={{
+            day: "h-10 w-10",
+            head_cell: "w-10"
+          }}
         />
       </CardContent>
     </Card>

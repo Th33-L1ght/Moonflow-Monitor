@@ -16,7 +16,7 @@ import type { Cycle } from '@/lib/types';
 const SymptomLogSchema = z.object({
     date: z.string().describe("The date of the symptom log, in YYYY-MM-DD format."),
     crampLevel: z.number().describe("A number from 1 (none) to 4 (severe)."),
-    mood: z.string().describe("The logged mood, e.g., 'Happy', 'Sad', 'Irritable'.")
+    mood: z.string().describe("The logged mood, e.g., 'Happy', 'Sad', 'Moody', 'Fine'.")
 });
 
 const CycleSchema = z.object({
@@ -73,7 +73,7 @@ Data:
   {{/if}}
 {{/each}}
 
-Based on this data, provide one concise (2-3 sentences), helpful, and easy-to-understand insight. Frame the insight in a positive and supportive tone. Focus on patterns in symptoms, mood, or cycle length.
+Based on this data, provide one concise (2-3 sentences), helpful, and easy-to-understand insight. Frame the insight in a positive and supportive tone. Focus on patterns in symptoms, mood, or cycle length. The available moods are Happy, Moody, Fine, and Sad.
 
 If there isn't enough data (e.g., less than 2 cycles or no symptoms logged), provide a general supportive message encouraging continued tracking, like "Keep up the great work logging symptoms! The more data we have, the better insights we can find together."
 Do not invent data or make medical diagnoses.
