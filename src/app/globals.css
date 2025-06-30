@@ -65,3 +65,51 @@
       background-color: hsl(var(--background));
   }
 }
+
+.butterfly-container {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.butterfly {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    animation: fly 10s linear infinite;
+    width: 50px; /* or different sizes */
+}
+
+@keyframes fly {
+    0% {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+    }
+    20% {
+        transform: translateX(20vw) translateY(-20vh) rotate(15deg);
+    }
+    40% {
+        transform: translateX(10vw) translateY(-40vh) rotate(-10deg);
+    }
+    60% {
+        transform: translateX(30vw) translateY(-60vh) rotate(15deg);
+    }
+    80% {
+        transform: translateX(20vw) translateY(-80vh) rotate(-10deg);
+    }
+    100% {
+        transform: translateX(30vw) translateY(-120vh) rotate(0deg);
+        opacity: 0;
+    }
+}
+/* Variations */
+.butterfly:nth-child(1) { left: 10%; animation-duration: 15s; animation-delay: 0s; width: 40px; }
+.butterfly:nth-child(2) { left: 20%; animation-duration: 12s; animation-delay: 2s; width: 60px; }
+.butterfly:nth-child(3) { left: 50%; animation-duration: 18s; animation-delay: 4s; width: 30px; }
+.butterfly:nth-child(4) { left: 70%; animation-duration: 10s; animation-delay: 1s; width: 55px; }
+.butterfly:nth-child(5) { left: 85%; animation-duration: 16s; animation-delay: 6s; width: 45px; }
+.butterfly:nth-child(6) { left: 5%;  animation-duration: 11s; animation-delay: 8s; width: 50px; }
+.butterfly:nth-child(7) { left: 35%; animation-duration: 14s; animation-delay: 5s; width: 35px; }
+.butterfly:nth-child(8) { left: 60%; animation-duration: 13s; animation-delay: 3s; width: 65px; }

@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/firebase/client";
+import { FlyingButterflies } from "@/components/FlyingButterflies";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -76,8 +77,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40">
-        <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center space-y-6">
+    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40 relative overflow-hidden">
+        <FlyingButterflies />
+        <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center space-y-6 relative z-10">
             <Logo />
             
             <div className="w-full bg-card p-8 rounded-lg border shadow-sm">
