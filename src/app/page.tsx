@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle, User, Share2, Info } from 'lucide-react';
+import { PlusCircle, User, Share2, Info, ShoppingBag } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { AddChildDialog } from '@/components/AddChildDialog';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getCycleStatus } from '@/lib/utils';
+import { getCycleStatus, getCyclePrediction } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
@@ -39,7 +39,9 @@ const DashboardSkeleton = () => (
 
 const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: (childId: string) => void; onUpdate: (childId: string, updatedData: Partial<Child>) => void; }) => {
     const { isOnPeriod, currentDay } = getCycleStatus(child);
+    const { daysUntilNextCycle } = getCyclePrediction(child);
     const showInviteButton = !child.childUid;
+    const showReminder = daysUntilNextCycle !== null && daysUntilNextCycle > 0 && daysUntilNextCycle <= 7;
 
     return (
         <Card className="p-4 flex items-center gap-6 transition-all hover:shadow-lg hover:border-primary/50">
@@ -56,6 +58,12 @@ const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: 
                     <p className={cn("text-sm mt-1", isOnPeriod ? "text-destructive" : "text-muted-foreground")}>
                         {isOnPeriod ? `Period - Day ${currentDay}` : 'Between Cycles'}
                     </p>
+                    {showReminder && (
+                        <div className="flex items-center gap-2 mt-2 text-sm text-accent-foreground font-medium">
+                            <ShoppingBag className="h-4 w-4" />
+                            <span>Next period in {daysUntilNextCycle} {daysUntilNextCycle === 1 ? 'day' : 'days'}.</span>
+                        </div>
+                    )}
                 </div>
             </Link>
             <div className="flex items-center gap-4">
