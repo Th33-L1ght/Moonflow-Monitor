@@ -29,22 +29,73 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { type Child } from '@/lib/types';
+import type { Child, Cycle } from '@/lib/types';
+import { updateChild } from '@/lib/firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { Timestamp } from 'firebase/firestore';
 
 interface PeriodCalendarProps {
   child: Child;
+  userId: string;
+  onUpdate: () => void;
 }
 
-export function PeriodCalendar({ child }: PeriodCalendarProps) {
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(),
-    to: addDays(new Date(), 5),
-  });
+export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps) {
+  const [date, setDate] = React.useState<DateRange | undefined>();
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isDialogOpen, setDialogOpen] = React.useState(false);
+  const { toast } = useToast();
+
+  const handleSaveCycle = async () => {
+    if (!date?.from || !date?.to) {
+      toast({
+        title: 'Invalid Date Range',
+        description: 'Please select both a start and end date.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const newCycle: Omit<Cycle, 'id'> = {
+      startDate: date.from,
+      endDate: date.to,
+      symptoms: [],
+    };
+
+    const newCycleWithId: Cycle = {
+      ...newCycle,
+      id: `cycle_${Date.now()}`
+    }
+
+    try {
+      const updatedCycles = [...child.cycles, newCycleWithId];
+      await updateChild(userId, child.id, { cycles: updatedCycles });
+      toast({
+        title: 'Success!',
+        description: 'New cycle has been logged.',
+      });
+      onUpdate();
+      setDate(undefined);
+      setDialogOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: 'Error',
+        description: 'Failed to log new cycle. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const periodDays = child.cycles.flatMap((cycle) => {
     const days = [];
-    let day = new Date(cycle.startDate);
-    while (day <= cycle.endDate) {
+    let day = cycle.startDate instanceof Timestamp ? cycle.startDate.toDate() : new Date(cycle.startDate);
+    let endDate = cycle.endDate instanceof Timestamp ? cycle.endDate.toDate() : new Date(cycle.endDate);
+    
+    while (day <= endDate) {
       days.push(new Date(day));
       day = addDays(day, 1);
     }
@@ -59,8 +110,11 @@ export function PeriodCalendar({ child }: PeriodCalendarProps) {
     period: {
       backgroundColor: 'hsl(var(--accent))',
       color: 'hsl(var(--accent-foreground))',
-      borderRadius: '50%',
     },
+    today: {
+      fontWeight: 'bold',
+      borderColor: 'hsl(var(--primary))'
+    }
   };
 
   return (
@@ -72,7 +126,7 @@ export function PeriodCalendar({ child }: PeriodCalendarProps) {
             Visualize the current and past cycles.
           </CardDescription>
         </div>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1">
               <PlusCircle className="h-3.5 w-3.5" />
@@ -129,7 +183,9 @@ export function PeriodCalendar({ child }: PeriodCalendarProps) {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Save Cycle</Button>
+              <Button onClick={handleSaveCycle} disabled={isLoading || !date?.from || !date?.to}>
+                {isLoading ? 'Saving...' : 'Save Cycle'}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -140,7 +196,8 @@ export function PeriodCalendar({ child }: PeriodCalendarProps) {
           selected={new Date()}
           modifiers={modifiers}
           modifiersStyles={modifiersStyles}
-          className="rounded-md"
+          className="rounded-md border"
+          showOutsideDays
         />
       </CardContent>
     </Card>

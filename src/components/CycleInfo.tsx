@@ -15,30 +15,56 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts';
-import { type Child } from '@/lib/types';
+import type { Child } from '@/lib/types';
 import { differenceInDays, format } from 'date-fns';
+import { Timestamp } from 'firebase/firestore';
 
 interface CycleInfoProps {
   child: Child;
 }
 
+const toDate = (date: Date | Timestamp) => {
+    return date instanceof Timestamp ? date.toDate() : date;
+}
+
 export function CycleInfo({ child }: CycleInfoProps) {
-  const cycleData = child.cycles.map((cycle, index) => {
+    if (!child || !child.cycles || child.cycles.length === 0) {
+        return (
+             <Card>
+                <CardHeader>
+                    <CardTitle>Cycle History</CardTitle>
+                    <CardDescription>
+                    A look at cycle patterns and averages.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="h-64 flex items-center justify-center text-center text-muted-foreground">
+                    No cycle data yet. Log a period to see insights here.
+                </CardContent>
+            </Card>
+        )
+    }
+
+  const sortedCycles = [...child.cycles].sort((a, b) => toDate(a.startDate).getTime() - toDate(b.startDate).getTime());
+
+  const cycleData = sortedCycles.map((cycle, index) => {
+    const startDate = toDate(cycle.startDate);
     const cycleLength =
       index > 0
-        ? differenceInDays(cycle.startDate, child.cycles[index - 1].startDate)
+        ? differenceInDays(startDate, toDate(sortedCycles[index - 1].startDate))
         : 28; // Estimate for first cycle
     return {
-      name: format(cycle.startDate, 'MMM'),
+      name: format(startDate, 'MMM'),
       length: cycleLength,
     };
-  }).slice(0, 6).reverse(); // show last 6 months
+  }).slice(-6); // show last 6 months
 
-  const totalCycleLength = cycleData.slice(0, -1).reduce((acc, curr) => acc + curr.length, 0);
-  const avgCycleLength = cycleData.length > 1 ? Math.round(totalCycleLength / (cycleData.length-1)) : 28;
+  const totalCycleLength = cycleData.slice(1).reduce((acc, curr) => acc + curr.length, 0);
+  const avgCycleLength = cycleData.length > 1 ? Math.round(totalCycleLength / (cycleData.length - 1)) : 28;
   
   const totalPeriodLength = child.cycles.reduce((acc, curr) => {
-      return acc + differenceInDays(curr.endDate, curr.startDate) + 1;
+      const startDate = toDate(curr.startDate);
+      const endDate = toDate(curr.endDate);
+      return acc + differenceInDays(endDate, startDate) + 1;
   }, 0);
   const avgPeriodLength = child.cycles.length > 0 ? Math.round(totalPeriodLength / child.cycles.length) : 5;
 
