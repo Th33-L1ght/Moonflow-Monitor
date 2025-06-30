@@ -24,32 +24,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Helper function to fetch profile details and set the full AppUser state
+  const setUserStateFromFirebaseUser = async (firebaseUser: User) => {
+    const childProfile = await getChildProfileForChildUser(firebaseUser.uid);
+    if (childProfile) {
+        setUser({
+            ...firebaseUser,
+            role: 'child',
+            childProfile: childProfile
+        });
+    } else {
+         setUser({
+            ...firebaseUser,
+            role: 'parent',
+        });
+    }
+  }
+
   useEffect(() => {
-    // This effect only handles the auth state listener and should only run once.
+    // This effect handles the auth state listener for keeping the user logged in across page loads.
     if (!isFirebaseConfigured) {
-        // In demo mode, auth state is handled manually by signIn/signOut.
-        // We just need to set loading to false on initial load.
         setLoading(false);
         return;
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Check if user is a child
-        const childProfile = await getChildProfileForChildUser(firebaseUser.uid);
-        if (childProfile) {
-            setUser({
-                ...firebaseUser,
-                role: 'child',
-                childProfile: childProfile
-            });
-        } else {
-            // Assume parent
-             setUser({
-                ...firebaseUser,
-                role: 'parent',
-            });
-        }
+        await setUserStateFromFirebaseUser(firebaseUser);
       } else {
         setUser(null);
       }
@@ -60,7 +61,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []); // Run only once on mount
 
   // This effect handles redirects based on user role and current path.
-  // It runs whenever the user logs in/out or navigates.
   useEffect(() => {
     if (loading) {
       return;
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user, loading, pathname, router]);
   
-  const signIn = (email: string, pass: string) => {
+  const signIn = async (email: string, pass: string) => {
     if (!isFirebaseConfigured) {
         console.log("Demo mode: Signing in parent");
         const mockUser = {
@@ -98,17 +98,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(mockUser);
         return Promise.resolve(mockUser);
     }
-    return signInWithEmailAndPassword(auth, email, pass);
+    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+    // Proactively set user state to trigger redirect faster instead of waiting for onAuthStateChanged
+    await setUserStateFromFirebaseUser(userCredential.user); 
+    return userCredential;
   }
 
-  const signUp = (email: string, pass: string) => {
+  const signUp = async (email: string, pass: string) => {
      if (!isFirebaseConfigured) {
         console.log("Demo mode: Sign up complete. User can now log in.");
-        // In demo mode, we just log them in
         return signIn(email, pass);
     }
-    // This is for parent signup
-    return createUserWithEmailAndPassword(auth, email, pass);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    // After creation, user is automatically signed in.
+    // Proactively set the state to trigger redirects and UI updates faster.
+    await setUserStateFromFirebaseUser(userCredential.user);
+    return userCredential;
   }
 
   const signOut = async () => {
@@ -118,7 +123,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
     }
     await firebaseSignOut(auth);
-    // After sign out, clear user and redirect to login
     setUser(null);
     router.push('/login');
   };

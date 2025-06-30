@@ -1,6 +1,5 @@
 'use client';
 
-import Image from "next/image"
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -29,7 +28,7 @@ export default function LoginPage() {
     setError(null);
     try {
       await signIn(email, password);
-      // On successful sign-in, AuthContext will set the user and trigger a redirect.
+      // On successful sign-in, AuthContext now sets the user and triggers a redirect immediately.
     } catch (err: any) {
       if (err.code === 'auth/configuration-not-found') {
           setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
@@ -50,7 +49,7 @@ export default function LoginPage() {
     setLoginStep('pending');
     setError(null);
     try {
-      // In demo mode, sign up just logs the user in.
+      // In demo mode, signUp just logs the user in.
       if (!isFirebaseConfigured) {
           toast({
               title: "Continuing in Demo Mode",
@@ -66,8 +65,8 @@ export default function LoginPage() {
           title: "Account Created",
           description: "Welcome! Logging you in now...",
       });
-      // Automatically sign in the new user
-      await signIn(email, password);
+      // The `signUp` function in AuthContext now handles setting the user state.
+      // No need to call signIn again.
 
     } catch (err: any) {
       if (err.code === 'auth/configuration-not-found') {
