@@ -29,7 +29,7 @@ export default function LoginPage() {
     setError(null);
     try {
       await signIn(email, password);
-      router.push('/');
+      // The AuthContext will handle redirection based on user role.
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -53,7 +53,7 @@ export default function LoginPage() {
               description: "Logging you in with a sample parent account.",
           });
           await signIn(email, password);
-          router.push('/');
+          // Redirection is handled by AuthContext
           return; // Exit after handling demo case
       }
 
@@ -66,7 +66,11 @@ export default function LoginPage() {
       setPassword('');
 
     } catch (err: any) {
-      setError(err.message);
+      if (err.code === 'auth/email-already-in-use') {
+        setError('This email address is already in use by another account.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -79,9 +83,9 @@ export default function LoginPage() {
             
             <div className="w-full bg-card p-8 rounded-lg border shadow-sm">
               <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold">Welcome Back</h1>
+                <h1 className="text-2xl font-bold">Welcome</h1>
                 <p className="text-muted-foreground text-sm mt-1">
-                  Log in to your parent account.
+                  Log in to your Moonflow account.
                 </p>
               </div>
 
