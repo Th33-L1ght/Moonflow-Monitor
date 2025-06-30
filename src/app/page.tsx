@@ -52,24 +52,29 @@ const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: 
     const showInviteButton = !child.childUid;
 
     return (
-        <Card className="p-4 flex items-center gap-6 transition-all hover:shadow-lg hover:border-primary/50">
-            <Link href={`/child/${child.id}`} className="flex items-center gap-6 flex-1">
-                <Avatar className="h-20 w-20 border-2 border-card">
-                    <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
-                    <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                    <div className="flex items-baseline gap-4">
-                        <p className="text-3xl font-medium text-foreground">{child.name}</p>
-                        <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-destructive' : 'bg-chart-2')} />
-                    </div>
-                    <p className={cn("text-sm mt-1", isOnPeriod ? "text-destructive" : "text-muted-foreground")}>
+        <Card className="p-4 flex items-center justify-between gap-6 transition-all hover:shadow-lg hover:border-primary/50">
+            <div className="flex items-center gap-6">
+                <Link href={`/child/${child.id}`}>
+                    <Avatar className="h-20 w-20 border-2 border-card">
+                        <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
+                        <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                </Link>
+                <div>
+                    <Link href={`/child/${child.id}`}>
+                        <div className="flex items-baseline gap-3">
+                            <p className="text-3xl font-medium text-foreground hover:underline">{child.name}</p>
+                            <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-destructive' : 'bg-chart-2')} title={isOnPeriod ? 'On Period' : 'Between Cycles'} />
+                        </div>
+                    </Link>
+                    <p className={cn("text-sm mt-1 mb-2", isOnPeriod ? "text-destructive" : "text-muted-foreground")}>
                         {isOnPeriod ? `Period - Day ${currentDay}` : 'Between Cycles'}
                     </p>
+                    <PeriodToggleSwitch child={child} onUpdate={(updatedData) => onUpdate(child.id, updatedData)} />
                 </div>
-            </Link>
-            <div className="flex items-center gap-4">
-                <PeriodToggleSwitch child={child} onUpdate={(updatedData) => onUpdate(child.id, updatedData)} />
+            </div>
+
+            <div>
                 {showInviteButton && (
                     <Button variant="outline" size="sm" onClick={() => onInvite(child.id)}>
                         <Share2 className="mr-2 h-4 w-4" />
