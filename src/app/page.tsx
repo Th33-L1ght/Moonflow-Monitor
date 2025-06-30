@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle, User, Share2, Info, ShoppingBag, Bell } from 'lucide-react';
+import { PlusCircle, Share2, Info, Bell } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,6 +20,7 @@ import { InviteDialog } from '@/components/InviteDialog';
 import { isFirebaseConfigured } from '@/lib/firebase/client';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
+import { ButterflyIcon } from '@/components/ButterflyIcon';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -195,7 +196,7 @@ function ParentDashboard() {
                 </div>
             ) : (
                 <div className="text-center py-20 flex flex-col items-center bg-card rounded-lg border-2 border-dashed">
-                    <User className="w-16 h-16 text-muted-foreground mb-4"/>
+                    <ButterflyIcon className="w-16 h-16 text-muted-foreground mb-4"/>
                     <h2 className="text-2xl font-display">No children added yet</h2>
                     <p className="text-muted-foreground mt-2 mb-4 max-w-xs">Click the button below to add your first child and start tracking.</p>
                      <Button onClick={() => setAddChildOpen(true)}>
@@ -215,7 +216,7 @@ function ParentDashboard() {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle className="flex items-center gap-2">
-                    <ShoppingBag className="h-6 w-6 text-accent-foreground" />
+                    <ButterflyIcon className="h-6 w-6 text-accent-foreground" />
                     Heads Up: Time for Supplies!
                   </AlertDialogTitle>
                   <AlertDialogDescription>

@@ -1,6 +1,6 @@
 'use client';
 
-import { ShoppingBag } from 'lucide-react';
+import { ButterflyIcon } from '@/components/ButterflyIcon';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface PadReminderCardProps {
@@ -19,8 +19,8 @@ export function PadReminderCard({ daysUntilNextCycle }: PadReminderCardProps) {
     return (
         <Card className="bg-accent/20 border-accent/30">
             <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-                <ShoppingBag className="h-5 w-5 text-accent-foreground" />
-                <CardTitle className="text-md font-semibold text-accent-foreground">Heads Up!</CardTitle>
+                <ButterflyIcon className="h-5 w-5 text-accent-foreground" />
+                <CardTitle className="text-md font-semibold text-accent-foreground">A Little Reminder</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-sm text-foreground/80">
