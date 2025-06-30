@@ -11,7 +11,7 @@ import { Logo } from "@/components/Logo"
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/firebase/client";
 import { FlyingButterflies } from "@/components/FlyingButterflies";
 
@@ -19,20 +19,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loginStep, setLoginStep] = useState<'idle' | 'pending'>('idle');
   const { signIn, signUp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLoginStep('pending');
     setError(null);
     try {
       await signIn(email, password);
-      // On successful sign-in, AuthContext will update the user state.
-      // We can navigate immediately for a better UX.
-      router.push('/');
+      // On successful sign-in, AuthContext will set the user and trigger a redirect.
     } catch (err: any) {
       if (err.code === 'auth/configuration-not-found') {
           setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
@@ -41,7 +39,7 @@ export default function LoginPage() {
       } else {
         setError(err.message || 'An unexpected error occurred.');
       }
-      setLoading(false); // Stop loading only if there's an error
+      setLoginStep('idle'); // Reset on error
     }
   };
 
@@ -50,7 +48,7 @@ export default function LoginPage() {
         setError("Please enter both email and password.");
         return;
     }
-    setLoading(true);
+    setLoginStep('pending');
     setError(null);
     try {
       // In demo mode, sign up just logs the user in.
@@ -60,7 +58,6 @@ export default function LoginPage() {
               description: "Logging you in with a sample parent account.",
           });
           await signIn(email, password);
-          router.push('/');
           return; 
       }
 
@@ -72,7 +69,6 @@ export default function LoginPage() {
       });
       // Automatically sign in the new user
       await signIn(email, password);
-      router.push('/');
 
     } catch (err: any) {
       if (err.code === 'auth/configuration-not-found') {
@@ -82,9 +78,24 @@ export default function LoginPage() {
       } else {
         setError(err.message);
       }
-      setLoading(false);
+      setLoginStep('idle');
     }
   };
+
+  const isLoading = loginStep === 'pending';
+
+  if (isLoading) {
+    return (
+        <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40 relative overflow-hidden">
+            <FlyingButterflies />
+            <div className="flex flex-col items-center gap-4 text-center z-10">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                <h1 className="text-2xl font-bold font-body">Just a moment...</h1>
+                <p className="text-muted-foreground">We're getting things ready for you.</p>
+            </div>
+        </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40 relative overflow-hidden">
@@ -118,7 +129,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
+                  disabled={isLoading}
                   className="bg-background"
                 />
               </div>
@@ -130,14 +141,14 @@ export default function LoginPage() {
                   required 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
+                  disabled={isLoading}
                   className="bg-background"
                 />
               </div>
-              <Button type="submit" className="w-full font-bold" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
+              <Button type="submit" className="w-full font-bold" disabled={isLoading}>
+                Login
               </Button>
-              <Button variant="outline" className="w-full" type="button" onClick={handleSignUp} disabled={loading}>
+              <Button variant="outline" className="w-full" type="button" onClick={handleSignUp} disabled={isLoading}>
                 Create Parent Account
               </Button>
               </form>
