@@ -4,7 +4,7 @@ import { PlusCircle, User, LogIn } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getChildrenForUser } from '@/lib/firebase/firestore';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -56,55 +56,38 @@ const ChildListItem = ({ child }: { child: Child }) => {
     )
 }
 
-export default function DashboardPage() {
+function ParentDashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddChildOpen, setAddChildOpen] = useState(false);
 
-  const fetchChildren = async () => {
+  const fetchChildren = useCallback(async () => {
     if (user && user.role === 'parent') {
-      if(children.length === 0) setLoading(true);
+      setLoading(true);
       const userChildren = await getChildrenForUser(user.uid);
       setChildren(userChildren);
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (user) {
-        if (user.role === 'parent') {
-            fetchChildren();
-        } else if (user.role === 'child' && user.childProfile) {
-            router.replace(`/child/${user.childProfile.id}`);
-        } else {
-            setLoading(false);
-        }
-    } else {
-        setLoading(false);
+      if (user.role === 'parent') {
+        fetchChildren();
+      } else if (user.role === 'child' && user.childProfile) {
+        router.replace(`/child/${user.childProfile.id}`);
+      }
     }
-  }, [user, router]);
-  
-  if (loading) {
-      return <DashboardSkeleton />;
-  }
-  
-  if (user?.role !== 'parent') {
-      return (
-        <div className="flex flex-col min-h-screen w-full bg-background items-center justify-center">
-            <div className="text-center">
-                <LogIn className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h1 className="mt-4 text-2xl font-bold">Loading your dashboard...</h1>
-                <p className="mt-2 text-muted-foreground">Please wait a moment.</p>
-            </div>
-        </div>
-      );
+  }, [user, router, fetchChildren]);
+
+  if (loading || user?.role !== 'parent') {
+    return <DashboardSkeleton />;
   }
 
   return (
-    <AuthGuard>
-      <div className="flex min-h-screen w-full flex-col bg-muted/40">
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
         <Header />
         <main className="flex flex-1 flex-col p-4 md:p-8">
           <div className="max-w-4xl mx-auto w-full">
@@ -140,6 +123,14 @@ export default function DashboardPage() {
           </div>
         </main>
       </div>
+  );
+}
+
+
+export default function DashboardPage() {
+  return (
+    <AuthGuard>
+      <ParentDashboard />
     </AuthGuard>
   );
 }
