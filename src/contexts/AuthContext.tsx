@@ -24,11 +24,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
+    // This effect only handles the auth state listener and should only run once.
     if (!isFirebaseConfigured) {
-      // In demo mode, don't auto-login. Let user see the login page.
-      setUser(null);
-      setLoading(false);
-      return;
+        // In demo mode, auth state is handled manually by signIn/signOut.
+        // We just need to set loading to false on initial load.
+        setLoading(false);
+        return;
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -41,20 +42,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 role: 'child',
                 childProfile: childProfile
             });
-            // If child is not on their page, redirect them
-            if (!pathname.startsWith(`/child/${childProfile.id}`)) {
-                router.replace(`/child/${childProfile.id}`);
-            }
         } else {
             // Assume parent
              setUser({
                 ...firebaseUser,
                 role: 'parent',
             });
-             // If parent lands on invite page, redirect to home
-            if (pathname.startsWith('/invite')) {
-                router.replace('/');
-            }
         }
       } else {
         setUser(null);
@@ -63,7 +56,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [pathname, router]);
+  }, []); // Run only once on mount
+
+  // This effect handles redirects based on user role and current path.
+  // It runs whenever the user logs in/out or navigates.
+  useEffect(() => {
+    if (loading || !user) {
+        return;
+    }
+    
+    if (user.role === 'child' && user.childProfile) {
+        if (!pathname.startsWith(`/child/${user.childProfile.id}`)) {
+            router.replace(`/child/${user.childProfile.id}`);
+        }
+    } else if (user.role === 'parent') {
+        if (pathname.startsWith('/invite')) {
+            router.replace('/');
+        }
+    }
+  }, [user, loading, pathname, router]);
   
   const signIn = (email: string, pass: string) => {
     if (!isFirebaseConfigured) {
