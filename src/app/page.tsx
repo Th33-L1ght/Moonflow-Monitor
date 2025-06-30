@@ -64,7 +64,7 @@ const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: 
                 <div>
                     <Link href={`/child/${child.id}`}>
                         <div className="flex items-baseline gap-3">
-                            <p className="text-3xl font-medium text-foreground hover:underline">{child.name}</p>
+                            <p className="font-body text-3xl font-medium text-foreground hover:underline">{child.name}</p>
                             <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-destructive' : 'bg-chart-2')} title={isOnPeriod ? 'On Period' : 'Between Cycles'} />
                         </div>
                     </Link>
@@ -168,7 +168,7 @@ function ParentDashboard() {
           <div className="max-w-4xl mx-auto w-full">
             <div className="mb-8 flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold">Hello, {user?.displayName || 'Parent'}!</h1>
+                    <h1 className="font-body text-3xl font-bold">Hello, {user?.displayName || 'Parent'}!</h1>
                     <p className="text-muted-foreground">Select a profile to view their cycle details.</p>
                 </div>
                 <AddChildDialog
@@ -197,7 +197,7 @@ function ParentDashboard() {
             ) : (
                 <div className="text-center py-20 flex flex-col items-center bg-card rounded-lg border-2 border-dashed">
                     <ButterflyIcon className="w-16 h-16 text-muted-foreground mb-4"/>
-                    <h2 className="text-2xl font-display">No children added yet</h2>
+                    <h2 className="font-body text-2xl">No children added yet</h2>
                     <p className="text-muted-foreground mt-2 mb-4 max-w-xs">Click the button below to add your first child and start tracking.</p>
                      <Button onClick={() => setAddChildOpen(true)}>
                         <PlusCircle className="mr-2 h-4 w-4"/>

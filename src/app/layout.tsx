@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: 'Light Flow',
   description: "An app for a mother to know which of her children is on their period, track symptoms, and view cycle history.",
   manifest: '/manifest.json',
-  themeColor: '#D1B0FF',
+  themeColor: '#e0d1ff',
 };
 
 export default function RootLayout({
@@ -20,9 +20,9 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased" suppressHydrationWarning={true}>
+      <body className="font-sans antialiased" suppressHydrationWarning={true}>
           <AuthProvider>
             {children}
             <Toaster />

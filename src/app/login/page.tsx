@@ -82,7 +82,7 @@ export default function LoginPage() {
             
             <div className="w-full bg-card p-8 rounded-lg border shadow-sm">
               <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold">Welcome</h1>
+                <h1 className="font-body text-2xl font-bold">Welcome</h1>
                 <p className="text-muted-foreground text-sm mt-1">
                   Log in or create an account.
                 </p>

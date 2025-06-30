@@ -105,7 +105,7 @@ export default function ChildDetailPage() {
                       <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h1 className="text-3xl font-bold">{child.name}</h1>
+                      <h1 className="font-body text-3xl font-bold">{child.name}</h1>
                       <p className="text-muted-foreground">Cycle Dashboard</p>
                     </div>
                 </div>
@@ -132,7 +132,7 @@ export default function ChildDetailPage() {
               <TabsContent value="calendar">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-xl">Period Calendar</CardTitle>
+                        <CardTitle>Period Calendar</CardTitle>
                         <CardDescription>
                         Visualize current and past cycles. Click a date range to log a new period.
                         </CardDescription>
