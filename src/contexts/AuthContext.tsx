@@ -61,17 +61,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // This effect handles redirects based on user role and current path.
   // It runs whenever the user logs in/out or navigates.
   useEffect(() => {
-    if (loading || !user) {
-        return;
+    if (loading) {
+      return;
     }
     
-    if (user.role === 'child' && user.childProfile) {
-        if (!pathname.startsWith(`/child/${user.childProfile.id}`)) {
-            router.replace(`/child/${user.childProfile.id}`);
+    // If user is logged in, handle redirects away from public pages
+    if (user) {
+        if (user.role === 'child' && user.childProfile) {
+            if (!pathname.startsWith(`/child/${user.childProfile.id}`)) {
+                router.replace(`/child/${user.childProfile.id}`);
+            }
+        } else if (user.role === 'parent') {
+            if (pathname.startsWith('/login') || pathname.startsWith('/invite')) {
+                router.replace('/');
+            }
         }
-    } else if (user.role === 'parent') {
-        if (pathname.startsWith('/invite')) {
-            router.replace('/');
+    } else {
+        // If user is not logged in, ensure they are on a public page
+        if (!pathname.startsWith('/login') && !pathname.startsWith('/invite')) {
+            router.replace('/login');
         }
     }
   }, [user, loading, pathname, router]);
@@ -79,14 +87,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = (email: string, pass: string) => {
     if (!isFirebaseConfigured) {
         console.log("Demo mode: Signing in parent");
-        setUser({
+        const mockUser = {
             uid: 'mock-user-id',
             email: email,
             displayName: 'Parent',
             photoURL: `https://placehold.co/100x100.png`,
             role: 'parent',
-        } as AppUser);
-        return Promise.resolve();
+        } as AppUser;
+        setUser(mockUser);
+        return Promise.resolve(mockUser);
     }
     return signInWithEmailAndPassword(auth, email, pass);
   }
@@ -94,9 +103,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = (email: string, pass: string) => {
      if (!isFirebaseConfigured) {
         console.log("Demo mode: Sign up complete. User can now log in.");
-        // In demo mode, we don't need to create a real user.
-        // The login page will show a toast message.
-        return Promise.resolve();
+        // In demo mode, we just log them in
+        return signIn(email, pass);
     }
     // This is for parent signup
     return createUserWithEmailAndPassword(auth, email, pass);

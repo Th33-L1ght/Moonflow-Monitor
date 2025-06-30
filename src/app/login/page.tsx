@@ -45,8 +45,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      // In demo mode, the distinction between signup and login is confusing.
-      // Just log the user in to provide a smooth demo experience.
+      // In demo mode, sign up just logs the user in.
       if (!isFirebaseConfigured) {
           toast({
               title: "Continuing in Demo Mode",
@@ -54,7 +53,7 @@ export default function LoginPage() {
           });
           await signIn(email, password);
           // Redirection is handled by AuthContext
-          return; // Exit after handling demo case
+          return; 
       }
 
       // Real Firebase flow
@@ -85,7 +84,7 @@ export default function LoginPage() {
               <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold">Welcome</h1>
                 <p className="text-muted-foreground text-sm mt-1">
-                  Log in to your Moonflow account.
+                  Log in or create an account.
                 </p>
               </div>
 
