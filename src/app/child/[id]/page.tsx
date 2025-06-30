@@ -19,6 +19,8 @@ import { getCyclePrediction } from '@/lib/utils';
 import { PadReminderCard } from '@/components/PadReminderCard';
 import { CycleOverview } from '@/components/CycleOverview';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
+import { MoodChart } from '@/components/MoodChart';
+import { CycleLengthChart } from '@/components/CycleLengthChart';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -113,19 +115,18 @@ export default function ChildDetailPage() {
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-card mb-6 border">
+              <TabsList className="grid w-full grid-cols-4 bg-card mb-6 border">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="calendar">Calendar</TabsTrigger>
+                <TabsTrigger value="charts">Charts</TabsTrigger>
                 <TabsTrigger value="log">Log Symptoms</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview">
                 <div className="space-y-6">
                     <CycleOverview child={child} />
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
-                        <AIInsightCard child={child} />
-                    </div>
+                    <AIInsightCard child={child} />
+                    <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
                 </div>
               </TabsContent>
 
@@ -141,6 +142,13 @@ export default function ChildDetailPage() {
                         <PeriodCalendar child={child} onUpdate={handleUpdate} canEdit={canEdit} />
                     </CardContent>
                 </Card>
+              </TabsContent>
+              
+              <TabsContent value="charts">
+                <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
+                    <MoodChart child={child} />
+                    <CycleLengthChart child={child} />
+                </div>
               </TabsContent>
 
               <TabsContent value="log">
