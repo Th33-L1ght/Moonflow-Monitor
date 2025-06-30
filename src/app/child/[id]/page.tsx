@@ -17,7 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { getCyclePrediction } from '@/lib/utils';
 import { PadReminderCard } from '@/components/PadReminderCard';
-import { CycleOverview } from '@/components/CycleOverview';
+import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 import { MoodChart } from '@/components/MoodChart';
 import { CycleLengthChart } from '@/components/CycleLengthChart';
@@ -124,7 +124,7 @@ export default function ChildDetailPage() {
 
               <TabsContent value="overview">
                 <div className="space-y-6">
-                    <CycleOverview child={child} />
+                    <CycleStatusWheel child={child} />
                     <AIInsightCard child={child} />
                     <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
                 </div>

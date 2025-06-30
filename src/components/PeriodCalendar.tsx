@@ -117,9 +117,8 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
 
   const modifiersStyles = {
     period: {
-      backgroundColor: 'hsl(var(--primary) / 0.2)',
-      color: 'hsl(var(--primary))',
-      fontWeight: 'bold',
+      backgroundColor: 'hsl(var(--destructive))',
+      color: 'hsl(var(--destructive-foreground))',
     },
     today: {
       borderColor: 'hsl(var(--primary))'
