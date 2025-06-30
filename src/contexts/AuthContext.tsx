@@ -25,21 +25,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
+      // In demo mode, don't auto-login. Let user see the login page.
+      setUser(null);
       setLoading(false);
-      // In demo mode, let's check the path to determine the mock user
-      if (pathname.startsWith('/invite')) {
-        // Don't set a user on the invite page
-         setUser(null);
-      } else {
-        // Mock parent user for the main app
-        setUser({
-            uid: 'mock-user-id',
-            email: 'parent@example.com',
-            displayName: 'Mock Parent',
-            photoURL: `https://placehold.co/100x100.png`,
-            role: 'parent',
-        } as AppUser);
-      }
       return;
     }
 
@@ -78,10 +66,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [pathname, router]);
   
   const signIn = (email: string, pass: string) => {
+    if (!isFirebaseConfigured) {
+        console.log("Demo mode: Signing in parent");
+        setUser({
+            uid: 'mock-user-id',
+            email: email,
+            displayName: 'Parent',
+            photoURL: `https://placehold.co/100x100.png`,
+            role: 'parent',
+        } as AppUser);
+        return Promise.resolve();
+    }
     return signInWithEmailAndPassword(auth, email, pass);
   }
 
   const signUp = (email: string, pass: string) => {
+     if (!isFirebaseConfigured) {
+        console.log("Demo mode: Sign up complete. User can now log in.");
+        // In demo mode, we don't need to create a real user.
+        // The login page will show a toast message.
+        return Promise.resolve();
+    }
     // This is for parent signup
     return createUserWithEmailAndPassword(auth, email, pass);
   }
