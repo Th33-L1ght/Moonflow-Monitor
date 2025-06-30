@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
+    --background: 290 100% 98%;
     --foreground: 224 71% 10%;
     --card: 0 0% 100%;
     --card-foreground: 224 71% 10%;
@@ -63,7 +63,7 @@
   }
   html {
       background-color: hsl(var(--background));
-      background-image: radial-gradient(ellipse at top, hsl(var(--primary) / 0.1), transparent 80%);
+      background-image: radial-gradient(ellipse at top, hsl(var(--primary) / 0.15), transparent 75%);
       background-repeat: no-repeat;
       min-height: 100vh;
   }

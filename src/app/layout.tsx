@@ -1,23 +1,30 @@
 
 import type {Metadata, Viewport} from 'next';
+import { Inter, Caveat } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/contexts/AuthContext';
 import { EnvVarCheck } from '@/components/EnvVarCheck';
+import { cn } from '@/lib/utils';
+
+const fontSans = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+});
+
+const fontBody = Caveat({
+  subsets: ['latin'],
+  variable: '--font-body',
+  weight: ['400', '700'],
+});
 
 export const metadata: Metadata = {
   title: 'Light Flow',
   description: "An app for a mother to know which of her children is on their period, track symptoms, and view cycle history.",
-  icons: {
-    icon: [],
-    shortcut: [],
-    apple: [],
-    other: [],
-  },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#e0d1ff',
+  themeColor: '#ffeff2',
 };
 
 export default function RootLayout({
@@ -26,13 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-sans antialiased" suppressHydrationWarning={true}>
+    <html lang="en">
+      <body className={cn("font-sans antialiased", fontSans.variable, fontBody.variable)}>
           <EnvVarCheck>
             <AuthProvider>
               {children}
