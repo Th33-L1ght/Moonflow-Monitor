@@ -125,7 +125,7 @@ export function SymptomTracker({ child, userId, onUpdate }: SymptomTrackerProps)
 
 
   return (
-    <Card className="sticky top-24">
+    <Card>
       <CardHeader>
         <CardTitle>Symptom Log</CardTitle>
         <CardDescription>

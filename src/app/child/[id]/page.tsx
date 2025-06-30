@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getChildForUser } from '@/lib/firebase/firestore';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AIInsightCard } from '@/components/AIInsightCard';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -96,8 +97,9 @@ export default function ChildDetailPage() {
                 <PeriodCalendar child={child} userId={user!.uid} onUpdate={fetchChildData} />
                 <CycleInfo child={child} />
               </div>
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 flex flex-col gap-8">
                 <SymptomTracker child={child} userId={user!.uid} onUpdate={fetchChildData}/>
+                <AIInsightCard child={child} />
               </div>
             </div>
           </div>
