@@ -1,6 +1,6 @@
 'use client';
 
-import { Lightbulb } from 'lucide-react';
+import { ButterflyIcon as Butterfly } from '@/components/ButterflyIcon';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useEffect, useState, useCallback } from 'react';
 import type { Child } from '@/lib/types';
@@ -46,10 +46,10 @@ export function AIInsightCard({ child }: AIInsightCardProps) {
   }, [fetchInsight]);
 
   return (
-    <Card className="bg-blue-500/10 border-blue-500/20">
+    <Card className="bg-primary/10 border-primary/20">
       <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-        <Lightbulb className="h-5 w-5 text-blue-600" />
-        <CardTitle className="text-md font-semibold text-blue-700">AI-Powered Insight</CardTitle>
+        <Butterfly className="h-5 w-5 text-primary" />
+        <CardTitle className="text-md font-semibold text-primary-foreground">AI-Powered Insight</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="text-sm text-foreground/80 min-h-[40px]">

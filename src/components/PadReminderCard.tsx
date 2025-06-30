@@ -17,10 +17,10 @@ export function PadReminderCard({ daysUntilNextCycle }: PadReminderCardProps) {
         : `Her next period starts in about ${daysUntilNextCycle} days. Time to stock up on supplies!`;
 
     return (
-        <Card className="bg-teal-500/10 border-teal-500/20">
+        <Card className="bg-accent/20 border-accent/30">
             <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-                <ShoppingBag className="h-5 w-5 text-teal-600" />
-                <CardTitle className="text-md font-semibold text-teal-700">Heads Up!</CardTitle>
+                <ShoppingBag className="h-5 w-5 text-accent-foreground" />
+                <CardTitle className="text-md font-semibold text-accent-foreground">Heads Up!</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-sm text-foreground/80">

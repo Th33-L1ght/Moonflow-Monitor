@@ -44,7 +44,7 @@ const ChildListItem = ({ child }: { child: Child }) => {
                 </Avatar>
                 <div className="flex-1">
                     <div className="flex items-baseline gap-4">
-                        <p className="font-display italic text-3xl font-medium text-foreground">{child.name}</p>
+                        <p className="text-3xl font-medium text-foreground">{child.name}</p>
                         <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-destructive' : 'bg-chart-2')} />
                     </div>
                     <p className={cn("text-sm mt-1", isOnPeriod ? "text-destructive" : "text-muted-foreground")}>

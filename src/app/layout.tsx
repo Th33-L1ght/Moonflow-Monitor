@@ -4,10 +4,10 @@ import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'CycleTrack',
-  description: "Track your cycle, understand your body.",
+  title: 'Moonflow Monitor',
+  description: "An app for a mother to know which of her children is on their period, track symptoms, and view cycle history.",
   manifest: '/manifest.json',
-  themeColor: '#4f46e5',
+  themeColor: '#D1B0FF',
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
           <AuthProvider>
