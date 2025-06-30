@@ -19,7 +19,7 @@ import { addChildForUser } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
-import { ButterflyIcon } from './ButterflyIcon';
+import { PadsButterflyIcon as ButterflyIcon } from './PadsButterflyIcon';
 
 interface AddChildDialogProps {
   isOpen: boolean;

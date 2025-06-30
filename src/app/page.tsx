@@ -20,7 +20,7 @@ import { InviteDialog } from '@/components/InviteDialog';
 import { isFirebaseConfigured } from '@/lib/firebase/client';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
-import { ButterflyIcon } from '@/components/ButterflyIcon';
+import { PadsButterflyIcon as ButterflyIcon } from '@/components/PadsButterflyIcon';
 import {
   AlertDialog,
   AlertDialogAction,

@@ -1,4 +1,4 @@
-import { ButterflyIcon as Butterfly } from "@/components/ButterflyIcon";
+import { PadsButterflyIcon as Butterfly } from "@/components/PadsButterflyIcon";
 
 export function Logo() {
   return (

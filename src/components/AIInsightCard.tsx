@@ -1,6 +1,6 @@
 'use client';
 
-import { ButterflyIcon as Butterfly } from '@/components/ButterflyIcon';
+import { PadsButterflyIcon as Butterfly } from '@/components/PadsButterflyIcon';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useEffect, useState, useCallback } from 'react';
 import type { Child } from '@/lib/types';

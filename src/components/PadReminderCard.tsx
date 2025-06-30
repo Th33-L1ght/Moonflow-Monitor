@@ -1,6 +1,6 @@
 'use client';
 
-import { ButterflyIcon } from '@/components/ButterflyIcon';
+import { PadsButterflyIcon as ButterflyIcon } from '@/components/PadsButterflyIcon';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface PadReminderCardProps {
