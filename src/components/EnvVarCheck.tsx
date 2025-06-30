@@ -48,7 +48,11 @@ export function EnvVarCheck({ children }: { children: React.ReactNode }) {
                         <p className="text-xs text-muted-foreground">On the next screen, you'll see the `firebaseConfig` object. Copy the values.</p>
                     </div>
                     <div>
-                        <span className="font-semibold text-sm">4. Paste the keys into your <code>.env</code> file.</span>
+                        <span className="font-semibold text-sm">4. Create a Firestore Database.</span>
+                        <p className="text-xs text-muted-foreground">In the Firebase Console, go to <strong>Build &gt; Firestore Database</strong>, click <strong>Create database</strong>, and start in <strong>Test mode</strong>. This allows the app to save data.</p>
+                    </div>
+                    <div>
+                        <span className="font-semibold text-sm">5. Paste the keys into your <code>.env</code> file.</span>
                         <p className="text-xs text-muted-foreground">In the editor on the left, open the <code>.env</code> file and paste your keys into the placeholders shown below.</p>
                         <pre className="mt-2 w-full overflow-x-auto rounded-md bg-muted p-3 text-xs">
                         <code>

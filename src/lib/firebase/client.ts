@@ -21,9 +21,17 @@ let auth: Auth | null = null;
 let db: Firestore | null = null;
 
 if (isFirebaseConfigured) {
-  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-  auth = getAuth(app);
-  db = getFirestore(app);
+  try {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch (error) {
+    console.error("Firebase initialization failed. Falling back to demo mode.", error);
+    // Force demo mode if initialization fails
+    app = null;
+    auth = null;
+    db = null;
+  }
 } else {
   console.warn(
     'Firebase is not configured. The app will run in demo mode.'
