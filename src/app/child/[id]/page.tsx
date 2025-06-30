@@ -17,6 +17,8 @@ import { ArrowLeft, Share2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { InviteDialog } from '@/components/InviteDialog';
 import { Button } from '@/components/ui/button';
+import { getCyclePrediction } from '@/lib/utils';
+import { PadReminderCard } from '@/components/PadReminderCard';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -82,6 +84,7 @@ export default function ChildDetailPage() {
     notFound();
   }
   
+  const { daysUntilNextCycle } = getCyclePrediction(child);
   const canEdit = user?.role === 'parent' || user?.uid === child.childUid;
   const showInviteButton = user?.role === 'parent' && !child.childUid;
 
@@ -126,6 +129,7 @@ export default function ChildDetailPage() {
               <TabsContent value="overview">
                 <div className="space-y-6">
                     <CycleStatusWheel child={child} />
+                    <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
                     <AIInsightCard child={child} />
                 </div>
               </TabsContent>
