@@ -16,7 +16,7 @@ export function EnvVarCheck({ children }: { children: React.ReactNode }) {
             Firebase Configuration Needed
           </h1>
           <p className="mt-2 text-muted-foreground">
-            The app needs to be connected to a Firebase project to handle user accounts and save data.
+            To save data and enable user login, you need to connect your Firebase project.
           </p>
 
           <div className="mt-6 rounded-md bg-muted/50 p-4 text-left text-sm">
@@ -24,19 +24,34 @@ export function EnvVarCheck({ children }: { children: React.ReactNode }) {
               How to fix this:
             </p>
             <ol className="list-decimal list-inside mt-2 space-y-1">
-                <li>Go to your Firebase project settings in the Firebase Console.</li>
-                <li>Under "Your apps", find your web app's configuration keys.</li>
-                <li>Copy the six keys (apiKey, authDomain, etc.) into the <code>.env</code> file in your project.</li>
+                <li>Go to your Firebase project settings.</li>
+                <li>Find your web app's configuration keys.</li>
+                <li>
+                  Copy the six keys into the <code className="font-mono bg-muted-foreground/20 px-1 py-0.5 rounded">.env</code> file in your project, like this:
+                </li>
             </ol>
+            <pre className="mt-2 w-full overflow-x-auto rounded-md bg-background p-3 text-xs">
+              <code>
+{`GOOGLE_API_KEY="YOUR_GOOGLE_AI_KEY_HERE"
+
+NEXT_PUBLIC_FIREBASE_API_KEY="AI..."
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="..."
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="..."
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="..."
+NEXT_PUBLIC_FIREBASE_APP_ID="..."
+`}
+              </code>
+            </pre>
           </div>
           
           <div className="mt-4 rounded-md border border-sky-300/50 bg-sky-50/50 p-4 text-left text-sm">
              <div className="flex items-start gap-3">
                 <Info className="h-5 w-5 flex-shrink-0 text-sky-600 mt-0.5"/>
                 <div>
-                     <h2 className="font-semibold text-sky-800">Already added your AI key?</h2>
+                     <h2 className="font-semibold text-sky-800">Have an AI Key already?</h2>
                      <p className="text-sky-700 mt-1">
-                       Great! The app uses a separate set of keys for Firebase (for login & data) and Google AI (for insights). This screen will disappear once the **Firebase keys** are added to your <code>.env</code> file.
+                       Great! This screen will disappear once the six **Firebase keys** are also added to your <code className="font-mono bg-sky-200/50 px-1 py-0.5 rounded">.env</code> file.
                     </p>
                 </div>
              </div>
