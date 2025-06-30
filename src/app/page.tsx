@@ -5,7 +5,7 @@ import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState, useCallback } from 'react';
-import { getChildrenForUser } from '@/lib/firebase/firestore';
+import { getChildrenForUser, updateChild } from '@/lib/firebase/firestore';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ import { Card } from '@/components/ui/card';
 import { InviteDialog } from '@/components/InviteDialog';
 import { isFirebaseConfigured } from '@/lib/firebase/client';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 
 const DashboardSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -36,12 +37,12 @@ const DashboardSkeleton = () => (
     </div>
 );
 
-const ChildListItem = ({ child, onInvite }: { child: Child; onInvite: (childId: string) => void }) => {
+const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: (childId: string) => void; onUpdate: (childId: string, updatedData: Partial<Child>) => void; }) => {
     const { isOnPeriod, currentDay } = getCycleStatus(child);
     const showInviteButton = !child.childUid;
 
     return (
-        <Card className="p-4 flex items-center gap-6 transition-all hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
+        <Card className="p-4 flex items-center gap-6 transition-all hover:shadow-lg hover:border-primary/50">
             <Link href={`/child/${child.id}`} className="flex items-center gap-6 flex-1">
                 <Avatar className="h-20 w-20 border-2 border-card">
                     <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
@@ -57,12 +58,15 @@ const ChildListItem = ({ child, onInvite }: { child: Child; onInvite: (childId: 
                     </p>
                 </div>
             </Link>
-            {showInviteButton && (
-                <Button variant="outline" size="sm" onClick={() => onInvite(child.id)}>
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Invite
-                </Button>
-            )}
+            <div className="flex items-center gap-4">
+                <PeriodToggleSwitch child={child} onUpdate={onUpdate} />
+                {showInviteButton && (
+                    <Button variant="outline" size="sm" onClick={() => onInvite(child.id)}>
+                        <Share2 className="mr-2 h-4 w-4" />
+                        Invite
+                    </Button>
+                )}
+            </div>
         </Card>
     )
 }
@@ -100,6 +104,21 @@ function ParentDashboard() {
     setSelectedChildId(childId);
     setInviteOpen(true);
   };
+  
+  const handleChildUpdate = (childId: string, updatedData: Partial<Child>) => {
+    // Update firestore (or mock data)
+    updateChild(childId, updatedData);
+
+    // Update local state to re-render immediately
+    setChildren(prevChildren => 
+        prevChildren.map(child => {
+            if (child.id === childId) {
+                return { ...child, ...updatedData, cycles: updatedData.cycles || child.cycles };
+            }
+            return child;
+        })
+    );
+  };
 
   if (loading || user?.role !== 'parent') {
     return <DashboardSkeleton />;
@@ -135,7 +154,7 @@ function ParentDashboard() {
             {children.length > 0 ? (
                 <div className="space-y-4">
                     {children.map((child) => (
-                        <ChildListItem key={child.id} child={child} onInvite={handleInviteClick} />
+                        <ChildListItem key={child.id} child={child} onInvite={handleInviteClick} onUpdate={handleChildUpdate} />
                     ))}
                 </div>
             ) : (
