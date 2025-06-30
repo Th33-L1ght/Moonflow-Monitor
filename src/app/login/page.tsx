@@ -13,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/firebase/client";
-import { FlyingButterflies } from "@/components/FlyingButterflies";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -86,9 +85,8 @@ export default function LoginPage() {
 
   if (isLoading) {
     return (
-        <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40 relative overflow-hidden">
-            <FlyingButterflies />
-            <div className="flex flex-col items-center gap-4 text-center z-10">
+        <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40">
+            <div className="flex flex-col items-center gap-4 text-center">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
                 <h1 className="text-2xl font-bold font-body">Just a moment...</h1>
                 <p className="text-muted-foreground">We're getting things ready for you.</p>
@@ -98,9 +96,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40 relative overflow-hidden">
-        <FlyingButterflies />
-        <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center space-y-6 relative z-10">
+    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40">
+        <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center space-y-6">
             <Logo />
             
             <div className="w-full bg-card p-8 rounded-lg border shadow-sm">
