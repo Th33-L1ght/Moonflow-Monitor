@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/contexts/AuthContext';
+import { EnvVarCheck } from '@/components/EnvVarCheck';
 
 export const metadata: Metadata = {
   title: 'Moonflow Monitor',
@@ -21,10 +22,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <EnvVarCheck>
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </EnvVarCheck>
       </body>
     </html>
   );
