@@ -64,12 +64,11 @@ const oliviaCycles = [
     ],
   },
 ];
-const MOCK_CHILDREN: Child[] = [
+let MOCK_CHILDREN: Child[] = [
   {
     id: 'child-1',
     name: 'Olivia',
     parentUid: 'mock-user-id',
-    childUid: 'mock-olivia-uid',
     avatarUrl: `https://placehold.co/100x100/e91e63/ffffff.png`,
     cycles: oliviaCycles
   },
@@ -96,7 +95,7 @@ const MOCK_CHILDREN: Child[] = [
   },
 ];
 
-const MOCK_INVITES: Invite[] = [
+let MOCK_INVITES: Invite[] = [
     { id: 'mock-invite-id', parentUid: 'mock-user-id', childId: 'child-2', status: 'pending', createdAt: new Date() }
 ]
 
@@ -110,7 +109,7 @@ const getInvitesCollection = () => collection(db, 'invites');
 export const getChildrenForUser = async (userId: string): Promise<Child[]> => {
   if (!isFirebaseConfigured) {
     // Return a copy to avoid direct mutation of the mock data from client components
-    return [...MOCK_CHILDREN];
+    return JSON.parse(JSON.stringify(MOCK_CHILDREN));
   }
   try {
     const q = query(getChildrenCollection(), where('parentUid', '==', userId));
@@ -135,7 +134,8 @@ export const getChildrenForUser = async (userId: string): Promise<Child[]> => {
 // Fetch a single child by its ID
 export const getChild = async (childId: string): Promise<Child | null> => {
     if (!isFirebaseConfigured) {
-        return MOCK_CHILDREN.find(c => c.id === childId) || null;
+        const child = MOCK_CHILDREN.find(c => c.id === childId) || null;
+        return child ? JSON.parse(JSON.stringify(child)) : null;
     }
     try {
         const childDocRef = doc(db, 'children', childId);
@@ -158,8 +158,8 @@ export const getChild = async (childId: string): Promise<Child | null> => {
 // Fetch a child profile for a given child user UID
 export const getChildProfileForChildUser = async (childUid: string): Promise<Child | null> => {
     if (!isFirebaseConfigured) {
-        if (childUid === 'mock-olivia-uid') return MOCK_CHILDREN.find(c => c.id === 'child-1') || null;
-        return null;
+        const child = MOCK_CHILDREN.find(c => c.childUid === childUid) || null;
+        return child ? JSON.parse(JSON.stringify(child)) : null;
     }
     const q = query(getChildrenCollection(), where('childUid', '==', childUid), limit(1));
     const snapshot = await getDocs(q);
