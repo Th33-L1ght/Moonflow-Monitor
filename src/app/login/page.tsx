@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { isFirebaseConfigured } from "@/lib/firebase/client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -44,12 +45,26 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
+      // In demo mode, the distinction between signup and login is confusing.
+      // Just log the user in to provide a smooth demo experience.
+      if (!isFirebaseConfigured) {
+          toast({
+              title: "Continuing in Demo Mode",
+              description: "Logging you in with a sample parent account.",
+          });
+          await signIn(email, password);
+          router.push('/');
+          return; // Exit after handling demo case
+      }
+
+      // Real Firebase flow
       await signUp(email, password);
       toast({
           title: "Account Created",
           description: "You've been successfully signed up. Please log in.",
       });
       setPassword('');
+
     } catch (err: any) {
       setError(err.message);
     } finally {
