@@ -11,10 +11,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // The main redirection logic is now handled in AuthContext.
-    // This guard's primary role is now to show a loading state
-    // while the initial auth check is happening.
+    // This guard's primary role is to show a loading state
+    // while the initial auth check is happening. If after loading,
+    // there's still no user, the context will handle the redirect.
     if (!loading && !user) {
-      router.push('/login');
+      router.replace('/login');
     }
   }, [user, loading, router]);
 
@@ -34,8 +35,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   // If we have a user, we can render the children.
-  // If not, the effect above will have already started the redirect.
-  // We can return null or a skeleton here to prevent a flash of un-authed content.
+  // If not, the effect in AuthContext will handle the redirect.
+  // Returning null here prevents a flash of un-authenticated content.
   if (!user) {
     return null;
   }
