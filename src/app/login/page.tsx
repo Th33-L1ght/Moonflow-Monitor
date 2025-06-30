@@ -34,6 +34,8 @@ export default function LoginPage() {
     } catch (err: any) {
       if (err.code === 'auth/configuration-not-found') {
           setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
+      } else if (err.code === 'auth/invalid-credential') {
+          setError("Invalid email or password. Please double-check and try again.");
       } else {
         setError(err.message);
       }
