@@ -24,9 +24,9 @@ const DashboardSkeleton = () => (
             <div className="max-w-4xl mx-auto w-full">
                 <Skeleton className="h-10 w-64 mb-8" />
                 <div className="space-y-4">
-                    <Skeleton className="h-24 rounded-lg" />
-                    <Skeleton className="h-24 rounded-lg" />
-                    <Skeleton className="h-24 rounded-lg" />
+                    <Skeleton className="h-28 rounded-lg" />
+                    <Skeleton className="h-28 rounded-lg" />
+                    <Skeleton className="h-28 rounded-lg" />
                 </div>
             </div>
         </main>
@@ -37,17 +37,17 @@ const ChildListItem = ({ child }: { child: Child }) => {
     const { isOnPeriod, currentDay } = getCycleStatus(child);
     return (
         <Link href={`/child/${child.id}`} className="block">
-            <Card className="p-4 flex items-center gap-4 transition-all hover:shadow-md hover:border-primary/50">
-                <Avatar className="h-16 w-16 border">
+            <Card className="p-4 flex items-center gap-6 transition-all hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
+                <Avatar className="h-20 w-20 border-2 border-card">
                     <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
                     <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                        <p className="font-bold text-xl">{child.name}</p>
-                        <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-red-500' : 'bg-green-500')} />
+                    <div className="flex items-baseline gap-4">
+                        <p className="font-display italic text-3xl font-medium text-foreground">{child.name}</p>
+                        <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-destructive' : 'bg-chart-2')} />
                     </div>
-                    <p className={cn("text-sm", isOnPeriod ? "text-red-600" : "text-muted-foreground")}>
+                    <p className={cn("text-sm mt-1", isOnPeriod ? "text-destructive" : "text-muted-foreground")}>
                         {isOnPeriod ? `Period - Day ${currentDay}` : 'Between Cycles'}
                     </p>
                 </div>
@@ -121,7 +121,7 @@ export default function DashboardPage() {
             </div>
             
             {children.length > 0 ? (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-4">
                     {children.map((child) => (
                         <ChildListItem key={child.id} child={child} />
                     ))}
@@ -129,7 +129,7 @@ export default function DashboardPage() {
             ) : (
                 <div className="text-center py-20 flex flex-col items-center bg-card rounded-lg border-2 border-dashed">
                     <User className="w-16 h-16 text-muted-foreground mb-4"/>
-                    <h2 className="text-xl font-semibold">No children added yet</h2>
+                    <h2 className="text-2xl font-display">No children added yet</h2>
                     <p className="text-muted-foreground mt-2 mb-4 max-w-xs">Click the button below to add your first child and start tracking.</p>
                      <Button onClick={() => setAddChildOpen(true)}>
                         <PlusCircle className="mr-2 h-4 w-4"/>
