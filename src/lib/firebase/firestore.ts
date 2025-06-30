@@ -110,6 +110,7 @@ let MOCK_CHILDREN: Child[] = getInitialMockData().children;
 let MOCK_INVITES: Invite[] = getInitialMockData().invites;
 
 export const resetMockData = () => {
+    // Only allow reset in demo mode
     if (!isFirebaseConfigured) {
         const initialData = getInitialMockData();
         MOCK_CHILDREN = initialData.children;
@@ -119,13 +120,13 @@ export const resetMockData = () => {
 };
 
 // Helper to get the children collection
-const getChildrenCollection = () => collection(db, 'children');
-const getInvitesCollection = () => collection(db, 'invites');
+const getChildrenCollection = () => collection(db!, 'children');
+const getInvitesCollection = () => collection(db!, 'invites');
 
 
 // Fetch all children for a given parent user
 export const getChildrenForUser = async (userId: string): Promise<Child[]> => {
-  if (!isFirebaseConfigured) {
+  if (!db) {
     // Return a copy to avoid direct mutation of the mock data from client components
     return JSON.parse(JSON.stringify(MOCK_CHILDREN));
   }
@@ -151,7 +152,7 @@ export const getChildrenForUser = async (userId: string): Promise<Child[]> => {
 
 // Fetch a single child by its ID
 export const getChild = async (childId: string): Promise<Child | null> => {
-    if (!isFirebaseConfigured) {
+    if (!db) {
         const child = MOCK_CHILDREN.find(c => c.id === childId) || null;
         return child ? JSON.parse(JSON.stringify(child)) : null;
     }
@@ -175,7 +176,7 @@ export const getChild = async (childId: string): Promise<Child | null> => {
 
 // Fetch a child profile for a given child user UID
 export const getChildProfileForChildUser = async (childUid: string): Promise<Child | null> => {
-    if (!isFirebaseConfigured) {
+    if (!db) {
         const child = MOCK_CHILDREN.find(c => c.childUid === childUid) || null;
         return child ? JSON.parse(JSON.stringify(child)) : null;
     }
@@ -190,7 +191,7 @@ export const getChildProfileForChildUser = async (childUid: string): Promise<Chi
 
 // Add a new child for a user
 export const addChildForUser = async (userId: string, childName: string, avatarUrl: string): Promise<string | null> => {
-    if (!isFirebaseConfigured) {
+    if (!db) {
         const newChild: Child = {
             id: `mock-child-${Date.now()}`,
             name: childName,
@@ -219,7 +220,7 @@ export const addChildForUser = async (userId: string, childName: string, avatarU
 
 // Update a child's document
 export const updateChild = async (childId: string, data: Partial<Omit<Child, 'id'>>) => {
-    if (!isFirebaseConfigured) {
+    if (!db) {
         const childIndex = MOCK_CHILDREN.findIndex(c => c.id === childId);
         if (childIndex > -1) {
             MOCK_CHILDREN[childIndex] = { ...MOCK_CHILDREN[childIndex], ...data };
@@ -239,7 +240,7 @@ export const updateChild = async (childId: string, data: Partial<Omit<Child, 'id
 // --- Invitation System ---
 
 export const createInvite = async (parentUid: string, childId: string): Promise<string> => {
-    if (!isFirebaseConfigured) {
+    if (!db) {
         const newInvite: Invite = {
             id: `mock-invite-${Date.now()}`,
             parentUid,
@@ -261,7 +262,7 @@ export const createInvite = async (parentUid: string, childId: string): Promise<
 }
 
 export const getInvite = async (inviteId: string): Promise<Invite | null> => {
-    if (!isFirebaseConfigured) {
+    if (!db) {
         const invite = MOCK_INVITES.find(inv => inv.id === inviteId) || null;
         return invite ? JSON.parse(JSON.stringify(invite)) : null;
     }
@@ -272,7 +273,7 @@ export const getInvite = async (inviteId: string): Promise<Invite | null> => {
 }
 
 export const acceptInvite = async (inviteId: string, childUid: string): Promise<void> => {
-    if (!isFirebaseConfigured) {
+    if (!db) {
         const inviteIndex = MOCK_INVITES.findIndex(inv => inv.id === inviteId);
         if (inviteIndex > -1) {
             // Mark invite as accepted

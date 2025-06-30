@@ -16,9 +16,9 @@ export const isFirebaseConfigured = Object.values(firebaseConfig).every(
   (value) => value && !value.startsWith('YOUR_')
 );
 
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
 
 if (isFirebaseConfigured) {
   app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -28,11 +28,6 @@ if (isFirebaseConfigured) {
   console.warn(
     'Firebase is not configured. The app will run in demo mode.'
   );
-  // Provide dummy exports to prevent crashes on import
-  // The app functionality will be blocked by the EnvVarCheck component.
-  app = {} as FirebaseApp;
-  auth = {} as Auth;
-  db = {} as Firestore;
 }
 
 export { app, auth, db };

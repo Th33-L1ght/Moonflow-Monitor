@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // This effect handles the auth state listener for keeping the user logged in across page loads.
-    if (!isFirebaseConfigured) {
+    if (!auth) {
         setLoading(false);
         return;
     }
@@ -79,14 +79,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     } else {
         // If user is not logged in, ensure they are on a public page
-        if (!pathname.startsWith('/login') && !pathname.startsWith('/invite')) {
+        // Only redirect if not configured, otherwise let the login page show.
+        if (isFirebaseConfigured && !pathname.startsWith('/login') && !pathname.startsWith('/invite')) {
             router.replace('/login');
         }
     }
   }, [user, loading, pathname, router]);
   
   const signIn = async (email: string, pass: string) => {
-    if (!isFirebaseConfigured) {
+    if (!auth) {
         console.log("Demo mode: Signing in parent");
         const mockUser = {
             uid: 'mock-user-id',
@@ -105,7 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const signUp = async (email: string, pass: string) => {
-     if (!isFirebaseConfigured) {
+     if (!auth) {
         console.log("Demo mode: Sign up complete. User can now log in.");
         return signIn(email, pass);
     }
@@ -117,7 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const signOut = async () => {
-    if (!isFirebaseConfigured) {
+    if (!auth) {
         setUser(null);
         router.push('/login');
         return;
@@ -128,7 +129,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateUserProfile = async (data: { photoURL?: string }) => {
-    if (!isFirebaseConfigured) {
+    if (!auth) {
         setUser(prevUser => {
             if (!prevUser) return null;
             return { ...prevUser, ...data } as AppUser;
