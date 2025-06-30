@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 
 interface PeriodToggleSwitchProps {
   child: Child;
-  onUpdate: (childId: string, updatedData: Partial<Child>) => void;
+  onUpdate: (updatedData: Partial<Omit<Child, 'id'>>) => void;
 }
 
 export function PeriodToggleSwitch({ child, onUpdate }: PeriodToggleSwitchProps) {
@@ -62,7 +62,7 @@ export function PeriodToggleSwitch({ child, onUpdate }: PeriodToggleSwitchProps)
 
     try {
       // Optimistically update parent state and persist changes
-      onUpdate(child.id, { cycles: updatedCycles });
+      onUpdate({ cycles: updatedCycles });
     } catch (error) {
       console.error("Failed to update period status:", error);
       toast({ title: "Error", description: "Could not update the period status.", variant: "destructive" });

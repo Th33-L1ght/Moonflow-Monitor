@@ -67,7 +67,7 @@ const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: 
                 </div>
             </Link>
             <div className="flex items-center gap-4">
-                <PeriodToggleSwitch child={child} onUpdate={onUpdate} />
+                <PeriodToggleSwitch child={child} onUpdate={(updatedData) => onUpdate(child.id, updatedData)} />
                 {showInviteButton && (
                     <Button variant="outline" size="sm" onClick={() => onInvite(child.id)}>
                         <Share2 className="mr-2 h-4 w-4" />

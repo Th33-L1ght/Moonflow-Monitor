@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { getCyclePrediction } from '@/lib/utils';
 import { PadReminderCard } from '@/components/PadReminderCard';
 import { CycleOverview } from '@/components/CycleOverview';
+import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -108,6 +109,7 @@ export default function ChildDetailPage() {
                       <p className="text-muted-foreground">Cycle Dashboard</p>
                     </div>
                 </div>
+                {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
