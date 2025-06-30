@@ -27,13 +27,18 @@ interface AddChildDialogProps {
   onChildAdded: () => void;
 }
 
-const avatars = [
-  'https://placehold.co/100x100/e91e63/ffffff.png',
-  'https://placehold.co/100x100/3f51b5/ffffff.png',
-  'https://placehold.co/100x100/4caf50/ffffff.png',
-  'https://placehold.co/100x100/ff9800/ffffff.png',
-  'https://placehold.co/100x100/795548/ffffff.png',
-  'https://placehold.co/100x100/607d8b/ffffff.png',
+interface AvatarOption {
+  url: string;
+  hint: string;
+}
+
+const avatars: AvatarOption[] = [
+  { url: 'https://placehold.co/100x100/fecaca/991b1b.png', hint: 'child smiling' },
+  { url: 'https://placehold.co/100x100/d1fae5/065f46.png', hint: 'teenager nature' },
+  { url: 'https://placehold.co/100x100/cffafe/0e7490.png', hint: 'kid playing' },
+  { url: 'https://placehold.co/100x100/fef08a/854d0e.png', hint: 'person happy' },
+  { url: 'https://placehold.co/100x100/e0e7ff/3730a3.png', hint: 'child portrait' },
+  { url: 'https://placehold.co/100x100/fce7f3/9d174d.png', hint: 'girl laughing' },
 ];
 
 export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialogProps) {
@@ -112,18 +117,18 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
                     Avatar
                 </Label>
                 <div className="col-span-3 flex flex-wrap gap-3">
-                    {avatars.map(avatarUrl => (
+                    {avatars.map(avatar => (
                         <button
                             type="button"
-                            key={avatarUrl}
-                            onClick={() => setSelectedAvatar(avatarUrl)}
+                            key={avatar.url}
+                            onClick={() => setSelectedAvatar(avatar.url)}
                             className={cn(
                                 "rounded-full ring-2 ring-transparent transition-all hover:ring-primary focus:outline-none focus:ring-primary",
-                                selectedAvatar === avatarUrl ? "ring-primary ring-offset-2 ring-offset-background" : ""
+                                selectedAvatar === avatar.url ? "ring-primary ring-offset-2 ring-offset-background" : ""
                             )}
                         >
                             <Avatar className="h-12 w-12">
-                                <AvatarImage src={avatarUrl} alt="Avatar" data-ai-hint="avatar color" />
+                                <AvatarImage src={avatar.url} alt="Avatar" data-ai-hint={avatar.hint} />
                             </Avatar>
                         </button>
                     ))}
