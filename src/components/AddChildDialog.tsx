@@ -19,6 +19,7 @@ import { addChildForUser } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
+import { ButterflyIcon } from './ButterflyIcon';
 
 interface AddChildDialogProps {
   isOpen: boolean;
@@ -50,7 +51,12 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
     try {
       await addChildForUser(user.uid, name.trim(), selectedAvatar);
       toast({
-        title: 'Child Added',
+        title: (
+            <div className="flex items-center gap-2">
+                <ButterflyIcon className="h-5 w-5 text-primary" />
+                <span>Child Added</span>
+            </div>
+        ),
         description: `${name.trim()} has been added successfully.`,
       });
       onChildAdded();
