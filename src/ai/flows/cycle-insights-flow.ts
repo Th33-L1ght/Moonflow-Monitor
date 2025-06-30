@@ -51,6 +51,12 @@ const formatCyclesForAI = (cycles: Cycle[]): CycleInsightInput => {
 }
 
 export async function generateCycleInsight(cycles: Cycle[]): Promise<CycleInsightOutput> {
+    const googleApiKey = process.env.GOOGLE_API_KEY;
+    if (!googleApiKey || googleApiKey.startsWith('YOUR_')) {
+        // Return a mock insight for demo mode
+        return { insight: "Keep up the great work logging symptoms! The more data we have, the better insights we can find together." };
+    }
+
     const formattedInput = formatCyclesForAI(cycles);
     return cycleInsightFlow(formattedInput);
 }
