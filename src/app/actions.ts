@@ -2,7 +2,7 @@
 
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
-import { createInvite, getInvite, acceptInvite as acceptInviteInDb, getChild, resetMockData } from '@/lib/firebase/firestore';
+import { createInvite, getInvite, acceptInvite as acceptInviteInDb, getChild, resetMockData, deleteChild as deleteChildFromDb } from '@/lib/firebase/firestore';
 
 export async function generateInvite(parentUid: string, childId: string): Promise<string | null> {
     try {
@@ -68,5 +68,15 @@ export async function resetDemoData(): Promise<{ success: boolean }> {
     } catch (error) {
         console.error("Failed to reset demo data:", error);
         return { success: false };
+    }
+}
+
+export async function deleteChildAction(childId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        await deleteChildFromDb(childId);
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to delete child:", error);
+        return { success: false, error: 'Failed to delete profile.' };
     }
 }

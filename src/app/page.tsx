@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle, Share2, Info, Bell, RefreshCw } from 'lucide-react';
+import { PlusCircle, Share2, Info, Bell, RefreshCw, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,6 +24,7 @@ import { PadsButterflyIcon as ButterflyIcon } from '@/components/PadsButterflyIc
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -31,7 +32,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
-import { resetDemoData } from '@/app/actions';
+import { resetDemoData, deleteChildAction } from '@/app/actions';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { EditChildDialog } from '@/components/EditChildDialog';
 
 
 const DashboardSkeleton = () => (
@@ -50,7 +58,7 @@ const DashboardSkeleton = () => (
     </div>
 );
 
-const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: (childId: string) => void; onUpdate: (childId: string, updatedData: Partial<Child>) => void; }) => {
+const ChildListItem = ({ child, onInvite, onUpdate, onEdit, onDelete }: { child: Child; onInvite: (childId: string) => void; onUpdate: (childId: string, updatedData: Partial<Child>) => void; onEdit: (child: Child) => void; onDelete: (childId: string) => void; }) => {
     const { isOnPeriod, currentDay } = getCycleStatus(child);
     const showInviteButton = !child.childUid;
 
@@ -77,13 +85,30 @@ const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: 
                 </div>
             </div>
 
-            <div>
+            <div className="flex items-center gap-1">
                 {showInviteButton && (
                     <Button variant="outline" size="sm" onClick={() => onInvite(child.id)}>
                         <Share2 className="mr-2 h-4 w-4" />
                         Invite
                     </Button>
                 )}
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => onEdit(child)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>Edit Profile</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onDelete(child.id)} className="text-destructive focus:text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>Delete Profile</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </Card>
     )
@@ -103,6 +128,11 @@ function ParentDashboard() {
   const [isReminderAlertOpen, setReminderAlertOpen] = useState(false);
   const [reminderMessages, setReminderMessages] = useState<string[]>([]);
   const [isResetting, setIsResetting] = useState(false);
+
+  const [isEditChildOpen, setEditChildOpen] = useState(false);
+  const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [childToEdit, setChildToEdit] = useState<Child | null>(null);
+  const [childToDelete, setChildToDelete] = useState<string | null>(null);
 
   const fetchChildren = useCallback(async () => {
     if (user && user.role === 'parent') {
@@ -159,6 +189,36 @@ function ParentDashboard() {
             return child;
         })
     );
+  };
+
+  const handleEditClick = (child: Child) => {
+    setChildToEdit(child);
+    setEditChildOpen(true);
+  };
+
+  const handleDeleteClick = (childId: string) => {
+    setChildToDelete(childId);
+    setDeleteAlertOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!childToDelete) return;
+    const result = await deleteChildAction(childToDelete);
+    if (result.success) {
+      toast({
+        title: "Profile Deleted",
+        description: "The profile has been removed successfully.",
+      });
+      fetchChildren(); // refetch children list
+    } else {
+      toast({
+        title: "Error",
+        description: result.error || "Failed to delete profile.",
+        variant: "destructive",
+      });
+    }
+    setDeleteAlertOpen(false);
+    setChildToDelete(null);
   };
   
   const handleResetData = async () => {
@@ -222,7 +282,7 @@ function ParentDashboard() {
             {children.length > 0 ? (
                 <div className="space-y-4">
                     {children.map((child) => (
-                        <ChildListItem key={child.id} child={child} onInvite={handleInviteClick} onUpdate={handleChildUpdate} />
+                        <ChildListItem key={child.id} child={child} onInvite={handleInviteClick} onUpdate={handleChildUpdate} onEdit={handleEditClick} onDelete={handleDeleteClick} />
                     ))}
                 </div>
             ) : (
@@ -236,6 +296,15 @@ function ParentDashboard() {
                     </Button>
                 </div>
             )}
+            
+            {childToEdit && (
+                <EditChildDialog 
+                    isOpen={isEditChildOpen} 
+                    setOpen={setEditChildOpen} 
+                    child={childToEdit} 
+                    onChildUpdated={fetchChildren}
+                />
+            )}
              {selectedChildId && (
                 <InviteDialog 
                     isOpen={isInviteOpen} 
@@ -243,6 +312,20 @@ function ParentDashboard() {
                     childId={selectedChildId} 
                 />
             )}
+            <AlertDialog open={isDeleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete this profile and all of its associated data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setChildToDelete(null)}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={confirmDelete} className={buttonVariants({ variant: "destructive" })}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <AlertDialog open={isReminderAlertOpen} onOpenChange={setReminderAlertOpen}>
               <AlertDialogContent>
                 <AlertDialogHeader>

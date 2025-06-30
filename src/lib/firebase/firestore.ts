@@ -12,7 +12,8 @@ import {
   where,
   limit,
   serverTimestamp,
-  writeBatch
+  writeBatch,
+  deleteDoc
 } from 'firebase/firestore';
 import type { Child, Invite } from '@/lib/types';
 
@@ -219,7 +220,7 @@ export const addChildForUser = async (userId: string, childName: string, avatarU
 }
 
 // Update a child's document
-export const updateChild = async (childId: string, data: Partial<Omit<Child, 'id'>>) => {
+export const updateChild = async (childId: string, data: Partial<Omit<Child, 'id' | 'parentUid'>>) => {
     if (!db) {
         const childIndex = MOCK_CHILDREN.findIndex(c => c.id === childId);
         if (childIndex > -1) {
@@ -233,6 +234,23 @@ export const updateChild = async (childId: string, data: Partial<Omit<Child, 'id
         await updateDoc(childDocRef, data);
     } catch (error) {
         console.error("Error updating child:", error);
+    }
+}
+
+
+// Delete a child's document
+export const deleteChild = async (childId: string): Promise<void> => {
+    if (!db) {
+        MOCK_CHILDREN = MOCK_CHILDREN.filter(c => c.id !== childId);
+        console.log(`Demo mode: Deleted child "${childId}".`);
+        return;
+    }
+    try {
+        const childDocRef = doc(db, 'children', childId);
+        await deleteDoc(childDocRef);
+    } catch (error) {
+        console.error("Error deleting child:", error);
+        throw error; // re-throw to be caught by the action
     }
 }
 

@@ -12,7 +12,7 @@ import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AIInsightCard } from '@/components/AIInsightCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Edit } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getCyclePrediction } from '@/lib/utils';
@@ -22,6 +22,7 @@ import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 import { MoodChart } from '@/components/MoodChart';
 import { CycleLengthChart } from '@/components/CycleLengthChart';
 import { JournalView } from '@/components/JournalView';
+import { EditChildDialog } from '@/components/EditChildDialog';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -47,6 +48,7 @@ export default function ChildDetailPage() {
   const router = useRouter();
   const [child, setChild] = useState<Child | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditChildOpen, setEditChildOpen] = useState(false);
 
   const fetchChildData = useCallback(async () => {
     if (childId) {
@@ -82,6 +84,10 @@ export default function ChildDetailPage() {
     }
   }
 
+  const handleProfileUpdate = () => {
+    fetchChildData();
+  }
+
   if (loading) {
     return <DetailPageSkeleton />;
   }
@@ -113,6 +119,12 @@ export default function ChildDetailPage() {
                       <h1 className="font-body text-3xl font-bold">{child.name}</h1>
                       <p className="text-muted-foreground">Cycle Dashboard</p>
                     </div>
+                     {canEdit && (
+                        <Button variant="ghost" size="icon" onClick={() => setEditChildOpen(true)}>
+                            <Edit className="h-5 w-5" />
+                            <span className="sr-only">Edit Profile</span>
+                        </Button>
+                    )}
                 </div>
                 {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
             </div>
@@ -166,6 +178,14 @@ export default function ChildDetailPage() {
           </div>
         </main>
       </div>
+      {canEdit && (
+        <EditChildDialog 
+            isOpen={isEditChildOpen} 
+            setOpen={setEditChildOpen} 
+            child={child} 
+            onChildUpdated={handleProfileUpdate}
+        />
+      )}
     </AuthGuard>
   );
 }
