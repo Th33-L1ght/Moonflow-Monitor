@@ -143,7 +143,7 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
                 className="flex flex-col h-20 w-full rounded-lg gap-1 data-[state=on]:bg-primary/20 data-[state=on]:text-primary border"
               >
                 <span className="text-3xl">{emoji}</span>
-                <span className="text-xs font-body">{label}</span>
+                <span className="text-xs">{label}</span>
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
