@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '@/lib/firebase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import type { AppUser } from '@/lib/types';
@@ -13,6 +13,7 @@ interface AuthContextType {
   signIn: (email: string, pass: string) => Promise<any>;
   signUp: (email: string, pass: string) => Promise<any>;
   signOut: () => Promise<void>;
+  updateUserProfile: (data: { photoURL?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -91,7 +92,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             uid: 'mock-user-id',
             email: email,
             displayName: 'Parent',
-            photoURL: `https://placehold.co/100x100.png`,
+            photoURL: `https://placehold.co/100x100/e0e7ff/3730a3.png`,
             role: 'parent',
         } as AppUser;
         setUser(mockUser);
@@ -122,8 +123,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     router.push('/login');
   };
 
+  const updateUserProfile = async (data: { photoURL?: string }) => {
+    if (!isFirebaseConfigured) {
+        setUser(prevUser => {
+            if (!prevUser) return null;
+            return { ...prevUser, ...data } as AppUser;
+        });
+        console.log("Demo Mode: Parent profile updated", data);
+        return;
+    }
+
+    if (auth.currentUser) {
+        await updateProfile(auth.currentUser, data);
+        setUser(prevUser => {
+            if (!prevUser) return null;
+            const newUser = { ...prevUser } as AppUser;
+            if (data.photoURL) newUser.photoURL = data.photoURL;
+            return newUser;
+        });
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

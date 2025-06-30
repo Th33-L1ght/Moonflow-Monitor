@@ -14,9 +14,13 @@ export const PadsButterflyIcon = (props: React.SVGProps<SVGSVGElement>) => (
     {/* Tampon Body */}
     <path d="M12 4v16" />
 
-    {/* Wings */}
-    <path d="M12 9c-5-2-8-1-8 4s3 6 8 4" />
-    <path d="M12 9c5-2 8-1 8 4s-3 6-8 4" />
+    {/* Top Wings (Pads) */}
+    <path d="M11 6c-3 0-5 1-5 4 0 3 2 4 5 4" />
+    <path d="M13 6c3 0 5 1 5 4 0 3-2 4-5 4" />
+    
+    {/* Bottom Wings (Pads) */}
+    <path d="M11 18c-3 0-5-1-5-4 0-3 2-4 5-4" />
+    <path d="M13 18c3 0 5-1 5-4 0-3-2-4-5-4" />
 
     {/* Antennae */}
     <path d="M10 5L8.5 3" />
