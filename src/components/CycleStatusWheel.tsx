@@ -24,6 +24,10 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
     const circumference = 2 * Math.PI * 52; // 2 * pi * r (radius is 52)
     const strokeDashoffset = circumference - (progress / 100) * circumference;
 
+    const progressColor = isOnPeriod ? 'hsl(var(--destructive))' : 'hsl(var(--primary))';
+    const iconColorClass = isOnPeriod ? 'text-destructive/80' : 'text-primary/80';
+
+
     let mainText = 'Not Enough Data';
     let subText = 'Log more cycles';
 
@@ -60,7 +64,7 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
                         cy="60"
                         r="52"
                         fill="none"
-                        stroke="hsl(var(--primary))"
+                        stroke={progressColor}
                         strokeWidth="12"
                         strokeDasharray={circumference}
                         strokeDashoffset={strokeDashoffset}
@@ -69,7 +73,7 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
                     />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <UterusIcon className="w-16 h-16 text-primary/80 mb-2" />
+                    <UterusIcon className={`w-16 h-16 mb-2 ${iconColorClass}`} />
                     <p className="font-semibold text-muted-foreground">{subText}</p>
                     <p className="text-4xl font-bold font-body">{mainText}</p>
                 </div>

@@ -62,7 +62,7 @@ export function MoodChart({ child }: MoodChartProps) {
             </CardHeader>
             <CardContent>
                 {hasData ? (
-                     <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
+                     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                         <BarChart data={chartData} accessibilityLayer>
                             <CartesianGrid vertical={false} />
                             <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
@@ -78,7 +78,7 @@ export function MoodChart({ child }: MoodChartProps) {
                         </BarChart>
                     </ChartContainer>
                 ) : (
-                    <div className="flex flex-col items-center justify-center text-center text-muted-foreground min-h-[250px]">
+                    <div className="flex flex-col items-center justify-center text-center text-muted-foreground min-h-[200px]">
                         <p className="font-semibold">No mood data logged yet.</p>
                         <p className="text-sm">Log some symptoms to see mood patterns here.</p>
                     </div>

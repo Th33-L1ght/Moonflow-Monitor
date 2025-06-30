@@ -55,7 +55,7 @@ export function CycleLengthChart({ child }: CycleLengthChartProps) {
             </CardHeader>
             <CardContent>
                  {hasData ? (
-                     <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
+                     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                         <BarChart data={chartData} accessibilityLayer>
                             <CartesianGrid vertical={false} />
                             <XAxis
@@ -76,7 +76,7 @@ export function CycleLengthChart({ child }: CycleLengthChartProps) {
                         </BarChart>
                     </ChartContainer>
                 ) : (
-                    <div className="flex flex-col items-center justify-center text-center text-muted-foreground min-h-[250px]">
+                    <div className="flex flex-col items-center justify-center text-center text-muted-foreground min-h-[200px]">
                         <p className="font-semibold">Not enough cycle data.</p>
                         <p className="text-sm">Log at least two full cycles to see history here.</p>
                     </div>
