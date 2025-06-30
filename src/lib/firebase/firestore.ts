@@ -1,3 +1,4 @@
+
 import { db, isFirebaseConfigured } from './client';
 import {
   collection,
@@ -95,9 +96,7 @@ let MOCK_CHILDREN: Child[] = [
   },
 ];
 
-let MOCK_INVITES: Invite[] = [
-    { id: 'mock-invite-id', parentUid: 'mock-user-id', childId: 'child-2', status: 'pending', createdAt: new Date() }
-]
+let MOCK_INVITES: Invite[] = [];
 
 
 // Helper to get the children collection
@@ -222,7 +221,15 @@ export const updateChild = async (childId: string, data: Partial<Omit<Child, 'id
 
 export const createInvite = async (parentUid: string, childId: string): Promise<string> => {
     if (!isFirebaseConfigured) {
-        return `mock-invite-${Date.now()}`;
+        const newInvite: Invite = {
+            id: `mock-invite-${Date.now()}`,
+            parentUid,
+            childId,
+            status: 'pending',
+            createdAt: new Date(),
+        };
+        MOCK_INVITES.push(newInvite);
+        return newInvite.id;
     }
     const inviteData = {
         parentUid,
@@ -236,7 +243,8 @@ export const createInvite = async (parentUid: string, childId: string): Promise<
 
 export const getInvite = async (inviteId: string): Promise<Invite | null> => {
     if (!isFirebaseConfigured) {
-        return MOCK_INVITES.find(inv => inv.id === inviteId) || null;
+        const invite = MOCK_INVITES.find(inv => inv.id === inviteId) || null;
+        return invite ? JSON.parse(JSON.stringify(invite)) : null;
     }
     const docRef = doc(db, 'invites', inviteId);
     const docSnap = await getDoc(docRef);
@@ -246,7 +254,18 @@ export const getInvite = async (inviteId: string): Promise<Invite | null> => {
 
 export const acceptInvite = async (inviteId: string, childUid: string): Promise<void> => {
     if (!isFirebaseConfigured) {
-        console.log(`Demo mode: Accepting invite ${inviteId} for child ${childUid}`);
+        const inviteIndex = MOCK_INVITES.findIndex(inv => inv.id === inviteId);
+        if (inviteIndex > -1) {
+            // Mark invite as accepted
+            MOCK_INVITES[inviteIndex].status = 'accepted';
+            
+            // Link the child profile to the new user UID
+            const childId = MOCK_INVITES[inviteIndex].childId;
+            const childIndex = MOCK_CHILDREN.findIndex(c => c.id === childId);
+            if (childIndex > -1) {
+                MOCK_CHILDREN[childIndex].childUid = childUid;
+            }
+        }
         return;
     }
     const batch = writeBatch(db);
