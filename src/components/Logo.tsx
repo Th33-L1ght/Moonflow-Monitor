@@ -4,7 +4,7 @@ export function Logo() {
   return (
     <div className="flex items-center gap-2">
       <Butterfly className="h-6 w-6 text-primary" />
-      <span className="font-body font-bold text-2xl text-foreground">Light Flow</span>
+      <span className="font-body font-bold text-3xl text-foreground">Light Flow</span>
     </div>
   )
 }
