@@ -6,6 +6,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
 export const metadata: Metadata = {
   title: 'FemFlow',
   description: "Track your cycle, understand your body.",
+  manifest: '/manifest.json',
+  themeColor: '#e91e63',
 };
 
 export default function RootLayout({
