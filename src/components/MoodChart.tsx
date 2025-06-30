@@ -73,7 +73,7 @@ export function MoodChart({ child }: MoodChartProps) {
                             />
                             <Legend />
                             {(Object.keys(moodColors) as Mood[]).map((mood) => (
-                                <Bar key={mood} dataKey={mood} fill={`var(--color-${mood})`} stackId="a" radius={[4, 4, 0, 0]} />
+                                <Bar key={mood} dataKey={mood} fill={`var(--color-${mood})`} stackId="a" radius={[4, 4, 0, 0]} barSize={30} />
                             ))}
                         </BarChart>
                     </ChartContainer>

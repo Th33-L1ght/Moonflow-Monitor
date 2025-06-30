@@ -72,7 +72,7 @@ export function CycleLengthChart({ child }: CycleLengthChartProps) {
                                 domain={['dataMin - 5', 'dataMax + 5']}
                             />
                             <ChartTooltipContent />
-                            <Bar dataKey="length" fill="var(--color-length)" radius={4} />
+                            <Bar dataKey="length" fill="var(--color-length)" radius={4} barSize={30} />
                         </BarChart>
                     </ChartContainer>
                 ) : (
