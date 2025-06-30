@@ -81,8 +81,14 @@ let MOCK_CHILDREN: Child[] = [
     cycles: [
       {
         id: 'cycle-2-1',
-        startDate: new Date(today.getFullYear(), today.getMonth(), 20),
-        endDate: new Date(today.getFullYear(), today.getMonth(), 24),
+        startDate: new Date(today.getFullYear(), today.getMonth() - 2, 16),
+        endDate: new Date(today.getFullYear(), today.getMonth() - 2, 20),
+        symptoms: [],
+      },
+       {
+        id: 'cycle-2-2',
+        startDate: new Date(today.getFullYear(), today.getMonth() - 1, 18),
+        endDate: new Date(today.getFullYear(), today.getMonth() - 1, 22),
         symptoms: [],
       },
     ],
