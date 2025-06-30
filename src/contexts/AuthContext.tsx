@@ -62,6 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     if (!isFirebaseConfigured) {
         console.log("Demo mode: Sign out clicked");
+        setUser(null);
         router.push('/login');
         return;
     }

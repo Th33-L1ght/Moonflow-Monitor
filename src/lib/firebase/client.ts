@@ -26,7 +26,7 @@ if (isFirebaseConfigured) {
   db = getFirestore(app);
 } else {
   console.warn(
-    'Firebase is not configured. The app will show a configuration screen.'
+    'Firebase is not configured. The app will run in demo mode.'
   );
   // Provide dummy exports to prevent crashes on import
   // The app functionality will be blocked by the EnvVarCheck component.

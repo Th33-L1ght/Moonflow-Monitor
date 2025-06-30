@@ -14,6 +14,7 @@ import { AIInsightCard } from '@/components/AIInsightCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -38,6 +39,7 @@ export default function ChildDetailPage() {
 
   const fetchChildData = useCallback(async () => {
     if (user && childId) {
+        setLoading(true);
         const childData = await getChildForUser(user.uid, childId);
         if (childData) {
             setChild(childData);
@@ -86,14 +88,26 @@ export default function ChildDetailPage() {
                 <TabsTrigger value="log">Log</TabsTrigger>
               </TabsList>
               <TabsContent value="overview">
-                <CycleStatusWheel child={child} />
-                <AIInsightCard child={child} />
+                <div className="space-y-6">
+                    <CycleStatusWheel child={child} />
+                    <AIInsightCard child={child} />
+                </div>
               </TabsContent>
               <TabsContent value="calendar">
-                <PeriodCalendar child={child} userId={user!.uid} onUpdate={fetchChildData} />
+                <Card className="bg-card border-none shadow-none">
+                    <CardHeader>
+                        <CardTitle className="font-body text-xl">Calendar</CardTitle>
+                        <CardDescription>
+                        Visualize the current and past cycles.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <PeriodCalendar child={child} userId={user!.uid} onUpdate={fetchChildData} />
+                    </CardContent>
+                </Card>
               </TabsContent>
               <TabsContent value="log">
-                <SymptomTracker child={child} userId={user!.uid} onUpdate={fetchChildData}/>
+                 <SymptomTracker child={child} userId={user!.uid} onUpdate={fetchChildData}/>
               </TabsContent>
             </Tabs>
           </div>

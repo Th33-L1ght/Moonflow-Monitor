@@ -22,6 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Child, Cycle, Mood } from '@/lib/types';
 import { updateChild } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -154,14 +155,8 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
   };
 
   return (
-    <Card className="bg-card border-none shadow-none">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="font-body text-xl">Calendar</CardTitle>
-          <CardDescription>
-            Visualize the current and past cycles.
-          </CardDescription>
-        </div>
+    <>
+      <div className="flex justify-end mb-4">
         <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1">
@@ -221,8 +216,8 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </CardHeader>
-      <CardContent className="flex justify-center">
+      </div>
+      <div className="flex justify-center">
         <style>{`
             .rdp-day { border-radius: 9999px; }
             .rdp-day_selected { background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
@@ -240,7 +235,7 @@ export function PeriodCalendar({ child, userId, onUpdate }: PeriodCalendarProps)
             head_cell: "w-10"
           }}
         />
-      </CardContent>
-    </Card>
+      </div>
+      </>
   );
 }
