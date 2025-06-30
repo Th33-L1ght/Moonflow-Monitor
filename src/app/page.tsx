@@ -64,7 +64,7 @@ const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: 
                 <div>
                     <Link href={`/child/${child.id}`}>
                         <div className="flex items-baseline gap-3">
-                            <p className="font-body text-3xl font-medium text-foreground hover:underline">{child.name}</p>
+                            <p className="font-body text-3xl font-medium text-foreground">{child.name}</p>
                             <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-destructive' : 'bg-chart-2')} title={isOnPeriod ? 'On Period' : 'Between Cycles'} />
                         </div>
                     </Link>
