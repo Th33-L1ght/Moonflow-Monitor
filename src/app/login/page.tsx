@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/firebase/client";
+import { sendPasswordReset } from "@/app/actions";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,14 +27,21 @@ export default function LoginPage() {
     e.preventDefault();
     setLoginStep('pending');
     setError(null);
+
+    let loginIdentifier = email.trim();
+    // If it looks like a username (no @), treat it as a child login.
+    if (loginIdentifier && !loginIdentifier.includes('@')) {
+        loginIdentifier = `${loginIdentifier.toLowerCase()}@lightflow.app`;
+    }
+
     try {
-      await signIn(email, password);
+      await signIn(loginIdentifier, password);
       // On successful sign-in, AuthContext now sets the user and triggers a redirect immediately.
     } catch (err: any) {
       if (err.code === 'auth/configuration-not-found') {
           setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
       } else if (err.code === 'auth/invalid-credential') {
-          setError("Invalid email or password. Please double-check and try again.");
+          setError("Invalid login details. Please double-check and try again.");
       } else {
         setError(err.message || 'An unexpected error occurred.');
       }
@@ -80,6 +88,31 @@ export default function LoginPage() {
     }
   };
 
+  const handlePasswordReset = async () => {
+    setError(null);
+    if (!email) {
+      setError("Please enter your email address in the field above to reset your password.");
+      return;
+    }
+    if (!email.includes('@')) {
+      setError("Password reset is only available for parent accounts with an email address.");
+      return;
+    }
+    
+    setLoginStep('pending');
+    const result = await sendPasswordReset(email);
+    if (result.success) {
+      toast({
+        title: "Password Reset Email Sent",
+        description: "Check your inbox for instructions to reset your password.",
+      });
+    } else {
+      setError(result.error || 'An unexpected error occurred.');
+    }
+    setLoginStep('idle');
+  };
+
+
   const isLoading = loginStep === 'pending';
 
   if (isLoading) {
@@ -117,20 +150,30 @@ export default function LoginPage() {
               )}
 
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email or Username</Label>
                 <Input
                   id="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  type="text"
+                  placeholder="Email or Username"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   className="bg-background"
+                  autoComplete="username"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                 <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <button
+                        type="button"
+                        onClick={handlePasswordReset}
+                        className="text-xs text-primary underline-offset-4 hover:underline"
+                    >
+                        Forgot password?
+                    </button>
+                </div>
                 <Input 
                   id="password" 
                   type="password" 
@@ -139,6 +182,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   className="bg-background"
+                  autoComplete="current-password"
                 />
               </div>
               <Button type="submit" className="w-full font-bold" disabled={isLoading}>

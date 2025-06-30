@@ -1,6 +1,6 @@
 'use client';
 
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -58,6 +58,12 @@ export function Header() {
                   <span>Edit Profile</span>
               </DropdownMenuItem>
             )}
+            <DropdownMenuItem asChild>
+                <a href="mailto:support@lightflow.app" className="w-full cursor-pointer">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    <span>Feedback</span>
+                </a>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>

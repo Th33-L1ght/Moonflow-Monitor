@@ -42,6 +42,8 @@ const getInitialMockData = () => {
         id: 'child-1',
         name: 'Olivia',
         parentUid: 'mock-user-id',
+        childUid: 'mock-child-uid-1',
+        username: 'olivia',
         avatarUrl: `https://placehold.co/100x100/e91e63/ffffff.png`,
         cycles: [
         {

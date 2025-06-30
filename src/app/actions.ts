@@ -1,8 +1,8 @@
 'use server';
 
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
-import { createInvite, getInvite, acceptInvite as acceptInviteInDb, getChild, resetMockData, deleteChild as deleteChildFromDb } from '@/lib/firebase/firestore';
+import { createInvite, getInvite, acceptInvite as acceptInviteInDb, getChild, resetMockData, deleteChild as deleteChildFromDb, updateChild } from '@/lib/firebase/firestore';
 
 export async function generateInvite(parentUid: string, childId: string): Promise<string | null> {
     try {
@@ -78,5 +78,55 @@ export async function deleteChildAction(childId: string): Promise<{ success: boo
     } catch (error) {
         console.error("Failed to delete child:", error);
         return { success: false, error: 'Failed to delete profile.' };
+    }
+}
+
+export async function sendPasswordReset(email: string): Promise<{ success: boolean; error?: string }> {
+    if (!auth) {
+        console.log(`Demo mode: password reset for ${email}`);
+        return { success: true };
+    }
+    try {
+        await sendPasswordResetEmail(auth, email);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Failed to send password reset email:", error);
+        let message = 'An unexpected error occurred.';
+        if (error.code === 'auth/user-not-found') {
+            message = 'No user found with this email address.';
+        }
+        return { success: false, error: message };
+    }
+}
+
+export async function createChildLogin(childId: string, username: string, password: string): Promise<{ success: boolean; error?: string }> {
+     if (!auth) {
+        // In demo mode, we just pretend it worked and update the mock data.
+        const child = await getChild(childId);
+        if (child) {
+            const mockChildUid = `mock-child-uid-${Date.now()}`;
+            await updateChild(childId, { childUid: mockChildUid, username: username });
+        }
+        return { success: true };
+    }
+    
+    try {
+        const dummyEmail = `${username.toLowerCase().trim()}@lightflow.app`;
+
+        const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
+        const newChildUid = userCredential.user.uid;
+
+        await updateChild(childId, { childUid: newChildUid, username: username.trim() });
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error creating child login:", error);
+        let message = 'An unexpected error occurred. Please try again.';
+        if (error.code === 'auth/email-already-in-use') {
+            message = 'This username is already taken. Please choose another one.';
+        } else if (error.code === 'auth/weak-password') {
+            message = 'The password is too weak. Please choose a stronger password (at least 6 characters).';
+        }
+        return { success: false, error: message };
     }
 }

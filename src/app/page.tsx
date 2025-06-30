@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle, Share2, Info, Bell, RefreshCw, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Share2, Info, Bell, RefreshCw, MoreVertical, Edit, Trash2, KeyRound } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +8,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { getChildrenForUser, updateChild } from '@/lib/firebase/firestore';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { AddChildDialog } from '@/components/AddChildDialog';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -40,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { EditChildDialog } from '@/components/EditChildDialog';
+import { CreateChildLoginDialog } from '@/components/CreateChildLoginDialog';
 
 
 const DashboardSkeleton = () => (
@@ -58,9 +59,8 @@ const DashboardSkeleton = () => (
     </div>
 );
 
-const ChildListItem = ({ child, onInvite, onUpdate, onEdit, onDelete }: { child: Child; onInvite: (childId: string) => void; onUpdate: (childId: string, updatedData: Partial<Child>) => void; onEdit: (child: Child) => void; onDelete: (childId: string) => void; }) => {
+const ChildListItem = ({ child, onInvite, onUpdate, onEdit, onDelete, onCreateLogin }: { child: Child; onInvite: (childId: string) => void; onUpdate: (childId: string, updatedData: Partial<Child>) => void; onEdit: (child: Child) => void; onDelete: (childId: string) => void; onCreateLogin: (child: Child) => void; }) => {
     const { isOnPeriod, currentDay } = getCycleStatus(child);
-    const showInviteButton = !child.childUid;
 
     return (
         <Card className="p-4 flex items-center justify-between gap-6 transition-all hover:shadow-lg hover:border-primary/50">
@@ -86,12 +86,6 @@ const ChildListItem = ({ child, onInvite, onUpdate, onEdit, onDelete }: { child:
             </div>
 
             <div className="flex items-center gap-1">
-                {showInviteButton && (
-                    <Button variant="outline" size="sm" onClick={() => onInvite(child.id)}>
-                        <Share2 className="mr-2 h-4 w-4" />
-                        Invite
-                    </Button>
-                )}
                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
@@ -103,6 +97,18 @@ const ChildListItem = ({ child, onInvite, onUpdate, onEdit, onDelete }: { child:
                             <Edit className="mr-2 h-4 w-4" />
                             <span>Edit Profile</span>
                         </DropdownMenuItem>
+                         {!child.childUid && (
+                            <>
+                                <DropdownMenuItem onSelect={() => onCreateLogin(child)}>
+                                    <KeyRound className="mr-2 h-4 w-4" />
+                                    <span>Create Login</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => onInvite(child.id)}>
+                                    <Share2 className="mr-2 h-4 w-4" />
+                                    <span>Invite via Link</span>
+                                </DropdownMenuItem>
+                            </>
+                        )}
                         <DropdownMenuItem onSelect={() => onDelete(child.id)} className="text-destructive focus:text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" />
                             <span>Delete Profile</span>
@@ -131,8 +137,11 @@ function ParentDashboard() {
 
   const [isEditChildOpen, setEditChildOpen] = useState(false);
   const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [isCreateLoginOpen, setCreateLoginOpen] = useState(false);
   const [childToEdit, setChildToEdit] = useState<Child | null>(null);
   const [childToDelete, setChildToDelete] = useState<string | null>(null);
+  const [childToCreateLogin, setChildToCreateLogin] = useState<Child | null>(null);
+
 
   const fetchChildren = useCallback(async () => {
     if (user && user.role === 'parent') {
@@ -194,6 +203,11 @@ function ParentDashboard() {
   const handleEditClick = (child: Child) => {
     setChildToEdit(child);
     setEditChildOpen(true);
+  };
+  
+  const handleCreateLoginClick = (child: Child) => {
+    setChildToCreateLogin(child);
+    setCreateLoginOpen(true);
   };
 
   const handleDeleteClick = (childId: string) => {
@@ -282,7 +296,7 @@ function ParentDashboard() {
             {children.length > 0 ? (
                 <div className="space-y-4">
                     {children.map((child) => (
-                        <ChildListItem key={child.id} child={child} onInvite={handleInviteClick} onUpdate={handleChildUpdate} onEdit={handleEditClick} onDelete={handleDeleteClick} />
+                        <ChildListItem key={child.id} child={child} onInvite={handleInviteClick} onUpdate={handleChildUpdate} onEdit={handleEditClick} onDelete={handleDeleteClick} onCreateLogin={handleCreateLoginClick} />
                     ))}
                 </div>
             ) : (
@@ -303,6 +317,14 @@ function ParentDashboard() {
                     setOpen={setEditChildOpen} 
                     child={childToEdit} 
                     onChildUpdated={fetchChildren}
+                />
+            )}
+            {childToCreateLogin && (
+                <CreateChildLoginDialog
+                    isOpen={isCreateLoginOpen}
+                    setOpen={setCreateLoginOpen}
+                    child={childToCreateLogin}
+                    onLoginCreated={fetchChildren}
                 />
             )}
              {selectedChildId && (

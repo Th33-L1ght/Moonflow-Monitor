@@ -24,6 +24,7 @@ export interface Child {
   cycles: Cycle[];
   parentUid: string;
   childUid?: string;
+  username?: string;
 }
 
 export interface AppUser extends FirebaseUser {
