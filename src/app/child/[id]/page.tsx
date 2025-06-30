@@ -21,6 +21,7 @@ import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 import { MoodChart } from '@/components/MoodChart';
 import { CycleLengthChart } from '@/components/CycleLengthChart';
+import { JournalView } from '@/components/JournalView';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -74,8 +75,10 @@ export default function ChildDetailPage() {
 
   const handleUpdate = (newChildData: Partial<Omit<Child, 'id'>>) => {
     if (user && child) {
-        updateChild(child.id, newChildData);
+        // Optimistically update the local state first for a responsive UI
         setChild(prev => prev ? { ...prev, ...newChildData, cycles: newChildData.cycles || prev.cycles } : null);
+        // Then, update the data in Firestore
+        updateChild(child.id, newChildData);
     }
   }
 
@@ -115,10 +118,11 @@ export default function ChildDetailPage() {
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-4 bg-card mb-6 border">
+              <TabsList className="grid w-full grid-cols-5 bg-card mb-6 border">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="calendar">Calendar</TabsTrigger>
                 <TabsTrigger value="charts">Charts</TabsTrigger>
+                <TabsTrigger value="journal">Journal</TabsTrigger>
                 <TabsTrigger value="log">Log Symptoms</TabsTrigger>
               </TabsList>
 
@@ -149,6 +153,10 @@ export default function ChildDetailPage() {
                     <MoodChart child={child} />
                     <CycleLengthChart child={child} />
                 </div>
+              </TabsContent>
+
+              <TabsContent value="journal">
+                <JournalView child={child} />
               </TabsContent>
 
               <TabsContent value="log">

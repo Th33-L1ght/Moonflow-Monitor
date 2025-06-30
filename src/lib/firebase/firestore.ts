@@ -60,7 +60,7 @@ const oliviaCycles = [
     startDate: new Date(today.getFullYear(), today.getMonth(), 2),
     endDate: new Date(today.getFullYear(), today.getMonth(), 6),
     symptoms: [
-        { date: new Date(today.getFullYear(), today.getMonth(), 2), crampLevel: 4, mood: 'Moody' as const },
+        { date: new Date(today.getFullYear(), today.getMonth(), 2), crampLevel: 4, mood: 'Moody' as const, note: "Feeling extra tired and had a slight headache today." },
         { date: new Date(), crampLevel: 2, mood: 'Happy' as const }
     ],
   },

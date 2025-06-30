@@ -7,6 +7,7 @@ export interface SymptomLog {
   date: Date;
   crampLevel: CrampLevel;
   mood: Mood;
+  note?: string;
 }
 
 export interface Cycle {

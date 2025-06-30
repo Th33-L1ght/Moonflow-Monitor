@@ -14,6 +14,8 @@ import { getCycleStatus, toDate } from '@/lib/utils';
 import type { Child, CrampLevel, Mood, SymptomLog } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { isSameDay } from 'date-fns';
+import { Textarea } from './ui/textarea';
+import { Label } from './ui/label';
 
 const crampLevels = [
   { level: 1, emoji: '😌', label: 'None' },
@@ -38,6 +40,7 @@ interface SymptomTrackerProps {
 export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps) {
   const [cramp, setCramp] = React.useState<string>('1');
   const [mood, setMood] = React.useState<string>('Happy');
+  const [note, setNote] = React.useState<string>('');
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
 
@@ -52,9 +55,11 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
         if (todayLog) {
             setCramp(String(todayLog.crampLevel));
             setMood(todayLog.mood);
+            setNote(todayLog.note || '');
         } else {
             setCramp('1');
             setMood('Happy');
+            setNote('');
         }
     }
   }, [child, activeCycleId]);
@@ -76,6 +81,7 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
         date: new Date(),
         crampLevel: parseInt(cramp, 10) as CrampLevel,
         mood: mood as Mood,
+        note: note.trim(),
     };
 
     const updatedCycles = child.cycles.map(cycle => {
@@ -118,7 +124,7 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Log Symptoms</CardTitle>
+        <CardTitle>Log Symptoms</CardTitle>
         <CardDescription>
           {isOnPeriod ? (canEdit ? "How are you feeling today?" : "Viewing symptoms logged.") : "Tracking is available during a period."}
         </CardDescription>
@@ -170,6 +176,23 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
+        </div>
+        <div>
+          <Label htmlFor="note" className="text-lg font-medium mb-3 block">
+            Add a Note
+          </Label>
+          <Textarea
+            id="note"
+            placeholder="Any additional thoughts or symptoms... (e.g., cravings, headaches)"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            disabled={!canEdit || !isOnPeriod}
+            maxLength={500}
+            className="min-h-[100px]"
+          />
+          <p className="text-xs text-muted-foreground mt-2 text-right">
+            {note.length} / 500
+          </p>
         </div>
         {canEdit && (
           <Button size="lg" className="w-full h-12 text-lg font-bold" onClick={handleSaveLog} disabled={isButtonDisabled}>

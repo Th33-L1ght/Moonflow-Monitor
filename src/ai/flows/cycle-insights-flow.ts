@@ -16,7 +16,8 @@ import type { Cycle } from '@/lib/types';
 const SymptomLogSchema = z.object({
     date: z.string().describe("The date of the symptom log, in YYYY-MM-DD format."),
     crampLevel: z.number().describe("A number from 1 (none) to 4 (severe)."),
-    mood: z.string().describe("The logged mood, e.g., 'Happy', 'Sad', 'Moody', 'Fine'.")
+    mood: z.string().describe("The logged mood, e.g., 'Happy', 'Sad', 'Moody', 'Fine'."),
+    note: z.string().optional().describe("An optional note or comment for the day.")
 });
 
 const CycleSchema = z.object({
@@ -44,7 +45,8 @@ const formatCyclesForAI = (cycles: Cycle[]): CycleInsightInput => {
             symptoms: cycle.symptoms.map(symptom => ({
                 date: symptom.date.toISOString().split('T')[0],
                 crampLevel: symptom.crampLevel,
-                mood: symptom.mood
+                mood: symptom.mood,
+                note: symptom.note
             }))
         }))
     };
@@ -72,7 +74,7 @@ Data:
   {{#if symptoms.length}}
     Symptoms logged:
     {{#each symptoms}}
-    - On {{date}}: Cramps level {{crampLevel}} (1=none, 4=severe), Mood: {{mood}}.
+    - On {{date}}: Cramps level {{crampLevel}} (1=none, 4=severe), Mood: {{mood}}.{{#if note}} Note: {{note}}{{/if}}
     {{/each}}
   {{else}}
     (No symptoms logged for this cycle)
