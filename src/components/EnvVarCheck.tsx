@@ -40,8 +40,8 @@ export function EnvVarCheck({ children }: { children: React.ReactNode }) {
                         </Button>
                     </div>
                      <div>
-                        <span className="font-semibold text-sm">2. Create a Web App within your project.</span>
-                        <p className="text-xs text-muted-foreground">In your project, go to Project Settings (⚙️ icon), scroll to "Your apps", and click the Web icon (<code>&lt;/&gt;</code>). Give it a nickname and click <strong>Register app</strong>.</p>
+                        <span className="font-semibold text-sm">2. Register a Web App with your project.</span>
+                        <p className="text-xs text-muted-foreground">You won't see your code files here. This step just creates a connection to get your keys. In your project, go to Project Settings (⚙️ icon), scroll to "Your apps", and click the Web icon (<code>&lt;/&gt;</code>). Give it a nickname and click <strong>Register app</strong>.</p>
                     </div>
                     <div>
                         <span className="font-semibold text-sm">3. Copy the configuration keys.</span>
