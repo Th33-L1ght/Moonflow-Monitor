@@ -5,7 +5,7 @@ import { Calendar as CalendarIcon, PlusCircle } from 'lucide-react';
 import { addDays, format, isSameDay } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 
-import { cn } from '@/lib/utils';
+import { cn, toDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -24,16 +24,11 @@ import {
 } from '@/components/ui/dialog';
 import type { Child, Cycle, Mood } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Timestamp } from 'firebase/firestore';
 
 interface PeriodCalendarProps {
   child: Child;
   onUpdate: (data: Partial<Omit<Child, 'id'>>) => void;
   canEdit: boolean;
-}
-
-const toDate = (date: Date | Timestamp): Date => {
-  return date instanceof Timestamp ? date.toDate() : date;
 }
 
 const moodEmojis: Record<Mood, string> = {

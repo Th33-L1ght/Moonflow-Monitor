@@ -10,11 +10,10 @@ import {
 } from './ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Button } from './ui/button';
-import { getCycleStatus } from '@/lib/utils';
+import { getCycleStatus, toDate } from '@/lib/utils';
 import type { Child, CrampLevel, Mood, SymptomLog } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { isSameDay } from 'date-fns';
-import { Timestamp } from 'firebase/firestore';
 
 const crampLevels = [
   { level: 1, emoji: '😌', label: 'None' },
@@ -34,10 +33,6 @@ interface SymptomTrackerProps {
     child: Child;
     onUpdate: (data: Partial<Omit<Child, 'id'>>) => void;
     canEdit: boolean;
-}
-
-const toDate = (date: Date | Timestamp): Date => {
-    return date instanceof Timestamp ? date.toDate() : date;
 }
 
 export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps) {

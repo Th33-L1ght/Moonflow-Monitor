@@ -8,10 +8,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-
-const toDate = (date: Date | Timestamp): Date => {
-  return date instanceof Timestamp ? date.toDate() : date;
-}
+export const toDate = (date: Date | Timestamp | string): Date => {
+  if (date instanceof Timestamp) {
+    return date.toDate();
+  }
+  // When data is JSON stringified, dates can become strings.
+  // This handles reconstructing them into Date objects.
+  if (typeof date === 'string') {
+    return new Date(date);
+  }
+  // It's already a Date object
+  return date;
+};
 
 export function getCycleStatus(child: Child | null, today: Date = new Date()) {
   const todayDate = startOfDay(today);
