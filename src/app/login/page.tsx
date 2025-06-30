@@ -32,7 +32,11 @@ export default function LoginPage() {
       await signIn(email, password);
       // The AuthContext will handle redirection based on user role.
     } catch (err: any) {
-      setError(err.message);
+      if (err.code === 'auth/configuration-not-found') {
+          setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
+      } else {
+        setError(err.message);
+      }
     } finally {
         setLoading(false);
     }
@@ -66,7 +70,9 @@ export default function LoginPage() {
       setPassword('');
 
     } catch (err: any) {
-      if (err.code === 'auth/email-already-in-use') {
+      if (err.code === 'auth/configuration-not-found') {
+          setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
+      } else if (err.code === 'auth/email-already-in-use') {
         setError('This email address is already in use by another account.');
       } else {
         setError(err.message);
