@@ -11,12 +11,15 @@ export const PadsButterflyIcon = (props: React.SVGProps<SVGSVGElement>) => (
     strokeLinejoin="round"
     {...props}
   >
-    <path d="M12 2v20" />
-    <path d="M10 4c-2 0-4-1-4-2" />
-    <path d="M14 4c2 0 4-1 4-2" />
-    <path d="M12 7c-4 0-8 1-8 5s4 5 8 5" />
-    <path d="M12 7c4 0 8 1 8 5s-4 5-8 5" />
-    <path d="M12 12c-4 0-7 1-7 3s3 3 7 3" />
-    <path d="M12 12c4 0 7 1 7 3s-3 3-7 3" />
+    {/* Tampon Body */}
+    <path d="M12 4v16" />
+
+    {/* Wings */}
+    <path d="M12 9c-5-2-8-1-8 4s3 6 8 4" />
+    <path d="M12 9c5-2 8-1 8 4s-3 6-8 4" />
+
+    {/* Antennae */}
+    <path d="M10 5L8.5 3" />
+    <path d="M14 5l1.5-2" />
   </svg>
 )
