@@ -25,8 +25,8 @@ export function EnvVarCheck({ children }: { children: React.ReactNode }) {
             </p>
             <ol className="list-decimal list-inside mt-2 space-y-2">
                 <li>Go to your Firebase project settings.</li>
-                <li>Scroll to **Your apps**. If you don't see an app, click the Web icon (`</>`), give it a name, and click **Register app**.</li>
-                <li>Select your web app to find its configuration keys under **SDK setup and configuration**.</li>
+                <li>Scroll to <strong>Your apps</strong>. If you don't see an app, click the Web icon (<code>&lt;/&gt;</code>), give it a name, and click <strong>Register app</strong>.</li>
+                <li>Select your web app to find its configuration keys under <strong>SDK setup and configuration</strong>.</li>
                 <li>
                   Copy the six keys into the <code className="font-mono bg-muted-foreground/20 px-1 py-0.5 rounded">.env</code> file in your project, like this:
                 </li>
@@ -52,7 +52,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID="..."
                 <div>
                      <h2 className="font-semibold text-sky-800">Have an AI Key already?</h2>
                      <p className="text-sky-700 mt-1">
-                       Great! This screen will disappear once the six **Firebase keys** are also added to your <code className="font-mono bg-sky-200/50 px-1 py-0.5 rounded">.env</code> file.
+                       Great! This screen will disappear once the six <strong>Firebase keys</strong> are also added to your <code className="font-mono bg-sky-200/50 px-1 py-0.5 rounded">.env</code> file.
                     </p>
                 </div>
              </div>
