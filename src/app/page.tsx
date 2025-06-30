@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle, User, Share2, Info, ShoppingBag } from 'lucide-react';
+import { PlusCircle, User, Share2, Info, ShoppingBag, Bell } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,6 +20,16 @@ import { InviteDialog } from '@/components/InviteDialog';
 import { isFirebaseConfigured } from '@/lib/firebase/client';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 
 const DashboardSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -39,9 +49,7 @@ const DashboardSkeleton = () => (
 
 const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: (childId: string) => void; onUpdate: (childId: string, updatedData: Partial<Child>) => void; }) => {
     const { isOnPeriod, currentDay } = getCycleStatus(child);
-    const { daysUntilNextCycle } = getCyclePrediction(child);
     const showInviteButton = !child.childUid;
-    const showReminder = daysUntilNextCycle !== null && daysUntilNextCycle > 0 && daysUntilNextCycle <= 7;
 
     return (
         <Card className="p-4 flex items-center gap-6 transition-all hover:shadow-lg hover:border-primary/50">
@@ -58,12 +66,6 @@ const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: 
                     <p className={cn("text-sm mt-1", isOnPeriod ? "text-destructive" : "text-muted-foreground")}>
                         {isOnPeriod ? `Period - Day ${currentDay}` : 'Between Cycles'}
                     </p>
-                    {showReminder && (
-                        <div className="flex items-center gap-2 mt-2 text-sm text-accent-foreground font-medium">
-                            <ShoppingBag className="h-4 w-4" />
-                            <span>Next period in {daysUntilNextCycle} {daysUntilNextCycle === 1 ? 'day' : 'days'}.</span>
-                        </div>
-                    )}
                 </div>
             </Link>
             <div className="flex items-center gap-4">
@@ -89,6 +91,9 @@ function ParentDashboard() {
   const [isInviteOpen, setInviteOpen] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 
+  const [isReminderAlertOpen, setReminderAlertOpen] = useState(false);
+  const [reminderMessages, setReminderMessages] = useState<string[]>([]);
+
   const fetchChildren = useCallback(async () => {
     if (user && user.role === 'parent') {
       setLoading(true);
@@ -107,6 +112,24 @@ function ParentDashboard() {
       }
     }
   }, [user, router, fetchChildren]);
+  
+  useEffect(() => {
+    if (children.length > 0) {
+        const reminders: string[] = [];
+        children.forEach(child => {
+            const { daysUntilNextCycle } = getCyclePrediction(child);
+            if (daysUntilNextCycle !== null && daysUntilNextCycle > 0 && daysUntilNextCycle <= 7) {
+                const message = `Next period for ${child.name} in ${daysUntilNextCycle} ${daysUntilNextCycle === 1 ? 'day' : 'days'}.`;
+                reminders.push(message);
+            }
+        });
+
+        if (reminders.length > 0) {
+            setReminderMessages(reminders);
+            setReminderAlertOpen(true);
+        }
+    }
+  }, [children]);
 
   const handleInviteClick = (childId: string) => {
     setSelectedChildId(childId);
@@ -183,6 +206,27 @@ function ParentDashboard() {
                     childId={selectedChildId} 
                 />
             )}
+            <AlertDialog open={isReminderAlertOpen} onOpenChange={setReminderAlertOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2">
+                    <ShoppingBag className="h-6 w-6 text-accent-foreground" />
+                    Heads Up: Time for Supplies!
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    A friendly reminder about upcoming periods:
+                    <ul className="list-disc pl-5 mt-2 space-y-1 text-foreground">
+                        {reminderMessages.map((msg, index) => (
+                            <li key={index}>{msg}</li>
+                        ))}
+                    </ul>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogAction onClick={() => setReminderAlertOpen(false)}>Got it</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </main>
       </div>
