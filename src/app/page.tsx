@@ -42,12 +42,14 @@ const ChildListItem = ({ child }: { child: Child }) => {
                     <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                    <p className="font-bold text-lg">{child.name}</p>
+                    <div className="flex items-center gap-2">
+                        <p className="font-bold text-lg">{child.name}</p>
+                        <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-primary' : 'bg-green-500')} />
+                    </div>
                     <p className={cn("text-sm", isOnPeriod ? "text-primary" : "text-muted-foreground")}>
                         {isOnPeriod ? `Period - Day ${currentDay}` : 'Between Cycles'}
                     </p>
                 </div>
-                <div className={cn("w-3 h-3 rounded-full", isOnPeriod ? 'bg-primary' : 'bg-green-500')} />
             </div>
         </Link>
     )
