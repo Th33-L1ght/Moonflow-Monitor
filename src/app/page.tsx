@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle, User, Share2 } from 'lucide-react';
+import { PlusCircle, User, Share2, Info } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,6 +17,8 @@ import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { InviteDialog } from '@/components/InviteDialog';
+import { isFirebaseConfigured } from '@/lib/firebase/client';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const DashboardSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -119,6 +121,16 @@ function ParentDashboard() {
                     onChildAdded={fetchChildren}
                 />
             </div>
+
+            {!isFirebaseConfigured && (
+                <Alert className="mb-6">
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Demo Mode</AlertTitle>
+                    <AlertDescription>
+                        You are currently in demo mode. Any profiles you add will be lost when you log out or refresh the page.
+                    </AlertDescription>
+                </Alert>
+            )}
             
             {children.length > 0 ? (
                 <div className="space-y-4">
