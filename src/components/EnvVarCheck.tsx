@@ -12,7 +12,7 @@ export function EnvVarCheck({ children }: { children: React.ReactNode }) {
           <div className="mx-auto w-fit rounded-full bg-destructive/10 p-4 text-destructive">
             <AlertTriangle className="h-10 w-10" />
           </div>
-          <h1 className="mt-6 text-2xl font-bold font-headline text-card-foreground">
+          <h1 className="mt-6 text-2xl font-bold font-body text-card-foreground">
             Firebase Configuration Needed
           </h1>
           <p className="mt-2 text-muted-foreground">
@@ -23,9 +23,10 @@ export function EnvVarCheck({ children }: { children: React.ReactNode }) {
             <p className="font-semibold text-foreground">
               How to fix this:
             </p>
-            <ol className="list-decimal list-inside mt-2 space-y-1">
+            <ol className="list-decimal list-inside mt-2 space-y-2">
                 <li>Go to your Firebase project settings.</li>
-                <li>Find your web app's configuration keys.</li>
+                <li>Scroll to **Your apps**. If you don't see an app, click the Web icon (`</>`), give it a name, and click **Register app**.</li>
+                <li>Select your web app to find its configuration keys under **SDK setup and configuration**.</li>
                 <li>
                   Copy the six keys into the <code className="font-mono bg-muted-foreground/20 px-1 py-0.5 rounded">.env</code> file in your project, like this:
                 </li>
