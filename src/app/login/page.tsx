@@ -30,17 +30,18 @@ export default function LoginPage() {
     setError(null);
     try {
       await signIn(email, password);
-      // The AuthContext will handle redirection based on user role.
+      // On successful sign-in, AuthContext will update the user state.
+      // We can navigate immediately for a better UX.
+      router.push('/');
     } catch (err: any) {
       if (err.code === 'auth/configuration-not-found') {
           setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
       } else if (err.code === 'auth/invalid-credential') {
           setError("Invalid email or password. Please double-check and try again.");
       } else {
-        setError(err.message);
+        setError(err.message || 'An unexpected error occurred.');
       }
-    } finally {
-        setLoading(false);
+      setLoading(false); // Stop loading only if there's an error
     }
   };
 
@@ -59,7 +60,7 @@ export default function LoginPage() {
               description: "Logging you in with a sample parent account.",
           });
           await signIn(email, password);
-          // Redirection is handled by AuthContext
+          router.push('/');
           return; 
       }
 
@@ -67,9 +68,11 @@ export default function LoginPage() {
       await signUp(email, password);
       toast({
           title: "Account Created",
-          description: "You've been successfully signed up. Please log in.",
+          description: "Welcome! Logging you in now...",
       });
-      setPassword('');
+      // Automatically sign in the new user
+      await signIn(email, password);
+      router.push('/');
 
     } catch (err: any) {
       if (err.code === 'auth/configuration-not-found') {
@@ -79,7 +82,6 @@ export default function LoginPage() {
       } else {
         setError(err.message);
       }
-    } finally {
       setLoading(false);
     }
   };
