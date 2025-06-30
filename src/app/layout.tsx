@@ -1,4 +1,5 @@
-import type {Metadata} from 'next';
+
+import type {Metadata, Viewport} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -7,7 +8,15 @@ import { EnvVarCheck } from '@/components/EnvVarCheck';
 export const metadata: Metadata = {
   title: 'Light Flow',
   description: "An app for a mother to know which of her children is on their period, track symptoms, and view cycle history.",
-  manifest: '/manifest.json',
+  icons: {
+    icon: [],
+    shortcut: [],
+    apple: [],
+    other: [],
+  },
+};
+
+export const viewport: Viewport = {
   themeColor: '#e0d1ff',
 };
 

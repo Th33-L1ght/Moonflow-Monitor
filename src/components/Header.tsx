@@ -16,11 +16,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useState } from 'react';
 import { EditParentProfileDialog } from './EditParentProfileDialog';
+import { FeedbackDialog } from './FeedbackDialog';
 
 
 export function Header() {
   const { user, signOut } = useAuth();
   const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [isFeedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -58,11 +60,9 @@ export function Header() {
                   <span>Edit Profile</span>
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem asChild>
-                <a href="mailto:support@lightflow.app" className="w-full cursor-pointer">
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    <span>Feedback</span>
-                </a>
+            <DropdownMenuItem onSelect={() => setFeedbackDialogOpen(true)}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                <span>Feedback</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
@@ -74,6 +74,7 @@ export function Header() {
       {canEditProfile && (
         <EditParentProfileDialog isOpen={isProfileDialogOpen} setOpen={setProfileDialogOpen} />
       )}
+      <FeedbackDialog isOpen={isFeedbackDialogOpen} setOpen={setFeedbackDialogOpen} />
     </>
   );
 }

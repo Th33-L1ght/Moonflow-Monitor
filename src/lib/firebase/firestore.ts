@@ -122,9 +122,10 @@ export const resetMockData = () => {
     }
 };
 
-// Helper to get the children collection
+// Helper to get the collections
 const getChildrenCollection = () => collection(db!, 'children');
 const getInvitesCollection = () => collection(db!, 'invites');
+const getFeedbackCollection = () => collection(db!, 'feedback');
 
 
 // Fetch all children for a given parent user
@@ -326,4 +327,23 @@ export const acceptInvite = async (inviteId: string, childUid: string): Promise<
     batch.update(inviteRef, { status: 'accepted' });
 
     await batch.commit();
+}
+
+
+// --- Feedback System ---
+export const addFeedback = async (userId: string, feedbackText: string): Promise<void> => {
+    if (!db) {
+        console.log(`Demo mode: Feedback received from ${userId}: "${feedbackText}"`);
+        return;
+    }
+    try {
+        await addDoc(getFeedbackCollection(), {
+            userId,
+            text: feedbackText,
+            createdAt: serverTimestamp(),
+        });
+    } catch (error) {
+        console.error("Error submitting feedback:", error);
+        throw error; // re-throw to be caught by the action
+    }
 }

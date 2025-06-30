@@ -2,7 +2,7 @@
 
 import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
-import { createInvite, getInvite, acceptInvite as acceptInviteInDb, getChild, resetMockData, deleteChild as deleteChildFromDb, updateChild } from '@/lib/firebase/firestore';
+import { createInvite, getInvite, acceptInvite as acceptInviteInDb, getChild, resetMockData, deleteChild as deleteChildFromDb, updateChild, addFeedback } from '@/lib/firebase/firestore';
 
 export async function generateInvite(parentUid: string, childId: string): Promise<string | null> {
     try {
@@ -128,5 +128,15 @@ export async function createChildLogin(childId: string, username: string, passwo
             message = 'The password is too weak. Please choose a stronger password (at least 6 characters).';
         }
         return { success: false, error: message };
+    }
+}
+
+export async function submitFeedbackAction(userId: string, feedbackText: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        await addFeedback(userId, feedbackText);
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to submit feedback:", error);
+        return { success: false, error: 'Failed to submit feedback.' };
     }
 }
