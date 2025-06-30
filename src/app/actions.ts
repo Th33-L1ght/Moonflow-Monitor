@@ -2,7 +2,7 @@
 
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
-import { createInvite, getInvite, acceptInvite as acceptInviteInDb, getChild } from '@/lib/firebase/firestore';
+import { createInvite, getInvite, acceptInvite as acceptInviteInDb, getChild, resetMockData } from '@/lib/firebase/firestore';
 
 export async function generateInvite(parentUid: string, childId: string): Promise<string | null> {
     try {
@@ -58,5 +58,15 @@ export async function acceptInviteAndCreateUser(inviteId: string, email: string,
             message = 'The password is too weak. Please choose a stronger password.';
         }
         return { success: false, error: message };
+    }
+}
+
+export async function resetDemoData(): Promise<{ success: boolean }> {
+    try {
+        resetMockData();
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to reset demo data:", error);
+        return { success: false };
     }
 }

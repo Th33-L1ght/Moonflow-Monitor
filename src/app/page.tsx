@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle, Share2, Info, Bell } from 'lucide-react';
+import { PlusCircle, Share2, Info, Bell, RefreshCw } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +30,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useToast } from '@/hooks/use-toast';
+import { resetDemoData } from '@/app/actions';
 
 
 const DashboardSkeleton = () => (
@@ -90,6 +92,7 @@ const ChildListItem = ({ child, onInvite, onUpdate }: { child: Child; onInvite: 
 function ParentDashboard() {
   const { user } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddChildOpen, setAddChildOpen] = useState(false);
@@ -99,6 +102,7 @@ function ParentDashboard() {
 
   const [isReminderAlertOpen, setReminderAlertOpen] = useState(false);
   const [reminderMessages, setReminderMessages] = useState<string[]>([]);
+  const [isResetting, setIsResetting] = useState(false);
 
   const fetchChildren = useCallback(async () => {
     if (user && user.role === 'parent') {
@@ -156,6 +160,25 @@ function ParentDashboard() {
         })
     );
   };
+  
+  const handleResetData = async () => {
+    setIsResetting(true);
+    const result = await resetDemoData();
+    if (result.success) {
+      await fetchChildren();
+      toast({
+        title: "Demo Data Reset",
+        description: "The sample data has been restored to its original state.",
+      });
+    } else {
+       toast({
+        title: "Error",
+        description: "Could not reset demo data.",
+        variant: "destructive",
+      });
+    }
+    setIsResetting(false);
+  };
 
   if (loading || user?.role !== 'parent') {
     return <DashboardSkeleton />;
@@ -171,11 +194,19 @@ function ParentDashboard() {
                     <h1 className="font-body text-3xl font-bold">Hello, {user?.displayName || 'Parent'}!</h1>
                     <p className="text-muted-foreground">Select a profile to view their cycle details.</p>
                 </div>
-                <AddChildDialog
-                    isOpen={isAddChildOpen}
-                    setOpen={setAddChildOpen}
-                    onChildAdded={fetchChildren}
-                />
+                <div className="flex items-center gap-2">
+                    {!isFirebaseConfigured && (
+                        <Button variant="outline" size="sm" onClick={handleResetData} disabled={isResetting}>
+                            <RefreshCw className={cn("mr-2 h-3.5 w-3.5", isResetting && "animate-spin")} />
+                            {isResetting ? 'Resetting...' : 'Reset Data'}
+                        </Button>
+                    )}
+                    <AddChildDialog
+                        isOpen={isAddChildOpen}
+                        setOpen={setAddChildOpen}
+                        onChildAdded={fetchChildren}
+                    />
+                </div>
             </div>
 
             {!isFirebaseConfigured && (
@@ -183,7 +214,7 @@ function ParentDashboard() {
                     <Info className="h-4 w-4" />
                     <AlertTitle>Demo Mode</AlertTitle>
                     <AlertDescription>
-                        You are currently in demo mode. Any profiles you add will be lost when you log out or refresh the page.
+                        You are currently in demo mode. Changes are not saved. Use the 'Reset Data' button to restore the original sample data.
                     </AlertDescription>
                 </Alert>
             )}
