@@ -12,9 +12,8 @@ import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AIInsightCard } from '@/components/AIInsightCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Share2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { InviteDialog } from '@/components/InviteDialog';
 import { Button } from '@/components/ui/button';
 import { getCyclePrediction } from '@/lib/utils';
 import { PadReminderCard } from '@/components/PadReminderCard';
@@ -44,7 +43,6 @@ export default function ChildDetailPage() {
   const router = useRouter();
   const [child, setChild] = useState<Child | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isInviteOpen, setInviteOpen] = useState(false);
 
   const fetchChildData = useCallback(async () => {
     if (childId) {
@@ -88,7 +86,6 @@ export default function ChildDetailPage() {
   
   const { daysUntilNextCycle } = getCyclePrediction(child);
   const canEdit = user?.role === 'parent' || user?.uid === child.childUid;
-  const showInviteButton = user?.role === 'parent' && !child.childUid;
 
   return (
     <AuthGuard>
@@ -111,15 +108,6 @@ export default function ChildDetailPage() {
                       <p className="text-muted-foreground">Cycle Dashboard</p>
                     </div>
                 </div>
-                {showInviteButton && (
-                    <>
-                        <Button variant="outline" onClick={() => setInviteOpen(true)}>
-                            <Share2 className="mr-2 h-4 w-4" />
-                            Invite Child
-                        </Button>
-                        <InviteDialog isOpen={isInviteOpen} setOpen={setInviteOpen} childId={child.id} />
-                    </>
-                )}
             </div>
 
             <Tabs defaultValue="overview" className="w-full">

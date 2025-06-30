@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusCircle, User, LogIn } from 'lucide-react';
+import { PlusCircle, User, Share2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,6 +16,7 @@ import { getCycleStatus } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
+import { InviteDialog } from '@/components/InviteDialog';
 
 const DashboardSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -33,11 +34,13 @@ const DashboardSkeleton = () => (
     </div>
 );
 
-const ChildListItem = ({ child }: { child: Child }) => {
+const ChildListItem = ({ child, onInvite }: { child: Child; onInvite: (childId: string) => void }) => {
     const { isOnPeriod, currentDay } = getCycleStatus(child);
+    const showInviteButton = !child.childUid;
+
     return (
-        <Link href={`/child/${child.id}`} className="block">
-            <Card className="p-4 flex items-center gap-6 transition-all hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
+        <Card className="p-4 flex items-center gap-6 transition-all hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
+            <Link href={`/child/${child.id}`} className="flex items-center gap-6 flex-1">
                 <Avatar className="h-20 w-20 border-2 border-card">
                     <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
                     <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
@@ -51,8 +54,14 @@ const ChildListItem = ({ child }: { child: Child }) => {
                         {isOnPeriod ? `Period - Day ${currentDay}` : 'Between Cycles'}
                     </p>
                 </div>
-            </Card>
-        </Link>
+            </Link>
+            {showInviteButton && (
+                <Button variant="outline" size="sm" onClick={() => onInvite(child.id)}>
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Invite
+                </Button>
+            )}
+        </Card>
     )
 }
 
@@ -62,6 +71,9 @@ function ParentDashboard() {
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddChildOpen, setAddChildOpen] = useState(false);
+
+  const [isInviteOpen, setInviteOpen] = useState(false);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 
   const fetchChildren = useCallback(async () => {
     if (user && user.role === 'parent') {
@@ -81,6 +93,11 @@ function ParentDashboard() {
       }
     }
   }, [user, router, fetchChildren]);
+
+  const handleInviteClick = (childId: string) => {
+    setSelectedChildId(childId);
+    setInviteOpen(true);
+  };
 
   if (loading || user?.role !== 'parent') {
     return <DashboardSkeleton />;
@@ -106,7 +123,7 @@ function ParentDashboard() {
             {children.length > 0 ? (
                 <div className="space-y-4">
                     {children.map((child) => (
-                        <ChildListItem key={child.id} child={child} />
+                        <ChildListItem key={child.id} child={child} onInvite={handleInviteClick} />
                     ))}
                 </div>
             ) : (
@@ -119,6 +136,13 @@ function ParentDashboard() {
                         Add Child Profile
                     </Button>
                 </div>
+            )}
+             {selectedChildId && (
+                <InviteDialog 
+                    isOpen={isInviteOpen} 
+                    setOpen={setInviteOpen} 
+                    childId={selectedChildId} 
+                />
             )}
           </div>
         </main>
