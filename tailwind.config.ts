@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
+        body: ['Caveat', 'cursive'],
         code: ['monospace'],
       },
       colors: {
