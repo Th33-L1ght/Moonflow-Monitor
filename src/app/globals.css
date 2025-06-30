@@ -4,30 +4,30 @@
 
 @layer base {
   :root {
-    --background: 0 0% 94%;
-    --foreground: 222 47% 11%;
+    --background: 0 0% 98%;
+    --foreground: 224 71% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 224 71% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 261 100% 84%; /* Soft lavender */
-    --primary-foreground: 222 47% 11%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 90%;
-    --muted-foreground: 215 20% 45%;
-    --accent: 339 100% 87%; /* Gentle pink */
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 261 100% 84%;
-    --chart-1: 221 83% 53%; /* Blue */
-    --chart-2: 160 60% 45%; /* Teal/Green */
-    --chart-3: 30 80% 55%; /* Orange */
-    --chart-4: 280 65% 60%; /* Purple */
-    --chart-5: 340 75% 55%; /* Pink */
+    --popover-foreground: 224 71% 10%;
+    --primary: 255 95% 90%; /* Pastel Lavender */
+    --primary-foreground: 255 50% 20%;
+    --secondary: 220 30% 96%;
+    --secondary-foreground: 224 71% 10%;
+    --muted: 220 30% 92%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 340 100% 92%; /* Pastel Pink */
+    --accent-foreground: 340 60% 25%;
+    --destructive: 0 85% 90%; /* Pastel Red */
+    --destructive-foreground: 0 60% 25%;
+    --border: 220 20% 90%;
+    --input: 220 20% 90%;
+    --ring: 255 95% 90%;
+    --chart-1: 210 90% 85%; /* Pastel Blue */
+    --chart-2: 145 70% 85%; /* Pastel Green */
+    --chart-3: 35 100% 88%; /* Pastel Orange */
+    --chart-4: 270 90% 90%; /* Pastel Purple */
+    --chart-5: 340 90% 90%; /* Pastel Pink */
     --radius: 0.8rem;
   }
  
