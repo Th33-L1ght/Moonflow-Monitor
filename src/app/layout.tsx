@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'Moonflow Monitor',
+  title: 'Light Flow',
   description: "An app for a mother to know which of her children is on their period, track symptoms, and view cycle history.",
   manifest: '/manifest.json',
   themeColor: '#D1B0FF',
