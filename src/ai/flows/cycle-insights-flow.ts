@@ -25,12 +25,12 @@ const CycleSchema = z.object({
     symptoms: z.array(SymptomLogSchema)
 });
 
-export const CycleInsightInputSchema = z.object({
+const CycleInsightInputSchema = z.object({
   cycles: z.array(CycleSchema).describe("An array of cycle data.")
 });
 export type CycleInsightInput = z.infer<typeof CycleInsightInputSchema>;
 
-export const CycleInsightOutputSchema = z.object({
+const CycleInsightOutputSchema = z.object({
   insight: z.string().describe('A concise (2-3 sentences), helpful, and easy-to-understand insight based on the cycle data. Should be encouraging and supportive.')
 });
 export type CycleInsightOutput = z.infer<typeof CycleInsightOutputSchema>;
