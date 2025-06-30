@@ -61,7 +61,7 @@ export default function ChildDetailPage() {
         }
         setLoading(false);
     }
-  }, [user, childId, child]);
+  }, [user, childId]);
 
   useEffect(() => {
     fetchChildData();
