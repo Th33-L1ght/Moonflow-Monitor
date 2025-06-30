@@ -122,8 +122,9 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
 
   const modifiersStyles = {
     period: {
-      backgroundColor: 'hsl(var(--primary) / 0.3)',
-      color: 'hsl(var(--foreground))',
+      backgroundColor: 'hsl(var(--primary) / 0.2)',
+      color: 'hsl(var(--primary))',
+      fontWeight: 'bold',
     },
     today: {
       borderColor: 'hsl(var(--primary))'
@@ -132,7 +133,6 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
         Object.keys(moodEmojis).map(mood => [
             mood.toLowerCase(),
             {
-              // Custom styling will be done via DayContent
             }
         ])
     )
@@ -157,8 +157,8 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
         {canEdit && (
             <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-                <Button size="sm" className="gap-1">
-                <PlusCircle className="h-3.5 w-3.5" />
+                <Button size="sm">
+                <PlusCircle className="mr-2 h-4 w-4" />
                 Log Period
                 </Button>
             </DialogTrigger>
@@ -176,7 +176,7 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
                         id="date"
                         variant={'outline'}
                         className={cn(
-                            'w-full justify-start text-left font-normal bg-card border-border',
+                            'w-full justify-start text-left font-normal bg-background',
                             !date && 'text-muted-foreground'
                         )}
                         >
@@ -216,7 +216,7 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
             </Dialog>
         )}
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center p-4 border rounded-lg bg-background">
         <style>{`
             .rdp-day { border-radius: 9999px; }
             .rdp-day_selected { background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }

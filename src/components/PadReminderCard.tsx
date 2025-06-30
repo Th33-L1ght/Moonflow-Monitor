@@ -8,8 +8,6 @@ interface PadReminderCardProps {
 }
 
 export function PadReminderCard({ daysUntilNextCycle }: PadReminderCardProps) {
-    // Show reminder if the next period is within 7 days.
-    // Don't show if it's today or in the past.
     if (daysUntilNextCycle === null || daysUntilNextCycle > 7 || daysUntilNextCycle < 1) {
         return null;
     }
@@ -19,13 +17,13 @@ export function PadReminderCard({ daysUntilNextCycle }: PadReminderCardProps) {
         : `Her next period starts in about ${daysUntilNextCycle} days. Time to stock up on supplies!`;
 
     return (
-        <Card className="bg-green-500/10 border-green-500/20 dark:bg-green-500/20">
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-4">
-                <ShoppingBag className="h-6 w-6 text-green-500" />
-                <CardTitle className="text-lg font-headline text-green-500/90">Reminder</CardTitle>
+        <Card className="bg-teal-500/10 border-teal-500/20">
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
+                <ShoppingBag className="h-5 w-5 text-teal-600" />
+                <CardTitle className="text-md font-semibold text-teal-700">Heads Up!</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-sm text-primary-foreground/80">
+                <p className="text-sm text-foreground/80">
                     {message}
                 </p>
             </CardContent>

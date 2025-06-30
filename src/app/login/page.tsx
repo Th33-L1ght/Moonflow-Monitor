@@ -58,57 +58,60 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-background">
-        <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center">
-            <div className="mb-8">
-              <Logo />
-            </div>
-            <h1 className="text-3xl font-bold font-body text-center">Welcome Back</h1>
-            <p className="text-balance text-muted-foreground text-center mt-2">
-              Log in to continue your journey.
-            </p>
+    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40">
+        <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center space-y-6">
+            <Logo />
+            
+            <div className="w-full bg-card p-8 rounded-lg border shadow-sm">
+              <div className="text-center mb-6">
+                <h1 className="text-2xl font-bold">Welcome Back</h1>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Log in to your parent account.
+                </p>
+              </div>
 
-            <form onSubmit={handleLogin} className="w-full mt-8 space-y-4">
-            {error && (
-                <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            )}
+              <form onSubmit={handleLogin} className="w-full space-y-4">
+              {error && (
+                  <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+              )}
 
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-                className="bg-card border-border"
-              />
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                  className="bg-background"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input 
+                  id="password" 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  className="bg-background"
+                />
+              </div>
+              <Button type="submit" className="w-full font-bold" disabled={loading}>
+                {loading ? 'Logging in...' : 'Login'}
+              </Button>
+              <Button variant="outline" className="w-full" type="button" onClick={handleSignUp} disabled={loading}>
+                Create Parent Account
+              </Button>
+              </form>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-                className="bg-card border-border"
-              />
-            </div>
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
-            </Button>
-            <Button variant="outline" className="w-full" type="button" onClick={handleSignUp} disabled={loading}>
-              Sign Up
-            </Button>
-            </form>
         </div>
     </div>
   )

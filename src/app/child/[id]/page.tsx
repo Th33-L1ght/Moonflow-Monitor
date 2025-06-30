@@ -12,20 +12,24 @@ import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AIInsightCard } from '@/components/AIInsightCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { ArrowLeft, Share2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { InviteDialog } from '@/components/InviteDialog';
 import { Button } from '@/components/ui/button';
 import { getCyclePrediction } from '@/lib/utils';
 import { PadReminderCard } from '@/components/PadReminderCard';
+import { CycleOverview } from '@/components/CycleOverview';
 
 const DetailPageSkeleton = () => (
-    <div className="flex min-h-screen w-full flex-col bg-background">
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
         <main className="flex-1 p-4 md:p-8">
-            <div className="max-w-2xl mx-auto w-full">
+            <div className="max-w-4xl mx-auto w-full">
                 <Skeleton className="h-10 w-48 mb-4" />
-                <Skeleton className="h-40 w-full mb-8" />
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                    <Skeleton className="h-28 rounded-lg" />
+                    <Skeleton className="h-28 rounded-lg" />
+                    <Skeleton className="h-28 rounded-lg" />
+                </div>
                 <Skeleton className="h-10 w-full mb-8" />
                 <Skeleton className="h-96 w-full" />
             </div>
@@ -46,14 +50,13 @@ export default function ChildDetailPage() {
     if (childId) {
         setLoading(true);
         const childData = await getChild(childId);
-        // Security check: Ensure the logged-in user is authorized to view this page.
         if (childData && user) {
             const isParent = user.role === 'parent' && childData.parentUid === user.uid;
             const isChild = user.role === 'child' && childData.id === user.childProfile?.id;
             if (isParent || isChild) {
                  setChild(childData);
             } else {
-                setChild(null); // Not authorized
+                setChild(null);
             }
         } else {
             setChild(null);
@@ -63,7 +66,7 @@ export default function ChildDetailPage() {
   }, [childId, user]);
 
   useEffect(() => {
-    if (user) { // Only fetch when user is loaded
+    if (user) {
         fetchChildData();
     }
   }, [fetchChildData, user]);
@@ -71,7 +74,6 @@ export default function ChildDetailPage() {
   const handleUpdate = (newChildData: Partial<Omit<Child, 'id'>>) => {
     if (user && child) {
         updateChild(child.id, newChildData);
-        // Optimistically update UI
         setChild(prev => prev ? { ...prev, ...newChildData, cycles: newChildData.cycles || prev.cycles } : null);
     }
   }
@@ -90,30 +92,30 @@ export default function ChildDetailPage() {
 
   return (
     <AuthGuard>
-      <div className="flex min-h-screen w-full flex-col bg-background text-foreground">
-        <main className="flex-1 p-4 md:p-6">
-          <div className="max-w-2xl mx-auto w-full">
+      <div className="flex min-h-screen w-full flex-col bg-muted/40 text-foreground">
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
+          <div className="max-w-4xl mx-auto w-full">
             <div className="mb-8 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     {user?.role === 'parent' && (
-                        <button onClick={() => router.push('/')} className="p-2 rounded-full hover:bg-card">
-                            <ArrowLeft className="h-5 w-5" />
-                        </button>
+                        <Button variant="outline" size="icon" onClick={() => router.push('/')}>
+                            <ArrowLeft className="h-4 w-4" />
+                        </Button>
                     )}
-                    <Avatar className="h-12 w-12">
+                    <Avatar className="h-16 w-16 border">
                       <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait"/>
                       <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h1 className="text-2xl font-bold font-body">{child.name}</h1>
-                      <p className="text-muted-foreground">Cycle Overview</p>
+                      <h1 className="text-3xl font-bold">{child.name}</h1>
+                      <p className="text-muted-foreground">Cycle Dashboard</p>
                     </div>
                 </div>
                 {showInviteButton && (
                     <>
-                        <Button variant="outline" size="sm" onClick={() => setInviteOpen(true)}>
+                        <Button variant="outline" onClick={() => setInviteOpen(true)}>
                             <Share2 className="mr-2 h-4 w-4" />
-                            Invite
+                            Invite Child
                         </Button>
                         <InviteDialog isOpen={isInviteOpen} setOpen={setInviteOpen} childId={child.id} />
                     </>
@@ -121,24 +123,28 @@ export default function ChildDetailPage() {
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-card mb-6">
+              <TabsList className="grid w-full grid-cols-3 bg-card mb-6 border">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="calendar">Calendar</TabsTrigger>
-                <TabsTrigger value="log">Log</TabsTrigger>
+                <TabsTrigger value="log">Log Symptoms</TabsTrigger>
               </TabsList>
+
               <TabsContent value="overview">
                 <div className="space-y-6">
-                    <CycleStatusWheel child={child} />
-                    <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
-                    <AIInsightCard child={child} />
+                    <CycleOverview child={child} />
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
+                        <AIInsightCard child={child} />
+                    </div>
                 </div>
               </TabsContent>
+
               <TabsContent value="calendar">
-                <Card className="bg-card border-none shadow-none">
+                <Card>
                     <CardHeader>
-                        <CardTitle className="font-body text-xl">Calendar</CardTitle>
+                        <CardTitle className="text-xl">Period Calendar</CardTitle>
                         <CardDescription>
-                        Visualize the current and past cycles.
+                        Visualize current and past cycles. Click a date range to log a new period.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -146,6 +152,7 @@ export default function ChildDetailPage() {
                     </CardContent>
                 </Card>
               </TabsContent>
+
               <TabsContent value="log">
                  <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
               </TabsContent>

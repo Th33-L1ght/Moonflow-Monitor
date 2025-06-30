@@ -15,17 +15,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getCycleStatus } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { Card } from '@/components/ui/card';
 
 const DashboardSkeleton = () => (
-    <div className="flex min-h-screen w-full flex-col bg-background">
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
         <Header />
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-            <div className="max-w-2xl mx-auto w-full">
-                <Skeleton className="h-10 w-48 mb-8" />
+            <div className="max-w-4xl mx-auto w-full">
+                <Skeleton className="h-10 w-64 mb-8" />
                 <div className="space-y-4">
-                    <Skeleton className="h-20 rounded-lg" />
-                    <Skeleton className="h-20 rounded-lg" />
-                    <Skeleton className="h-20 rounded-lg" />
+                    <Skeleton className="h-24 rounded-lg" />
+                    <Skeleton className="h-24 rounded-lg" />
+                    <Skeleton className="h-24 rounded-lg" />
                 </div>
             </div>
         </main>
@@ -36,21 +37,21 @@ const ChildListItem = ({ child }: { child: Child }) => {
     const { isOnPeriod, currentDay } = getCycleStatus(child);
     return (
         <Link href={`/child/${child.id}`} className="block">
-            <div className="bg-card p-4 rounded-lg flex items-center gap-4 transition-colors hover:bg-white/5">
-                <Avatar className="h-12 w-12">
+            <Card className="p-4 flex items-center gap-4 transition-all hover:shadow-md hover:border-primary/50">
+                <Avatar className="h-16 w-16 border">
                     <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
                     <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                        <p className="font-bold text-lg">{child.name}</p>
-                        <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-primary' : 'bg-green-500')} />
+                    <div className="flex items-center gap-3">
+                        <p className="font-bold text-xl">{child.name}</p>
+                        <div className={cn("w-3 h-3 rounded-full shrink-0", isOnPeriod ? 'bg-red-500' : 'bg-green-500')} />
                     </div>
-                    <p className={cn("text-sm", isOnPeriod ? "text-primary" : "text-muted-foreground")}>
+                    <p className={cn("text-sm", isOnPeriod ? "text-red-600" : "text-muted-foreground")}>
                         {isOnPeriod ? `Period - Day ${currentDay}` : 'Between Cycles'}
                     </p>
                 </div>
-            </div>
+            </Card>
         </Link>
     )
 }
@@ -64,7 +65,6 @@ export default function DashboardPage() {
 
   const fetchChildren = async () => {
     if (user && user.role === 'parent') {
-      // Don't show skeleton on refetch
       if(children.length === 0) setLoading(true);
       const userChildren = await getChildrenForUser(user.uid);
       setChildren(userChildren);
@@ -77,26 +77,20 @@ export default function DashboardPage() {
         if (user.role === 'parent') {
             fetchChildren();
         } else if (user.role === 'child' && user.childProfile) {
-            // Child user should be redirected by AuthContext, but as a fallback:
             router.replace(`/child/${user.childProfile.id}`);
         } else {
-            // User role not determined yet, or some other state
             setLoading(false);
         }
     } else {
-        // No user
         setLoading(false);
     }
-  }, [user, router]); // Add router to dependency array
+  }, [user, router]);
   
   if (loading) {
       return <DashboardSkeleton />;
   }
   
-  // This page is for parents only.
   if (user?.role !== 'parent') {
-      // Fallback for non-parent users, maybe they are a child whose redirect is pending
-      // or an un-roled user. Show a simple message or skeleton.
       return (
         <div className="flex flex-col min-h-screen w-full bg-background items-center justify-center">
             <div className="text-center">
@@ -108,17 +102,16 @@ export default function DashboardPage() {
       );
   }
 
-
   return (
     <AuthGuard>
-      <div className="flex min-h-screen w-full flex-col bg-background">
+      <div className="flex min-h-screen w-full flex-col bg-muted/40">
         <Header />
         <main className="flex flex-1 flex-col p-4 md:p-8">
-          <div className="max-w-2xl mx-auto w-full">
+          <div className="max-w-4xl mx-auto w-full">
             <div className="mb-8 flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold font-body">Hello, {user?.displayName || 'Parent'}!</h1>
-                    <p className="text-muted-foreground">Select a profile to view their cycle.</p>
+                    <h1 className="text-3xl font-bold">Hello, {user?.displayName || 'Parent'}!</h1>
+                    <p className="text-muted-foreground">Select a profile to view their cycle details.</p>
                 </div>
                 <AddChildDialog
                     isOpen={isAddChildOpen}
@@ -128,19 +121,19 @@ export default function DashboardPage() {
             </div>
             
             {children.length > 0 ? (
-                <div className="space-y-4">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {children.map((child) => (
                         <ChildListItem key={child.id} child={child} />
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-20 flex flex-col items-center bg-card rounded-lg">
+                <div className="text-center py-20 flex flex-col items-center bg-card rounded-lg border-2 border-dashed">
                     <User className="w-16 h-16 text-muted-foreground mb-4"/>
                     <h2 className="text-xl font-semibold">No children added yet</h2>
                     <p className="text-muted-foreground mt-2 mb-4 max-w-xs">Click the button below to add your first child and start tracking.</p>
                      <Button onClick={() => setAddChildOpen(true)}>
                         <PlusCircle className="mr-2 h-4 w-4"/>
-                        Add Child
+                        Add Child Profile
                     </Button>
                 </div>
             )}

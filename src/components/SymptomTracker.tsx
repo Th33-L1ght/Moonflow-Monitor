@@ -121,9 +121,9 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
   }
 
   return (
-    <Card className="bg-card border-none shadow-none">
+    <Card>
       <CardHeader>
-        <CardTitle className="font-body text-xl">Log Symptoms</CardTitle>
+        <CardTitle className="text-xl">Log Symptoms</CardTitle>
         <CardDescription>
           {isOnPeriod ? (canEdit ? "How are you feeling today?" : "Viewing symptoms logged.") : "Tracking is available during a period."}
         </CardDescription>
@@ -145,7 +145,7 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
                 key={level}
                 value={String(level)}
                 aria-label={label}
-                className="flex flex-col h-20 w-full rounded-lg gap-1 data-[state=on]:bg-primary/20 data-[state=on]:text-primary"
+                className="flex flex-col h-20 w-full rounded-lg gap-1 data-[state=on]:bg-primary/20 data-[state=on]:text-primary border"
               >
                 <span className="text-3xl">{emoji}</span>
                 <span className="text-xs font-body">{label}</span>
@@ -169,7 +169,7 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
                 key={mood}
                 value={mood}
                 aria-label={mood}
-                className="h-20 w-full text-3xl rounded-lg data-[state=on]:bg-primary/20 data-[state=on]:text-primary"
+                className="h-20 w-full text-3xl rounded-lg data-[state=on]:bg-primary/20 data-[state=on]:text-primary border"
               >
                 {emoji}
               </ToggleGroupItem>
@@ -178,7 +178,7 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
         </div>
         {canEdit && (
           <Button size="lg" className="w-full h-12 text-lg font-bold" onClick={handleSaveLog} disabled={isButtonDisabled}>
-              {isLoading ? 'Saving...' : "Apply"}
+              {isLoading ? 'Saving...' : "Save Today's Log"}
           </Button>
         )}
       </CardContent>
