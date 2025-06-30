@@ -44,7 +44,7 @@ const getInitialMockData = () => {
         parentUid: 'mock-user-id',
         childUid: 'mock-child-uid-1',
         username: 'olivia',
-        avatarUrl: `https://placehold.co/100x100/e91e63/ffffff.png`,
+        avatarUrl: `https://placehold.co/100x100/e9d5ff/581c87.png`,
         cycles: [
         {
             id: 'cycle-1-1',
@@ -79,7 +79,7 @@ const getInitialMockData = () => {
         id: 'child-2',
         name: 'Emma',
         parentUid: 'mock-user-id',
-        avatarUrl: `https://placehold.co/100x100/3f51b5/ffffff.png`,
+        avatarUrl: `https://placehold.co/100x100/cffafe/155e75.png`,
         cycles: [
         {
             id: 'cycle-2-1',
@@ -99,7 +99,7 @@ const getInitialMockData = () => {
         id: 'child-3',
         name: 'Sophia',
         parentUid: 'mock-user-id',
-        avatarUrl: `https://placehold.co/100x100/4caf50/ffffff.png`,
+        avatarUrl: `https://placehold.co/100x100/fecdd3/9f1239.png`,
         cycles: [],
     },
     ];

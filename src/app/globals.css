@@ -59,9 +59,12 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
   html {
       background-color: hsl(var(--background));
+      background-image: radial-gradient(ellipse at top, hsl(var(--primary) / 0.1), transparent 80%);
+      background-repeat: no-repeat;
+      min-height: 100vh;
   }
 }

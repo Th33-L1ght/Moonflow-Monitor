@@ -28,13 +28,14 @@ interface AvatarOption {
 }
 
 const avatars: AvatarOption[] = [
-  { url: 'https://placehold.co/100x100/fecaca/991b1b.png', hint: 'child smiling' },
-  { url: 'https://placehold.co/100x100/d1fae5/065f46.png', hint: 'teenager nature' },
-  { url: 'https://placehold.co/100x100/cffafe/0e7490.png', hint: 'kid playing' },
-  { url: 'https://placehold.co/100x100/fef08a/854d0e.png', hint: 'person happy' },
-  { url: 'https://placehold.co/100x100/e0e7ff/3730a3.png', hint: 'child portrait' },
-  { url: 'https://placehold.co/100x100/fce7f3/9d174d.png', hint: 'girl laughing' },
+  { url: 'https://placehold.co/100x100/fecdd3/9f1239.png', hint: 'butterfly pink' },
+  { url: 'https://placehold.co/100x100/d9f99d/365314.png', hint: 'butterfly green' },
+  { url: 'https://placehold.co/100x100/cffafe/155e75.png', hint: 'butterfly cyan' },
+  { url: 'https://placehold.co/100x100/e9d5ff/581c87.png', hint: 'butterfly purple' },
+  { url: 'https://placehold.co/100x100/fed7aa/9a3412.png', hint: 'butterfly orange' },
+  { url: 'https://placehold.co/100x100/bfdbfe/1e3a8a.png', hint: 'butterfly blue' },
 ];
+
 
 export function EditParentProfileDialog({ isOpen, setOpen }: EditParentProfileDialogProps) {
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
