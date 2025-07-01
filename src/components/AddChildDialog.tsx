@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlusCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { addChildForUser } from '@/lib/firebase/firestore';
+import { addChildForUser } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
@@ -55,25 +55,30 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
 
     setLoading(true);
     try {
-      await addChildForUser(user.uid, name.trim(), selectedAvatar);
-      toast({
-        title: (
-            <div className="flex items-center gap-2">
-                <ButterflyIcon className="h-5 w-5 text-primary" />
-                <span>Child Added</span>
-            </div>
-        ),
-        description: `${name.trim()} has been added successfully.`,
-      });
-      onChildAdded();
-      setOpen(false);
-      setName('');
-      setSelectedAvatar(null);
-    } catch (error) {
+      const result = await addChildForUser(user.uid, name.trim(), selectedAvatar);
+
+      if (result.success) {
+          toast({
+            title: (
+                <div className="flex items-center gap-2">
+                    <ButterflyIcon className="h-5 w-5 text-primary" />
+                    <span>Child Added</span>
+                </div>
+            ),
+            description: `${name.trim()} has been added successfully.`,
+          });
+          onChildAdded();
+          setOpen(false);
+          setName('');
+          setSelectedAvatar(null);
+      } else {
+         throw new Error(result.error || 'An unknown error occurred.');
+      }
+    } catch (error: any) {
       console.error(error);
       toast({
         title: 'Error',
-        description: 'Failed to add child. Please try again.',
+        description: error.message || 'Failed to add child. Please try again.',
         variant: 'destructive',
       });
     } finally {

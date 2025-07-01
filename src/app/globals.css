@@ -68,3 +68,47 @@
       min-height: 100vh;
   }
 }
+
+.butterfly-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.butterfly {
+  position: absolute;
+  animation: fly 15s linear infinite;
+  opacity: 0;
+  width: 40px;
+  height: 40px;
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(var(--start-x), var(--start-y)) scale(0.5);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--end-x), var(--end-y)) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Assign random-ish variables to each butterfly */
+.butterfly:nth-child(1) { --start-x: 10vw; --start-y: 90vh; --end-x: 90vw; --end-y: 10vh; animation-duration: 20s; animation-delay: -2s; }
+.butterfly:nth-child(2) { --start-x: 80vw; --start-y: 80vh; --end-x: 20vw; --end-y: 5vh; animation-duration: 15s; animation-delay: 0s; }
+.butterfly:nth-child(3) { --start-x: 5vw; --start-y: 20vh; --end-x: 95vw; --end-y: 80vh; animation-duration: 25s; animation-delay: -5s; }
+.butterfly:nth-child(4) { --start-x: 90vw; --start-y: 5vh; --end-x: 10vw; --end-y: 95vh; animation-duration: 18s; animation-delay: -10s; }
+.butterfly:nth-child(5) { --start-x: 50vw; --start-y: 100vh; --end-x: 50vw; --end-y: 0vh; animation-duration: 14s; animation-delay: -1s; }
+.butterfly:nth-child(6) { --start-x: 20vw; --start-y: 5vh; --end-x: 70vw; --end-y: 90vh; animation-duration: 22s; animation-delay: -7s; }
+.butterfly:nth-child(7) { --start-x: 75vw; --start-y: 95vh; --end-x: 25vw; --end-y: 5vh; animation-duration: 17s; animation-delay: -3s; }
+.butterfly:nth-child(8) { --start-x: 0vw; --start-y: 50vh; --end-x: 100vw; --end-y: 50vh; animation-duration: 19s; animation-delay: -12s; }

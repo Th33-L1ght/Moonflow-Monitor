@@ -2,7 +2,57 @@
 
 import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
-import { createInvite, getInvite, acceptInvite as acceptInviteInDb, getChild, resetMockData, deleteChild as deleteChildFromDb, updateChild, addFeedback } from '@/lib/firebase/firestore';
+import { 
+    createInvite, 
+    getInvite, 
+    acceptInvite as acceptInviteInDb, 
+    getChild as getChildFromDb,
+    getChildProfileForChildUser as getChildProfileForChildUserFromDb,
+    resetMockData as resetMockDataFromDb, 
+    deleteChild as deleteChildFromDb, 
+    updateChild as updateChildInDb,
+    addFeedback, 
+    getChildrenForUser as getChildrenForUserFromDb, 
+    addChildForUser as addChildForUserToDb 
+} from '@/lib/firebase/firestore';
+import type { Child } from '@/lib/types';
+
+
+// New actions to be called from client components
+export async function getChild(childId: string): Promise<Child | null> {
+    return getChildFromDb(childId);
+}
+
+export async function updateChild(childId: string, data: Partial<Omit<Child, 'id'>>): Promise<{ success: boolean; error?: string }> {
+    try {
+        await updateChildInDb(childId, data);
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to update child:", error);
+        return { success: false, error: 'Failed to update profile.' };
+    }
+}
+
+export async function getChildProfileForUser(userId: string): Promise<Child | null> {
+    return getChildProfileForChildUserFromDb(userId);
+}
+
+
+// Existing actions
+export async function getChildrenForUser(userId: string): Promise<Child[]> {
+    return getChildrenForUserFromDb(userId);
+}
+
+export async function addChildForUser(userId: string, childName: string, avatarUrl: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        await addChildForUserToDb(userId, childName, avatarUrl);
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to add child:", error);
+        return { success: false, error: 'Failed to add profile.' };
+    }
+}
+
 
 export async function generateInvite(parentUid: string, childId: string): Promise<string | null> {
     try {
@@ -21,7 +71,7 @@ export async function getInviteInfo(inviteId: string): Promise<{ childName: stri
         if (!invite || invite.status !== 'pending') {
             return { error: 'This invite is invalid or has already been used.' };
         }
-        const child = await getChild(invite.childId);
+        const child = await getChildFromDb(invite.childId);
         if (!child) {
             return { error: 'The profile associated with this invite could not be found.' };
         }
@@ -63,7 +113,7 @@ export async function acceptInviteAndCreateUser(inviteId: string, email: string,
 
 export async function resetDemoData(): Promise<{ success: boolean }> {
     try {
-        resetMockData();
+        resetMockDataFromDb();
         return { success: true };
     } catch (error) {
         console.error("Failed to reset demo data:", error);
@@ -102,10 +152,10 @@ export async function sendPasswordReset(email: string): Promise<{ success: boole
 export async function createChildLogin(childId: string, username: string, password: string): Promise<{ success: boolean; error?: string }> {
      if (!auth) {
         // In demo mode, we just pretend it worked and update the mock data.
-        const child = await getChild(childId);
+        const child = await getChildFromDb(childId);
         if (child) {
             const mockChildUid = `mock-child-uid-${Date.now()}`;
-            await updateChild(childId, { childUid: mockChildUid, username: username });
+            await updateChildInDb(childId, { childUid: mockChildUid, username: username });
         }
         return { success: true };
     }
@@ -116,7 +166,7 @@ export async function createChildLogin(childId: string, username: string, passwo
         const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
         const newChildUid = userCredential.user.uid;
 
-        await updateChild(childId, { childUid: newChildUid, username: username.trim() });
+        await updateChildInDb(childId, { childUid: newChildUid, username: username.trim() });
 
         return { success: true };
     } catch (error: any) {

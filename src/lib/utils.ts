@@ -1,24 +1,22 @@
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { type Child, type Cycle } from "@/lib/types";
 import { differenceInDays, isWithinInterval, startOfDay, addDays } from "date-fns";
-import { Timestamp } from "firebase/firestore";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const toDate = (date: Date | Timestamp | string): Date => {
-  if (date instanceof Timestamp) {
-    return date.toDate();
+// This utility is designed to run on the client, where dates from the server
+// arrive as strings. It ensures they are converted back to Date objects.
+export const toDate = (date: Date | string): Date => {
+  // If it's already a Date object, return it.
+  if (date instanceof Date) {
+    return date;
   }
-  // When data is JSON stringified, dates can become strings.
-  // This handles reconstructing them into Date objects.
-  if (typeof date === 'string') {
-    return new Date(date);
-  }
-  // It's already a Date object
-  return date;
+  // Otherwise, it's a string from server serialization.
+  return new Date(date);
 };
 
 export function getCycleStatus(child: Child | null, today: Date = new Date()) {

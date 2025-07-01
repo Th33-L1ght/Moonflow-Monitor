@@ -1,13 +1,119 @@
+'use client';
 
-export default function DashboardPage() {
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { getChildrenForUser, resetDemoData } from '@/app/actions';
+import type { Child } from '@/lib/types';
+import AuthGuard from '@/components/AuthGuard';
+import { Header } from '@/components/Header';
+import { ChildCard } from '@/components/ChildCard';
+import { AddChildDialog } from '@/components/AddChildDialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { isFirebaseConfigured } from '@/lib/firebase/client';
+import { FlyingButterflies } from '@/components/FlyingButterflies';
+import { Logo } from '@/components/Logo';
+import { PlusCircle } from 'lucide-react';
+
+
+const DashboardSkeleton = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="h-40 rounded-xl" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                </div>
+            </div>
+        ))}
+    </div>
+);
+
+const EmptyState = ({ onAddChildClick }: { onAddChildClick: () => void }) => (
+    <div className="text-center py-20 px-6 rounded-lg border-2 border-dashed bg-muted/20 relative overflow-hidden">
+        <FlyingButterflies />
+        <div className="relative z-10 flex flex-col items-center">
+            <div className="p-4 bg-background/80 backdrop-blur-sm rounded-full mb-4 inline-block">
+                 <Logo />
+            </div>
+            <h2 className="text-2xl font-bold font-body">Welcome to Light Flow</h2>
+            <p className="mt-2 text-muted-foreground max-w-md mx-auto">
+                It looks like you don't have any child profiles yet. Get started by adding your first child.
+            </p>
+            <Button onClick={onAddChildClick} className="mt-6">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Your First Child
+            </Button>
+        </div>
+    </div>
+);
+
+export default function ParentDashboardPage() {
+  const { user } = useAuth();
+  const [children, setChildren] = useState<Child[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isAddChildOpen, setAddChildOpen] = useState(false);
+
+  const fetchChildren = useCallback(async () => {
+    if (user) {
+      setLoading(true);
+      const userChildren = await getChildrenForUser(user.uid);
+      setChildren(userChildren);
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchChildren();
+  }, [fetchChildren]);
+  
+  const handleResetDemoData = async () => {
+    await resetDemoData();
+    fetchChildren();
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold">Diagnostic Test Page</h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          If you can see this, the diagnostic step was successful. We can now proceed with restoring the app's functionality.
-        </p>
+    <AuthGuard>
+      <div className="flex flex-col min-h-screen bg-muted/40">
+        <Header />
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto w-full">
+            <div className="flex items-center justify-between mb-8">
+              <h1 className="font-body text-4xl font-bold">Your Family's Cycles</h1>
+              <div className="flex items-center gap-2">
+                 {!isFirebaseConfigured && (
+                    <Button variant="outline" size="sm" onClick={handleResetDemoData}>Reset Demo Data</Button>
+                 )}
+                 {children.length > 0 && (
+                    <AddChildDialog 
+                        isOpen={isAddChildOpen}
+                        setOpen={setAddChildOpen}
+                        onChildAdded={fetchChildren}
+                    />
+                 )}
+              </div>
+            </div>
+            
+            {loading ? (
+              <DashboardSkeleton />
+            ) : children.length === 0 ? (
+                <EmptyState onAddChildClick={() => setAddChildOpen(true)} />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {children.map((child) => (
+                  <ChildCard 
+                    key={child.id} 
+                    child={child} 
+                    onChildDeleted={fetchChildren}
+                    onChildUpdated={fetchChildren}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </main>
       </div>
-    </main>
+    </AuthGuard>
   );
 }

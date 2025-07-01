@@ -7,7 +7,7 @@ import { SymptomTracker } from '@/components/SymptomTracker';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
-import { getChild, updateChild } from '@/lib/firebase/firestore';
+import { getChild, updateChild } from '@/app/actions';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AIInsightCard } from '@/components/AIInsightCard';

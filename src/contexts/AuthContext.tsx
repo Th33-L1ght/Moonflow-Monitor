@@ -5,7 +5,7 @@ import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAn
 import { auth, isFirebaseConfigured } from '@/lib/firebase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import type { AppUser } from '@/lib/types';
-import { getChildProfileForChildUser } from '@/lib/firebase/firestore';
+import { getChildProfileForUser } from '@/app/actions';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Helper function to fetch profile details and set the full AppUser state
   const setUserStateFromFirebaseUser = async (firebaseUser: User) => {
-    const childProfile = await getChildProfileForChildUser(firebaseUser.uid);
+    const childProfile = await getChildProfileForUser(firebaseUser.uid);
     if (childProfile) {
         setUser({
             ...firebaseUser,
