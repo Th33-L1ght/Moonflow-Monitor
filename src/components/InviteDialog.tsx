@@ -37,7 +37,7 @@ export function InviteDialog({ isOpen, setOpen, childId }: InviteDialogProps) {
         setLoading(true);
         const inviteId = await generateInvite(user.uid, childId);
         if (inviteId) {
-          const origin = typeof window !== 'undefined' ? window.location.origin : '';
+          const origin = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
           setInviteLink(`${origin}/invite/${inviteId}`);
         } else {
           toast({
