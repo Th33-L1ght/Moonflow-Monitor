@@ -63,7 +63,7 @@ For Firebase to build your project correctly, it needs your environment variable
     *   `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
     *   `NEXT_PUBLIC_FIREBASE_APP_ID`
 
-4.  Finally, get your Firebase Hosting URL (it looks like `your-app-name.web.app`) and add it as a secret as well:
+4.  Finally, get your Firebase Hosting URL. You can find this in your **Firebase Console** under the **Hosting** section; it usually ends in `.web.app`. Add this URL as a secret as well:
     *   `NEXT_PUBLIC_APP_URL`
 
 ### Step 4: Push to Deploy!
@@ -77,3 +77,4 @@ git push
 ```
 
 Now, every time you push to your `main` branch, your app will be deployed, and your invite links will work correctly. You can share your Firebase Hosting URL with your friends!
+
