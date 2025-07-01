@@ -1,23 +1,22 @@
+
 {
-  "name": "FemFlow",
-  "short_name": "FemFlow",
-  "description": "Track your cycle, understand your body.",
+  "name": "Light Flow",
+  "short_name": "Light Flow",
+  "description": "An app for tracking menstrual cycles.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#09090b",
-  "theme_color": "#e91e63",
+  "background_color": "#ffeff2",
+  "theme_color": "#ffeff2",
   "icons": [
     {
-      "src": "https://placehold.co/192x192.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "https://placehold.co/512x512.png",
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }

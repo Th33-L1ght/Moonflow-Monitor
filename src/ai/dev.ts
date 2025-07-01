@@ -1,2 +1,3 @@
 // Flows will be imported for their side effects in this file.
-import '@/ai/flows/cycle-insights-flow';
+// import '@/ai/flows/cycle-insights-flow';
+// Temporarily disabled due to dependency issues.
