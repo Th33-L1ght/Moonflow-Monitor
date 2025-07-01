@@ -32,21 +32,23 @@ export function FeedbackDialog({ isOpen, setOpen }: FeedbackDialogProps) {
     if (!user || !feedback.trim()) return;
 
     setLoading(true);
-    const result = await submitFeedbackAction(user.uid, feedback.trim());
+    try {
+      const result = await submitFeedbackAction(user.uid, feedback.trim());
 
-    if (result.success) {
-      toast({
-        title: 'Feedback Sent!',
-        description: 'Thank you for your valuable input.',
-      });
-      setOpen(false);
-      setFeedback('');
-    } else {
-      toast({
-        title: 'Error',
-        description: result.error || 'Failed to send feedback. Please try again.',
-        variant: 'destructive',
-      });
+      if (result.success) {
+        toast({
+          title: 'Feedback Sent!',
+          description: 'Thank you for your valuable input.',
+        });
+        setOpen(false);
+        setFeedback('');
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to send feedback. Please try again.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
