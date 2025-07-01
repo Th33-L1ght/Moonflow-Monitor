@@ -49,6 +49,13 @@ export function FeedbackDialog({ isOpen, setOpen }: FeedbackDialogProps) {
           variant: 'destructive',
         });
       }
+    } catch (error) {
+       console.error("Failed to submit feedback:", error);
+       toast({
+          title: 'Error',
+          description: 'An unexpected error occurred while submitting feedback.',
+          variant: 'destructive',
+        });
     } finally {
       setLoading(false);
     }
