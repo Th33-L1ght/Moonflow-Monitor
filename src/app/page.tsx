@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -58,14 +59,21 @@ export default function ParentDashboardPage() {
     if (user) {
       setLoading(true);
       const userChildren = await getChildrenForUser(user.uid);
-      setChildren(userChildren);
+      // This ensures that we always set an array, preventing runtime errors.
+      setChildren(userChildren || []);
       setLoading(false);
     }
   }, [user]);
 
   useEffect(() => {
-    fetchChildren();
-  }, [fetchChildren]);
+    if (user) {
+      fetchChildren();
+    } else {
+      // If there's no user, ensure we stop loading and clear the children list.
+      setLoading(false);
+      setChildren([]);
+    }
+  }, [user, fetchChildren]);
   
 
   return (

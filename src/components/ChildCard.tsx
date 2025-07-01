@@ -76,8 +76,9 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
           </Avatar>
           <div className="flex-1">
             <CardTitle className="text-xl">{child.name}</CardTitle>
-            <div className="text-sm text-muted-foreground">
-              <Badge variant={statusColor} className="mt-1">{statusText}</Badge>
+            {/* This div was changed from CardDescription to fix a hydration error, as a <p> cannot contain a <div> (the Badge) */}
+            <div className="text-sm text-muted-foreground mt-1">
+              <Badge variant={statusColor}>{statusText}</Badge>
             </div>
           </div>
           <DropdownMenu>

@@ -65,13 +65,13 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
       };
       await updateChild(child.id, updatedData);
       toast({
-        title: (
+        title: "Profile Updated",
+        description: (
             <div className="flex items-center gap-2">
                 <ButterflyIcon className="h-5 w-5 text-primary" />
-                <span>Profile Updated</span>
+                <span>{updatedData.name}'s profile has been updated successfully.</span>
             </div>
         ),
-        description: `${name.trim()}'s profile has been updated.`,
       });
       onChildUpdated();
       setOpen(false);

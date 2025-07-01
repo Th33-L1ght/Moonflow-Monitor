@@ -68,9 +68,9 @@ export function CycleLengthChart({ child }: CycleLengthChartProps) {
                                 dataKey="length"
                                 tickLine={false}
                                 axisLine={false}
-                                tickSuffix="d"
                                 domain={['dataMin - 5', 'dataMax + 5']}
-                            />
+                                tickFormatter={(value) => `${value}d`}
+                           />
                             <ChartTooltipContent />
                             <Bar dataKey="length" fill="var(--color-length)" radius={4} barSize={30} />
                         </BarChart>
