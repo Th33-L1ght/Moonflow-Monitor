@@ -14,5 +14,5 @@ if (googleApiKey && !googleApiKey.startsWith('YOUR_')) {
 
 export const ai = genkit({
   plugins,
-  model: 'googleai/gemini-2.0-flash',
+  ...(plugins.length > 0 && {model: 'googleai/gemini-2.0-flash'}),
 });

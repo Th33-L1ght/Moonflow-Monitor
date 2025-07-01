@@ -1,9 +1,6 @@
 'use server';
 
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
 import { 
-  getFirestore, 
   collection, 
   doc, 
   getDocs, 
@@ -15,25 +12,10 @@ import {
   limit, 
   serverTimestamp, 
   writeBatch,
-  deleteDoc,
-  type Firestore
+  deleteDoc
 } from 'firebase/firestore';
 import type { Child, Invite } from '@/lib/types';
-import { firebaseConfig, isFirebaseConfigured } from '@/lib/firebase/client';
-
-// --- STATELESS INITIALIZATION PATTERN ---
-// This ensures that Firebase is initialized only once per serverless function invocation,
-// avoiding module-level state which is problematic for Next.js builds.
-function getFirebaseServices() {
-    if (!isFirebaseConfigured) {
-        return { app: null, auth: null, db: null };
-    }
-    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    return { app, auth, db };
-}
-// --- END STATELESS INITIALIZATION PATTERN ---
+import { getDb } from '@/lib/firebase/server-init';
 
 
 // --- Helper function to convert Firestore Timestamps to JS Date objects ---
@@ -56,7 +38,7 @@ function convertTimestampsToDates(data: any): any {
 // --- Server Actions ---
 
 export async function getChild(childId: string): Promise<Child | null> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) return null;
     try {
         const childDocRef = doc(db, 'children', childId);
@@ -77,7 +59,7 @@ export async function getChild(childId: string): Promise<Child | null> {
 }
 
 export async function updateChild(childId: string, data: Partial<Omit<Child, 'id'>>): Promise<{ success: boolean; error?: string }> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) return { success: false, error: 'Firebase not configured.'};
     try {
         const childDocRef = doc(db, 'children', childId);
@@ -90,7 +72,7 @@ export async function updateChild(childId: string, data: Partial<Omit<Child, 'id
 }
 
 export async function getChildProfileForUser(userId: string): Promise<Child | null> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) return null;
     const q = query(collection(db, 'children'), where('childUid', '==', userId), limit(1));
     const snapshot = await getDocs(q);
@@ -102,7 +84,7 @@ export async function getChildProfileForUser(userId: string): Promise<Child | nu
 }
 
 export async function getChildrenForUser(userId: string): Promise<Child[]> {
-  const { db } = getFirebaseServices();
+  const db = getDb();
   if (!db) return [];
   try {
     const q = query(collection(db, 'children'), where('parentUid', '==', userId));
@@ -115,7 +97,7 @@ export async function getChildrenForUser(userId: string): Promise<Child[]> {
 }
 
 export async function addChildForUser(userId: string, childName: string, avatarUrl: string): Promise<{ success: boolean; error?: string }> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) return { success: false, error: 'Firebase not configured.'};
     try {
         const newChildData: Omit<Child, 'id'> = {
@@ -133,7 +115,7 @@ export async function addChildForUser(userId: string, childName: string, avatarU
 }
 
 async function getInvite(inviteId: string): Promise<Invite | null> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) return null;
     const docRef = doc(db, 'invites', inviteId);
     const docSnap = await getDoc(docRef);
@@ -142,7 +124,7 @@ async function getInvite(inviteId: string): Promise<Invite | null> {
 }
 
 export async function acceptInviteInDb(inviteId: string, childUid: string): Promise<{ success: boolean; error?: string }> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) {
         return { success: false, error: "Database not configured." };
     }
@@ -167,7 +149,7 @@ export async function acceptInviteInDb(inviteId: string, childUid: string): Prom
 
 
 export async function generateInvite(parentUid: string, childId: string): Promise<string | null> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) return null;
     try {
         const inviteData = { parentUid, childId, status: 'pending', createdAt: serverTimestamp() };
@@ -180,7 +162,7 @@ export async function generateInvite(parentUid: string, childId: string): Promis
 }
 
 export async function getInviteInfo(inviteId: string): Promise<{ childName: string } | { error: string }> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) return { error: 'Firebase not configured.'};
     try {
         const invite = await getInvite(inviteId);
@@ -199,7 +181,7 @@ export async function getInviteInfo(inviteId: string): Promise<{ childName: stri
 }
 
 export async function deleteChildAction(childId: string): Promise<{ success: boolean; error?: string }> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) return { success: false, error: 'Firebase not configured.'};
     try {
         await deleteDoc(doc(db, 'children', childId));
@@ -211,7 +193,7 @@ export async function deleteChildAction(childId: string): Promise<{ success: boo
 }
 
 export async function submitFeedbackAction(userId: string, feedbackText: string): Promise<{ success: boolean; error?: string }> {
-    const { db } = getFirebaseServices();
+    const db = getDb();
     if (!db) return { success: false, error: 'Firebase not configured.'};
     try {
         await addDoc(collection(db, 'feedback'), {
