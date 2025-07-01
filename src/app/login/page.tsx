@@ -12,14 +12,15 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/firebase/client";
-import { sendPasswordReset } from "@/app/actions";
+import { sendPasswordResetEmail } from 'firebase/auth';
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loginStep, setLoginStep] = useState<'idle' | 'pending'>('idle');
-  const { signIn, signUp } = useAuth();
+  const { auth, signIn, signUp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -90,6 +91,10 @@ export default function LoginPage() {
 
   const handlePasswordReset = async () => {
     setError(null);
+    if (!auth) {
+        setError("Authentication service is not available. Please check your configuration.");
+        return;
+    }
     if (!email) {
       setError("Please enter your email address in the field above to reset your password.");
       return;
@@ -100,14 +105,18 @@ export default function LoginPage() {
     }
     
     setLoginStep('pending');
-    const result = await sendPasswordReset(email);
-    if (result.success) {
-      toast({
-        title: "Password Reset Email Sent",
-        description: "Check your inbox for instructions to reset your password.",
-      });
-    } else {
-      setError(result.error || 'An unexpected error occurred.');
+    try {
+        await sendPasswordResetEmail(auth, email);
+        toast({
+            title: "Password Reset Email Sent",
+            description: "Check your inbox for instructions to reset your password.",
+        });
+    } catch (error: any) {
+        let message = 'An unexpected error occurred.';
+        if (error.code === 'auth/user-not-found') {
+            message = 'No user found with this email address.';
+        }
+        setError(message);
     }
     setLoginStep('idle');
   };

@@ -1,7 +1,7 @@
 'use server';
 
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail, type Auth } from 'firebase/auth';
+import { getAuth, type Auth } from 'firebase/auth';
 import { 
   getFirestore, 
   collection, 
@@ -21,31 +21,22 @@ import {
 import type { Child, Invite } from '@/lib/types';
 import { firebaseConfig, isFirebaseConfigured } from '@/lib/firebase/client';
 
-// --- LAZY INITIALIZATION PATTERN ---
-let app: FirebaseApp | null = null;
-let auth: Auth | null = null;
-let db: Firestore | null = null;
-
+// --- STATELESS INITIALIZATION PATTERN ---
+// This ensures that Firebase is initialized only once per serverless function invocation,
+// avoiding module-level state which is problematic for Next.js builds.
 function getFirebaseServices() {
-    if (isFirebaseConfigured && !app) {
-        try {
-            app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-        } catch (error) {
-            console.error("Firebase initialization failed on server.", error);
-            app = null;
-            auth = null;
-            db = null;
-        }
+    if (!isFirebaseConfigured) {
+        return { app: null, auth: null, db: null };
     }
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    const auth = getAuth(app);
+    const db = getFirestore(app);
     return { app, auth, db };
 }
-// --- END LAZY INITIALIZATION PATTERN ---
+// --- END STATELESS INITIALIZATION PATTERN ---
 
 
-// --- Helper function from firestore.ts ---
-// This version avoids importing `Timestamp` from the client SDK
+// --- Helper function to convert Firestore Timestamps to JS Date objects ---
 function convertTimestampsToDates(data: any): any {
   if (data && typeof data.toDate === 'function') {
     return data.toDate();
@@ -150,22 +141,28 @@ async function getInvite(inviteId: string): Promise<Invite | null> {
     return { id: docSnap.id, ...convertTimestampsToDates(docSnap.data()) } as Invite;
 }
 
-async function acceptInviteInDb(inviteId: string, childUid: string): Promise<void> {
+export async function acceptInviteInDb(inviteId: string, childUid: string): Promise<{ success: boolean; error?: string }> {
     const { db } = getFirebaseServices();
     if (!db) {
-        throw new Error("Database not configured.");
+        return { success: false, error: "Database not configured." };
     }
     const invite = await getInvite(inviteId);
     if (!invite || invite.status !== 'pending') {
-        throw new Error("Invite is invalid or has already been accepted.");
+        return { success: false, error: "Invite is invalid or has already been accepted." };
     }
     
-    const batch = writeBatch(db);
-    const inviteRef = doc(db, 'invites', inviteId);
-    const childRef = doc(db, 'children', invite.childId);
-    batch.update(childRef, { childUid: childUid });
-    batch.update(inviteRef, { status: 'accepted' });
-    await batch.commit();
+    try {
+      const batch = writeBatch(db);
+      const inviteRef = doc(db, 'invites', inviteId);
+      const childRef = doc(db, 'children', invite.childId);
+      batch.update(childRef, { childUid: childUid });
+      batch.update(inviteRef, { status: 'accepted' });
+      await batch.commit();
+      return { success: true };
+    } catch(error: any) {
+        console.error("Error accepting invite in DB:", error);
+        return { success: false, error: error.message || "Failed to update database." };
+    }
 }
 
 
@@ -201,25 +198,6 @@ export async function getInviteInfo(inviteId: string): Promise<{ childName: stri
     }
 }
 
-export async function acceptInviteAndCreateUser(inviteId: string, email: string, pass: string): Promise<{ success: boolean; error?: string }> {
-    const { auth } = getFirebaseServices();
-    if (!auth) return { success: false, error: 'Firebase not configured.'};
-    try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-        await acceptInviteInDb(inviteId, userCredential.user.uid);
-        return { success: true };
-    } catch (error: any) {
-        console.error("Error accepting invite and creating user:", error);
-        let message = 'An unexpected error occurred. Please try again.';
-        if (error.code === 'auth/email-already-in-use') {
-            message = 'This email address is already in use. Please use a different email.';
-        } else if (error.code === 'auth/weak-password') {
-            message = 'The password is too weak. Please choose a stronger password.';
-        }
-        return { success: false, error: message };
-    }
-}
-
 export async function deleteChildAction(childId: string): Promise<{ success: boolean; error?: string }> {
     const { db } = getFirebaseServices();
     if (!db) return { success: false, error: 'Firebase not configured.'};
@@ -229,43 +207,6 @@ export async function deleteChildAction(childId: string): Promise<{ success: boo
     } catch (error) {
         console.error("Failed to delete child:", error);
         return { success: false, error: 'Failed to delete profile.' };
-    }
-}
-
-export async function sendPasswordReset(email: string): Promise<{ success: boolean; error?: string }> {
-    const { auth } = getFirebaseServices();
-    if (!auth) return { success: false, error: 'Firebase not configured.'};
-    try {
-        await sendPasswordResetEmail(auth, email);
-        return { success: true };
-    } catch (error: any) {
-        console.error("Failed to send password reset email:", error);
-        let message = 'An unexpected error occurred.';
-        if (error.code === 'auth/user-not-found') {
-            message = 'No user found with this email address.';
-        }
-        return { success: false, error: message };
-    }
-}
-
-export async function createChildLogin(childId: string, username: string, password: string): Promise<{ success: boolean; error?: string }> {
-    const { auth } = getFirebaseServices();
-    if (!auth) return { success: false, error: 'Firebase not configured.'};
-    
-    try {
-        const dummyEmail = `${username.toLowerCase().trim()}@lightflow.app`;
-        const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
-        await updateChild(childId, { childUid: userCredential.user.uid, username: username.trim() });
-        return { success: true };
-    } catch (error: any) {
-        console.error("Error creating child login:", error);
-        let message = 'An unexpected error occurred. Please try again.';
-        if (error.code === 'auth/email-already-in-use') {
-            message = 'This username is already taken. Please choose another one.';
-        } else if (error.code === 'auth/weak-password') {
-            message = 'The password is too weak. Please choose a stronger password (at least 6 characters).';
-        }
-        return { success: false, error: message };
     }
 }
 

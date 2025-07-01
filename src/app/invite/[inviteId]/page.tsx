@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { getInviteInfo, acceptInviteAndCreateUser } from '@/app/actions';
+import { getInviteInfo, acceptInviteInDb } from '@/app/actions';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -22,7 +22,7 @@ export default function InvitePage() {
     const { inviteId } = useParams<{ inviteId: string }>();
     const router = useRouter();
     const { toast } = useToast();
-    const { signIn } = useAuth();
+    const { signUpAndSignIn } = useAuth();
 
     const [childName, setChildName] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -53,33 +53,40 @@ export default function InvitePage() {
         setFormLoading(true);
         setError(null);
         
-        const result = await acceptInviteAndCreateUser(inviteId, email, password);
+        try {
+            const userCredential = await signUpAndSignIn(email, password);
+            const dbResult = await acceptInviteInDb(inviteId, userCredential.user.uid);
 
-        if (result.success) {
-            setSuccess(true);
-            toast({
-                title: "Account Created!",
-                description: "You can now log in to track your cycle.",
-            });
-            // Automatically sign in the new user
-            try {
-                await signIn(email, password);
-                // AuthContext will handle redirecting the new child user
-            } catch (err) {
-                // If sign-in fails, redirect to login page for manual login
-                router.push('/login');
+            if (dbResult.success) {
+                 setSuccess(true);
+                 toast({
+                    title: "Account Created!",
+                    description: "You're now being redirected.",
+                });
+                // AuthContext redirect will handle the rest
+            } else {
+                throw new Error(dbResult.error);
             }
-        } else {
-            setError(result.error || "An unknown error occurred.");
+
+        } catch (error: any) {
+            let message = 'An unexpected error occurred. Please try again.';
+            if (error.code === 'auth/email-already-in-use') {
+                message = 'This email address is already in use. Please use a different email.';
+            } else if (error.code === 'auth/weak-password') {
+                message = 'The password is too weak. Please choose a stronger password.';
+            } else if(error.message) {
+                message = error.message;
+            }
+            setError(message);
+            setFormLoading(false);
         }
-        setFormLoading(false);
     };
 
     if (loading) {
         return <InvitePageSkeleton />;
     }
 
-    if (error) {
+    if (error && !formLoading) {
          return (
              <div className="w-full min-h-screen flex items-center justify-center p-4 bg-background">
                 <Alert variant="destructive" className="max-w-md">

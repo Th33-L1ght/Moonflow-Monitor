@@ -13,10 +13,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { createChildLogin } from '@/app/actions';
+import { updateChild } from '@/app/actions';
 import type { Child } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CreateChildLoginDialogProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export function CreateChildLoginDialog({ isOpen, setOpen, child, onLoginCreated 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { signUpWithDummyEmail } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,22 +42,37 @@ export function CreateChildLoginDialog({ isOpen, setOpen, child, onLoginCreated 
     }
     setError(null);
     setLoading(true);
+    
+    try {
+        const userCredential = await signUpWithDummyEmail(username, password);
+        const result = await updateChild(child.id, { childUid: userCredential.user.uid, username: username.trim() });
 
-    const result = await createChildLogin(child.id, username.trim(), password);
+        if (result.success) {
+            toast({
+                title: "Login Created",
+                description: `A login has been created for ${child.name}.`,
+            });
+            onLoginCreated();
+            setOpen(false);
+            setUsername('');
+            setPassword('');
+        } else {
+            throw new Error(result.error || 'Failed to update child profile.');
+        }
 
-    if (result.success) {
-        toast({
-            title: "Login Created",
-            description: `A login has been created for ${child.name}.`,
-        });
-        onLoginCreated();
-        setOpen(false);
-        setUsername('');
-        setPassword('');
-    } else {
-        setError(result.error || 'An unknown error occurred.');
+    } catch(error: any) {
+        let message = 'An unexpected error occurred. Please try again.';
+        if (error.code === 'auth/email-already-in-use') {
+            message = 'This username is already taken. Please choose another one.';
+        } else if (error.code === 'auth/weak-password') {
+            message = 'The password is too weak. Please choose a stronger password (at least 6 characters).';
+        } else if (error.message) {
+            message = error.message;
+        }
+        setError(message);
+    } finally {
+        setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

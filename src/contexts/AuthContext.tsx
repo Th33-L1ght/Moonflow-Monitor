@@ -1,41 +1,49 @@
+
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, getAuth, type Auth } from 'firebase/auth';
+import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, getAuth, type Auth, type UserCredential } from 'firebase/auth';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { firebaseConfig, isFirebaseConfigured } from '@/lib/firebase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import type { AppUser } from '@/lib/types';
 import { getChildProfileForUser } from '@/app/actions';
 
-// --- Client-Side Firebase Initialization ---
-let auth: Auth | null = null;
-if (isFirebaseConfigured) {
-    try {
-        const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-        auth = getAuth(app);
-    } catch(e) {
-        console.error("Firebase initialization failed in AuthContext.", e);
-    }
-}
-// --- End Client-Side Firebase Initialization ---
-
 interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
-  signIn: (email: string, pass: string) => Promise<any>;
-  signUp: (email: string, pass: string) => Promise<any>;
+  auth: Auth | null;
+  signIn: (email: string, pass: string) => Promise<UserCredential>;
+  signUp: (email: string, pass: string) => Promise<UserCredential>;
+  signUpWithDummyEmail: (username: string, pass: string) => Promise<UserCredential>;
+  signUpAndSignIn: (email: string, pass: string) => Promise<UserCredential>;
   signOut: () => Promise<void>;
   updateUserProfile: (data: { photoURL?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Moved Firebase initialization into a function to avoid module-level side effects.
+const getFirebaseAuth = (): Auth | null => {
+    if (isFirebaseConfigured) {
+        try {
+            const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+            return getAuth(app);
+        } catch (e) {
+            console.error("Firebase initialization failed in AuthContext.", e);
+            return null;
+        }
+    }
+    return null;
+}
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  // Store auth instance in state to ensure it's created only once.
+  const [auth] = useState<Auth | null>(getFirebaseAuth());
 
   // Helper function to fetch profile details and set the full AppUser state
   const setUserStateFromFirebaseUser = async (firebaseUser: User) => {
@@ -57,12 +65,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // This effect handles the auth state listener for keeping the user logged in across page loads.
     if (!auth) {
+        setUser(null);
         setLoading(false);
-        // If firebase is not configured, redirect to login page where a message will be shown.
-        if (!pathname.startsWith('/login')) {
-            router.replace('/login');
-        }
-        return;
+        return; // No auth instance, so stop here. Redirect logic will handle it.
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -75,28 +80,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [pathname, router]); // Add dependencies to re-run if they change
+  }, [auth]); // Dependency on auth instance
 
   // This effect handles redirects based on user role and current path.
   useEffect(() => {
-    if (loading || !isFirebaseConfigured) {
-      return;
+    if (loading) {
+      return; // Don't do anything until auth state is resolved
     }
     
+    const isPublicPage = pathname.startsWith('/login') || pathname.startsWith('/invite');
+
     // If user is logged in, handle redirects away from public pages
     if (user) {
         if (user.role === 'child' && user.childProfile) {
+            // If a child is not on their own page, redirect them.
             if (!pathname.startsWith(`/child/${user.childProfile.id}`)) {
                 router.replace(`/child/${user.childProfile.id}`);
             }
         } else if (user.role === 'parent') {
-            if (pathname.startsWith('/login') || pathname.startsWith('/invite')) {
+            // If a parent is on a public page, redirect them to the dashboard.
+            if (isPublicPage) {
                 router.replace('/');
             }
         }
     } else {
         // If user is not logged in, ensure they are on a public page
-        if (!pathname.startsWith('/login') && !pathname.startsWith('/invite')) {
+        if (!isPublicPage) {
             router.replace('/login');
         }
     }
@@ -116,26 +125,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return userCredential;
   }
 
+  const signUpWithDummyEmail = async (username: string, pass: string) => {
+     if (!auth) throw new Error("Firebase not configured.");
+     const dummyEmail = `${username.toLowerCase().trim()}@lightflow.app`;
+     // Does not sign in the user or update context, as this is a parent action
+     return await createUserWithEmailAndPassword(auth, dummyEmail, pass);
+  }
+
+  const signUpAndSignIn = async (email: string, pass: string) => {
+     if (!auth) throw new Error("Firebase not configured.");
+     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+     await setUserStateFromFirebaseUser(userCredential.user);
+     return userCredential;
+  }
+
   const signOut = async () => {
     if (!auth) throw new Error("Firebase not configured.");
     await firebaseSignOut(auth);
-    setUser(null);
-    router.push('/login');
+    setUser(null); // The redirect effect will handle router.push
   };
 
   const updateUserProfile = async (data: { photoURL?: string }) => {
     if (!auth?.currentUser) throw new Error("User not authenticated.");
     await updateProfile(auth.currentUser, data);
+    // The user object in firebase has been updated, now update our local AppUser
     setUser(prevUser => {
         if (!prevUser) return null;
-        const newUser = { ...prevUser } as AppUser;
-        if (data.photoURL) newUser.photoURL = data.photoURL;
-        return newUser;
+        return { ...prevUser, ...data };
     });
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, updateUserProfile }}>
+    <AuthContext.Provider value={{ user, loading, auth, signIn, signUp, signUpAndSignIn, signUpWithDummyEmail, signOut, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );
