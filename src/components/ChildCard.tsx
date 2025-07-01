@@ -76,9 +76,9 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
           </Avatar>
           <div className="flex-1">
             <CardTitle className="text-xl">{child.name}</CardTitle>
-            <CardDescription>
+            <div className="text-sm text-muted-foreground">
               <Badge variant={statusColor} className="mt-1">{statusText}</Badge>
-            </CardDescription>
+            </div>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
