@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getChildrenForUser, resetDemoData } from '@/app/actions';
+import { getChildrenForUser } from '@/app/actions';
 import type { Child } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import { Header } from '@/components/Header';
@@ -10,7 +10,6 @@ import { ChildCard } from '@/components/ChildCard';
 import { AddChildDialog } from '@/components/AddChildDialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { isFirebaseConfigured } from '@/lib/firebase/client';
 import { FlyingButterflies } from '@/components/FlyingButterflies';
 import { Logo } from '@/components/Logo';
 import { PlusCircle } from 'lucide-react';
@@ -68,10 +67,6 @@ export default function ParentDashboardPage() {
     fetchChildren();
   }, [fetchChildren]);
   
-  const handleResetDemoData = async () => {
-    await resetDemoData();
-    fetchChildren();
-  }
 
   return (
     <AuthGuard>
@@ -82,9 +77,6 @@ export default function ParentDashboardPage() {
             <div className="flex items-center justify-between mb-8">
               <h1 className="font-body text-4xl font-bold">Your Family's Cycles</h1>
               <div className="flex items-center gap-2">
-                 {!isFirebaseConfigured && (
-                    <Button variant="outline" size="sm" onClick={handleResetDemoData}>Reset Demo Data</Button>
-                 )}
                  {children.length > 0 && (
                     <AddChildDialog 
                         isOpen={isAddChildOpen}

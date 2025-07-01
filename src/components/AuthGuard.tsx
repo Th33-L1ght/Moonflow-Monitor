@@ -1,23 +1,10 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Skeleton } from './ui/skeleton';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    // The main redirection logic is now handled in AuthContext.
-    // This guard's primary role is to show a loading state
-    // while the initial auth check is happening. If after loading,
-    // there's still no user, the context will handle the redirect.
-    if (!loading && !user) {
-      router.replace('/login');
-    }
-  }, [user, loading, router]);
 
   if (loading) {
     return (
@@ -34,9 +21,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // If we have a user, we can render the children.
-  // If not, the effect in AuthContext will handle the redirect.
-  // Returning null here prevents a flash of un-authenticated content.
+  // The AuthContext now handles all redirects. If there's no user, it will
+  // redirect away, so we return null here to prevent a flash of
+  // un-authenticated content before the redirect happens.
   if (!user) {
     return null;
   }

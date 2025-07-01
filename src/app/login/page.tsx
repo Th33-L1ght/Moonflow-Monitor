@@ -28,6 +28,12 @@ export default function LoginPage() {
     setLoginStep('pending');
     setError(null);
 
+    if (!isFirebaseConfigured) {
+        setError("Firebase is not configured. Please add your credentials to the .env file.");
+        setLoginStep('idle');
+        return;
+    }
+
     let loginIdentifier = email.trim();
     // If it looks like a username (no @), treat it as a child login.
     if (loginIdentifier && !loginIdentifier.includes('@')) {
@@ -56,26 +62,20 @@ export default function LoginPage() {
     }
     setLoginStep('pending');
     setError(null);
-    try {
-      // In demo mode, signUp just logs the user in.
-      if (!isFirebaseConfigured) {
-          toast({
-              title: "Continuing in Demo Mode",
-              description: "Logging you in with a sample parent account.",
-          });
-          await signIn(email, password);
-          return; 
-      }
 
-      // Real Firebase flow
+    if (!isFirebaseConfigured) {
+        setError("Firebase is not configured. Please add your credentials to the .env file to create an account.");
+        setLoginStep('idle');
+        return;
+    }
+
+    try {
       await signUp(email, password);
       toast({
           title: "Account Created",
           description: "Welcome! Logging you in now...",
       });
       // The `signUp` function in AuthContext now handles setting the user state.
-      // No need to call signIn again.
-
     } catch (err: any) {
       if (err.code === 'auth/configuration-not-found') {
           setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
@@ -148,6 +148,13 @@ export default function LoginPage() {
                   <AlertDescription>{error}</AlertDescription>
                   </Alert>
               )}
+               {!isFirebaseConfigured && (
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Demo Mode</AlertTitle>
+                    <AlertDescription>The app is running in demo mode. Please configure Firebase in your <code>.env</code> file to enable full functionality.</AlertDescription>
+                  </Alert>
+                )}
 
               <div className="grid gap-2">
                 <Label htmlFor="email">Email or Username</Label>
