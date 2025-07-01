@@ -6,7 +6,7 @@ import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAn
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { firebaseConfig, isFirebaseConfigured } from '@/lib/firebase/client';
 import { useRouter, usePathname } from 'next/navigation';
-import type { AppUser } from '@/lib/types';
+import type { AppUser } from '@/lib/auth-types';
 import { getChildProfileForUser } from '@/app/actions';
 
 interface AuthContextType {
@@ -23,27 +23,28 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Moved Firebase initialization into a function to avoid module-level side effects.
-const getFirebaseAuth = (): Auth | null => {
-    if (isFirebaseConfigured) {
-        try {
-            const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-            return getAuth(app);
-        } catch (e) {
-            console.error("Firebase initialization failed in AuthContext.", e);
-            return null;
-        }
-    }
-    return null;
-}
-
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  // Store auth instance in state to ensure it's created only once.
-  const [auth] = useState<Auth | null>(getFirebaseAuth());
+  const [auth, setAuth] = useState<Auth | null>(null);
+
+  // Initialize Firebase auth object safely on the client side.
+  useEffect(() => {
+    if (isFirebaseConfigured) {
+        try {
+            const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+            setAuth(getAuth(app));
+        } catch (e) {
+            console.error("Firebase initialization failed in AuthContext.", e);
+            setLoading(false); // Stop loading on failure
+        }
+    } else {
+        setLoading(false); // Stop loading if not configured
+    }
+  }, []);
+
 
   // Helper function to fetch profile details and set the full AppUser state
   const setUserStateFromFirebaseUser = async (firebaseUser: User) => {
@@ -65,9 +66,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // This effect handles the auth state listener for keeping the user logged in across page loads.
     if (!auth) {
-        setUser(null);
-        setLoading(false);
-        return; // No auth instance, so stop here. Redirect logic will handle it.
+        return; // Don't run if auth isn't initialized yet.
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -80,7 +79,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [auth]); // Dependency on auth instance
+  }, [auth]);
 
   // This effect handles redirects based on user role and current path.
   useEffect(() => {
@@ -151,7 +150,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // The user object in firebase has been updated, now update our local AppUser
     setUser(prevUser => {
         if (!prevUser) return null;
-        return { ...prevUser, ...data };
+        const updatedFirebaseUser = { ...auth.currentUser, ...data };
+        return { ...prevUser, ...updatedFirebaseUser };
     });
   };
 

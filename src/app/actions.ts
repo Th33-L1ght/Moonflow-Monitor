@@ -1,6 +1,9 @@
+
 'use server';
 
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
+  getFirestore,
   collection, 
   doc, 
   getDocs, 
@@ -12,11 +15,24 @@ import {
   limit, 
   serverTimestamp, 
   writeBatch,
-  deleteDoc
+  deleteDoc,
+  type Firestore
 } from 'firebase/firestore';
-import type { Child, Invite } from '@/lib/types';
-import { getDb } from '@/lib/firebase/server-init';
+import type { Child } from '@/lib/types';
+import { firebaseConfig } from '@/lib/firebase/client';
 
+// --- Internal Firebase Services Initialization ---
+function getDb(): Firestore | null {
+    const isConfigured = Object.values(firebaseConfig).every(
+      (value) => value && !value.startsWith('YOUR_')
+    );
+    if (!isConfigured) {
+        console.warn("Firebase is not configured. Server-side DB operations will be skipped.");
+        return null;
+    }
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    return getFirestore(app);
+}
 
 // --- Helper function to convert Firestore Timestamps to JS Date objects ---
 function convertTimestampsToDates(data: any): any {
@@ -34,6 +50,16 @@ function convertTimestampsToDates(data: any): any {
   }
   return data;
 }
+
+// --- Internal Invite Type ---
+interface Invite {
+    id: string;
+    parentUid: string;
+    childId: string;
+    status: 'pending' | 'accepted';
+    createdAt: Date;
+}
+
 
 // --- Server Actions ---
 
@@ -207,3 +233,5 @@ export async function submitFeedbackAction(userId: string, feedbackText: string)
         return { success: false, error: 'Failed to submit feedback.' };
     }
 }
+
+    

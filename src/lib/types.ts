@@ -1,4 +1,3 @@
-import type { User as FirebaseUser } from 'firebase/auth';
 
 export type CrampLevel = 1 | 2 | 3 | 4;
 export type Mood = 'Happy' | 'Moody' | 'Fine' | 'Sad';
@@ -25,17 +24,4 @@ export interface Child {
   parentUid: string;
   childUid?: string;
   username?: string;
-}
-
-export interface AppUser extends FirebaseUser {
-    role: 'parent' | 'child';
-    childProfile?: Child;
-}
-
-export interface Invite {
-    id: string;
-    parentUid: string;
-    childId: string;
-    status: 'pending' | 'accepted';
-    createdAt: Date;
 }
