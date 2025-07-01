@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AuthGuard from '@/components/AuthGuard';
@@ -128,30 +128,31 @@ export default function ChildDetailPage() {
   const [loading, setLoading] = useState(true);
   const [isEditChildOpen, setEditChildOpen] = useState(false);
 
-  const fetchChildData = useCallback(async () => {
-    if (childId) {
+  useEffect(() => {
+    if (!user || !childId) return;
+
+    // Optimization: If the logged-in user is the child being viewed,
+    // use the profile data we already fetched during login to avoid a network request.
+    if (user.role === 'child' && user.childProfile && user.childProfile.id === childId) {
+      setChild(user.childProfile);
+      setLoading(false);
+    } else {
+      // Otherwise, fetch the data (e.g., for a parent viewing the page)
+      const fetchChildData = async () => {
         setLoading(true);
         const childData = await getChild(childId);
-        if (childData && user) {
-            const isParent = user.role === 'parent' && childData.parentUid === user.uid;
-            const isChild = user.role === 'child' && childData.id === user.childProfile?.id;
-            if (isParent || isChild) {
-                 setChild(childData);
-            } else {
-                setChild(null);
-            }
+        // Ensure the user is authorized to view this profile
+        if (childData && (childData.parentUid === user.uid || childData.childUid === user.uid)) {
+          setChild(childData);
         } else {
-            setChild(null);
+          setChild(null); // Not found or not authorized
         }
         setLoading(false);
+      };
+      fetchChildData();
     }
   }, [childId, user]);
 
-  useEffect(() => {
-    if (user) {
-        fetchChildData();
-    }
-  }, [fetchChildData, user]);
 
   const handleUpdate = (newChildData: Partial<Omit<Child, 'id'>>) => {
     if (user && child) {
@@ -162,8 +163,13 @@ export default function ChildDetailPage() {
     }
   }
 
-  const handleProfileUpdate = () => {
-    fetchChildData();
+  const handleProfileUpdate = async () => {
+    if (childId && user) {
+        setLoading(true);
+        const childData = await getChild(childId);
+        setChild(childData);
+        setLoading(false);
+    }
   }
 
   if (loading) {
