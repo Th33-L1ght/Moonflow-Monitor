@@ -68,7 +68,7 @@ For Firebase to build your project correctly, it needs your environment variable
 
 ### Step 4: Push to Deploy!
 
-Commit and push your changes to GitHub. The workflow you just created will automatically build and deploy your application.
+Commit and push your changes to GitHub. This will upload the workflow file you just created and start the first automatic deployment.
 
 ```bash
 git add .
@@ -76,5 +76,6 @@ git commit -m "Configure GitHub Actions for deployment"
 git push
 ```
 
-Now, every time you push to your `main` branch, your app will be deployed, and your invite links will work correctly. You can share your Firebase Hosting URL with your friends!
+Now, every time you push to your `main` branch, your app will be deployed, and your invite links will work correctly. You can check the deployment progress in the "Actions" tab of your GitHub repository and find your public URL in the Firebase Console under "Hosting". You can share this Firebase Hosting URL with your friends!
+
 
