@@ -59,13 +59,13 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
 
       if (result.success) {
           toast({
-            title: (
+            title: "Child added",
+            description: (
                 <div className="flex items-center gap-2">
                     <ButterflyIcon className="h-5 w-5 text-primary" />
-                    <span>Child Added</span>
+                    <span>{name.trim()} has been added successfully.</span>
                 </div>
             ),
-            description: `${name.trim()} has been added successfully.`,
           });
           onChildAdded();
           setOpen(false);
