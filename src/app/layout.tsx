@@ -8,11 +8,9 @@ import type { Metadata, Viewport } from 'next';
 export const metadata: Metadata = {
   title: 'Light Flow',
   description: 'An app for a mother to know which of her children is on their period, track symptoms, and view cycle history.',
-  manifest: '/manifest.json',
 };
 
 export const viewport: Viewport = {
-    themeColor: '#ffeff2'
 }
 
 export default function RootLayout({

@@ -2,7 +2,15 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, getAuth, type Auth, type UserCredential } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  signOut as firebaseSignOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  getAuth,
+} from 'firebase/auth';
+import type { User, Auth, UserCredential } from 'firebase/auth';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { useRouter, usePathname } from 'next/navigation';
 import type { AppUser } from '@/lib/auth-types';
