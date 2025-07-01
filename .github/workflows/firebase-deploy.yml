@@ -1,9 +1,9 @@
-name: Deploy to Firebase
+name: Deploy to Firebase Hosting
 
 on:
   push:
     branches:
-      - main  # or "master", whichever branch you deploy from
+      - main  
 
 jobs:
   build-and-deploy:
@@ -16,15 +16,20 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+        
+      - name: Build project
+        run: npm run build
 
-      - name: Deploy to Firebase
+      - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           channelId: live
-          projectId: your-actual-project-id
+          projectId: moonflow-monitor
+          entryPoint: .
+          firebaseToolsVersion: latest
