@@ -128,13 +128,6 @@ export default function ChildDetailPage() {
   const [loading, setLoading] = useState(true);
   const [isEditChildOpen, setEditChildOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
-  const [visitedTabs, setVisitedTabs] = useState(new Set(['overview']));
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setVisitedTabs(prev => new Set(prev).add(value));
-  }
-
 
   useEffect(() => {
     if (!user || !childId) return;
@@ -221,7 +214,7 @@ export default function ChildDetailPage() {
                 {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
             </div>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-5 bg-card mb-6 border">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="calendar">Calendar</TabsTrigger>
@@ -233,36 +226,26 @@ export default function ChildDetailPage() {
             
             <div className="mt-6">
                 <div hidden={activeTab !== 'overview'}>
-                    {visitedTabs.has('overview') && (
-                        <div className="space-y-6">
-                            <CycleStatusWheel child={child} />
-                            <AIInsightCard child={child} />
-                            <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
-                        </div>
-                    )}
+                    <div className="space-y-6">
+                        <CycleStatusWheel child={child} />
+                        <AIInsightCard child={child} />
+                        <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
+                    </div>
                 </div>
                 <div hidden={activeTab !== 'calendar'}>
-                    {visitedTabs.has('calendar') && (
-                        <PeriodCalendar child={child} onUpdate={handleUpdate} canEdit={canEdit} />
-                    )}
+                    <PeriodCalendar child={child} onUpdate={handleUpdate} canEdit={canEdit} />
                 </div>
                 <div hidden={activeTab !== 'charts'}>
-                    {visitedTabs.has('charts') && (
-                        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
-                            <MoodChart child={child} />
-                            <CycleLengthChart child={child} />
-                        </div>
-                    )}
+                    <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
+                        <MoodChart child={child} />
+                        <CycleLengthChart child={child} />
+                    </div>
                 </div>
                 <div hidden={activeTab !== 'journal'}>
-                    {visitedTabs.has('journal') && (
-                        <JournalView child={child} />
-                    )}
+                    <JournalView child={child} />
                 </div>
                 <div hidden={activeTab !== 'log'}>
-                    {visitedTabs.has('log') && (
-                        <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
-                    )}
+                    <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
                 </div>
             </div>
 

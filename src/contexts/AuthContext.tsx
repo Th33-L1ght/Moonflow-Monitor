@@ -11,7 +11,7 @@ import {
   getAuth,
 } from 'firebase/auth';
 import type { User, Auth, UserCredential } from 'firebase/auth';
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { useRouter, usePathname } from 'next/navigation';
 import type { AppUser } from '@/lib/auth-types';
 import { getChildProfileForUser } from '@/app/actions';
