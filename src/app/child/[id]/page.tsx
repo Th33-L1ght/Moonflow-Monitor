@@ -1,9 +1,8 @@
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
-import { PeriodCalendar } from '@/components/PeriodCalendar';
-import { SymptomTracker } from '@/components/SymptomTracker';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,10 +18,8 @@ import { getCyclePrediction } from '@/lib/utils';
 import { PadReminderCard } from '@/components/PadReminderCard';
 import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
-import { MoodChart } from '@/components/MoodChart';
-import { CycleLengthChart } from '@/components/CycleLengthChart';
-import { JournalView } from '@/components/JournalView';
 import { EditChildDialog } from '@/components/EditChildDialog';
+import dynamic from 'next/dynamic';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -40,6 +37,87 @@ const DetailPageSkeleton = () => (
         </main>
     </div>
 );
+
+const PeriodCalendar = dynamic(() => import('@/components/PeriodCalendar').then(mod => mod.PeriodCalendar), {
+    loading: () => (
+        <Card>
+            <CardHeader>
+                <CardTitle>Period Calendar</CardTitle>
+                <CardDescription>
+                Visualize current and past cycles. Click a date range to log a new period.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex justify-center p-4 border rounded-lg bg-background">
+                    <Skeleton className="h-[290px] w-[280px]" />
+                </div>
+            </CardContent>
+        </Card>
+    ),
+    ssr: false
+});
+
+const MoodChart = dynamic(() => import('@/components/MoodChart').then(mod => mod.MoodChart), {
+    loading: () => (
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2 mt-2" />
+            </CardHeader>
+            <CardContent>
+                <Skeleton className="h-48 w-full" />
+            </CardContent>
+        </Card>
+    ),
+    ssr: false
+});
+
+const CycleLengthChart = dynamic(() => import('@/components/CycleLengthChart').then(mod => mod.CycleLengthChart), {
+    loading: () => (
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2 mt-2" />
+            </CardHeader>
+            <CardContent>
+                <Skeleton className="h-48 w-full" />
+            </CardContent>
+        </Card>
+    ),
+    ssr: false
+});
+
+const JournalView = dynamic(() => import('@/components/JournalView').then(mod => mod.JournalView), {
+    loading: () => (
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-1/4" />
+                <Skeleton className="h-4 w-1/2 mt-2" />
+            </CardHeader>
+            <CardContent>
+                <Skeleton className="h-96 w-full" />
+            </CardContent>
+        </Card>
+    )
+});
+
+const SymptomTracker = dynamic(() => import('@/components/SymptomTracker').then(mod => mod.SymptomTracker), {
+    loading: () => (
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-4 w-2/3 mt-2" />
+            </CardHeader>
+            <CardContent className="grid gap-8">
+                <Skeleton className="h-28 w-full" />
+                <Skeleton className="h-28 w-full" />
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-12 w-full" />
+            </CardContent>
+        </Card>
+    ),
+    ssr: false
+});
 
 
 export default function ChildDetailPage() {
@@ -147,17 +225,7 @@ export default function ChildDetailPage() {
               </TabsContent>
 
               <TabsContent value="calendar">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Period Calendar</CardTitle>
-                        <CardDescription>
-                        Visualize current and past cycles. Click a date range to log a new period.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <PeriodCalendar child={child} onUpdate={handleUpdate} canEdit={canEdit} />
-                    </CardContent>
-                </Card>
+                <PeriodCalendar child={child} onUpdate={handleUpdate} canEdit={canEdit} />
               </TabsContent>
               
               <TabsContent value="charts">
