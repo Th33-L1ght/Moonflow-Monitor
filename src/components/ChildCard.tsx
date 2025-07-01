@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -24,7 +25,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { deleteChildAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { isFirebaseConfigured } from '@/lib/firebase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ChildCardProps {
   child: Child;
@@ -36,6 +37,7 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
   const router = useRouter();
   const { toast } = useToast();
   const { isOnPeriod, currentDay } = getCycleStatus(child);
+  const { isFirebaseConfigured } = useAuth();
   
   const [isInviteOpen, setInviteOpen] = useState(false);
   const [isCreateLoginOpen, setCreateLoginOpen] = useState(false);

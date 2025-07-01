@@ -1,3 +1,2 @@
-// This file is intentionally left empty. All data access logic has been
-// moved to src/app/actions.ts to conform to Next.js App Router patterns
-// and resolve a persistent build error.
+// This file is intentionally left empty.
+// All data access logic has been moved to src/app/actions.ts.

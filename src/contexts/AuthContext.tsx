@@ -4,15 +4,30 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, getAuth, type Auth, type UserCredential } from 'firebase/auth';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { firebaseConfig, isFirebaseConfigured } from '@/lib/firebase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import type { AppUser } from '@/lib/auth-types';
 import { getChildProfileForUser } from '@/app/actions';
+
+// Define config and state check directly inside the context file.
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+
+const isFirebaseConfigured = Object.values(firebaseConfig).every(
+  (value) => value && !value.startsWith('YOUR_')
+);
+
 
 interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
   auth: Auth | null;
+  isFirebaseConfigured: boolean;
   signIn: (email: string, pass: string) => Promise<UserCredential>;
   signUp: (email: string, pass: string) => Promise<UserCredential>;
   signUpWithDummyEmail: (username: string, pass: string) => Promise<UserCredential>;
@@ -66,7 +81,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // This effect handles the auth state listener for keeping the user logged in across page loads.
     if (!auth) {
-        return; // Don't run if auth isn't initialized yet.
+        if (!isFirebaseConfigured) setLoading(false);
+        return; 
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -156,7 +172,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, auth, signIn, signUp, signUpAndSignIn, signUpWithDummyEmail, signOut, updateUserProfile }}>
+    <AuthContext.Provider value={{ user, loading, auth, isFirebaseConfigured, signIn, signUp, signUpAndSignIn, signUpWithDummyEmail, signOut, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );
