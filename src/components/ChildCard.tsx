@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn } from 'lucide-react';
+import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn, Link2Off } from 'lucide-react';
 import { getCycleStatus } from '@/lib/utils';
 import type { Child } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { deleteChildAction } from '@/lib/firebase/client-actions';
+import { deleteChildAction, unlinkChildAccountAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { logError } from '@/lib/error-logging';
@@ -44,6 +44,7 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
   const [isInviteOpen, setInviteOpen] = useState(false);
   const [isCreateLoginOpen, setCreateLoginOpen] = useState(false);
   const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isUnlinkConfirmOpen, setUnlinkConfirmOpen] = useState(false);
 
   const statusText = isOnPeriod ? `On Period - Day ${currentDay}` : 'Not on Period';
   const statusColor = isOnPeriod ? 'destructive' : 'secondary';
@@ -60,21 +61,40 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
           });
           onChildDeleted();
       } else {
-          toast({
-              title: "Error",
-              description: result.error,
-              variant: "destructive",
-          });
+          throw new Error(result.error);
       }
-    } catch (error) {
+    } catch (error: any) {
       logError(error, { location: 'ChildCard.handleDelete', childId: child.id });
        toast({
-          title: "Error",
-          description: "An unexpected error occurred while deleting the profile.",
+          title: "Error Deleting Profile",
+          description: error.message || "An unexpected error occurred.",
           variant: "destructive",
       });
     }
     setDeleteConfirmOpen(false);
+  }
+
+  const handleUnlink = async () => {
+    try {
+        const result = await unlinkChildAccountAction(child.id);
+        if (result.success) {
+            toast({
+                title: "Account Unlinked",
+                description: `The login for ${child.name} has been unlinked. You can now create a new one.`,
+            });
+            onChildUpdated();
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error: any) {
+        logError(error, { location: 'ChildCard.handleUnlink', childId: child.id });
+        toast({
+            title: "Error Unlinking Account",
+            description: error.message || "An unexpected error occurred.",
+            variant: "destructive",
+        });
+    }
+    setUnlinkConfirmOpen(false);
   }
 
   const DeleteMenuItem = () => (
@@ -127,9 +147,9 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
                 </>
               )}
                {isFirebaseConfigured && hasAccount && (
-                 <DropdownMenuItem disabled>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    <span>Account Linked</span>
+                 <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
+                    <Link2Off className="mr-2 h-4 w-4" />
+                    <span>Unlink Account</span>
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
@@ -137,13 +157,12 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      {/* The div is necessary for the tooltip to work on a disabled item */}
                       <div>
                         <DeleteMenuItem />
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Cannot delete a profile with a linked account.</p>
+                      <p>Unlink account before deleting profile.</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -162,12 +181,14 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             <Button className="w-full" onClick={() => router.push(`/child/${child.id}`)}>View Dashboard</Button>
         </CardFooter>
       </Card>
+      
       {isFirebaseConfigured && (
         <>
             <InviteDialog isOpen={isInviteOpen} setOpen={setInviteOpen} childId={child.id} />
             <CreateChildLoginDialog isOpen={isCreateLoginOpen} setOpen={setCreateLoginOpen} child={child} onLoginCreated={onChildUpdated} />
         </>
       )}
+
       <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
             <AlertDialogHeader>
@@ -179,6 +200,21 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isUnlinkConfirmOpen} onOpenChange={setUnlinkConfirmOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Unlink Account?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This will remove the current login from {child.name}'s profile. You should only do this if they have forgotten their password. You can then create a new login for them.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleUnlink}>Unlink</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

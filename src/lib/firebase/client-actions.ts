@@ -13,6 +13,7 @@ import {
   writeBatch,
   deleteDoc,
   Timestamp,
+  deleteField,
 } from 'firebase/firestore';
 import type { Child } from '@/lib/types';
 import { db } from './client';
@@ -195,7 +196,7 @@ export async function deleteChildAction(childId: string): Promise<{ success: boo
     try {
         const child = await getChild(childId);
         if (child?.childUid) {
-            return { success: false, error: "Cannot delete a profile with a linked user account." };
+            return { success: false, error: "Cannot delete a profile with a linked user account. Please unlink the account first." };
         }
         await deleteDoc(doc(db, 'children', childId));
         return { success: true };
@@ -204,6 +205,22 @@ export async function deleteChildAction(childId: string): Promise<{ success: boo
         return { success: false, error: 'Failed to delete profile.' };
     }
 }
+
+export async function unlinkChildAccountAction(childId: string): Promise<{ success: boolean; error?: string }> {
+    if (!db) return { success: false, error: 'Firebase not configured.' };
+    try {
+        const childDocRef = doc(db, 'children', childId);
+        await updateDoc(childDocRef, {
+            childUid: deleteField(),
+            username: deleteField()
+        });
+        return { success: true };
+    } catch (error) {
+        logError(error, { location: 'client-actions.unlinkChildAccountAction', childId });
+        return { success: false, error: 'Failed to unlink account.' };
+    }
+}
+
 
 export async function submitFeedbackAction(userId: string, feedbackText: string): Promise<{ success: boolean; error?: string }> {
     if (!db) return { success: false, error: 'Firebase not configured.'};

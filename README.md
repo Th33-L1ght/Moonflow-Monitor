@@ -29,8 +29,21 @@ That's it! You can monitor the progress of your deployment in the **Actions** ta
 
 You can find the public URL for your deployed application in the **Firebase Console**.
 1. Navigate to your project: **moonflow-monitor**.
-2. Under the "Build" menu, click on **Hosting**.
+2. Under the **Build** menu, click on **Hosting**.
 3. Your public URL (e.g., `moonflow-monitor.web.app`) will be listed there. You can visit this URL on your computer or phone.
+
+## Child Logins & Invitations
+
+There are two ways to allow a child to log in and manage their own profile:
+
+1.  **Invite via Email**: If your child has an email address, you can generate a one-time invite link from their card in the dashboard. Copy this link and send it to them via email, WhatsApp, or any other messaging app. When they click it, they will be prompted to create their own account with an email and password.
+
+2.  **Create Child Login**: If your child does not have an email address, you can create a simple username and password for them directly from their card. They can use this username and password to log in.
+
+### Forgotten Passwords
+
+*   **Parent Accounts**: If you forget your password, you can use the "Forgot Password?" link on the login page, which will send a reset link to your email address.
+*   **Child Accounts**: If a child forgets their password (for a username-based login), the parent can reset their access. On the child's card, use the menu to select **"Unlink Account"**. This will disconnect their old login, allowing you to use **"Create Child Login"** to set up a new one.
 
 ## Monitoring Your App
 
@@ -52,3 +65,5 @@ When an error occurs in your app, it is logged to **Firebase Analytics** so you 
 1.  In the Firebase Console, navigate to the **Release & Monitor** section in the left menu.
 2.  Click on **Analytics**, then select the **Events** tab.
 3.  Look for an event name called `app_error`. (Note: It can take a few hours for new events to appear).
+
+**First Time Setup for Analytics:** If you've just enabled Analytics, it may show a screen asking you to "Add an app to get started". You can ignore this. Your app is already configured. Simply use your live app for a few minutes (e.g., log in and add a child) to send the first event. The screen will then be replaced with the proper Analytics dashboard automatically. This can sometimes take a few hours.
