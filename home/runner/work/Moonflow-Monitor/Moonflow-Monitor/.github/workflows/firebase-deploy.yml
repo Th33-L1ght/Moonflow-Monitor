@@ -1,3 +1,4 @@
+
 name: Deploy to Firebase Hosting
 
 on:
@@ -35,5 +36,3 @@ jobs:
           projectId: moonflow-monitor
           entryPoint: .
           firebaseToolsVersion: latest
-        env:
-          FIREBASE_CLI_EXPERIMENTS: webframeworks
