@@ -71,6 +71,7 @@ export default function ParentDashboardPage() {
       setChildren([]);
     }
   }, [user, fetchChildren]);
+  
 
   return (
     <AuthGuard>
@@ -81,12 +82,14 @@ export default function ParentDashboardPage() {
             <div className="flex items-center justify-between mb-8">
               <h1 className="font-body text-4xl font-bold">Your Family's Cycles</h1>
               <div className="flex items-center gap-2">
-                 <Button onClick={() => setAddChildOpen(true)} size="sm" className="gap-1">
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                        Add Child
-                    </span>
-                 </Button>
+                 {children.length > 0 && (
+                    <Button onClick={() => setAddChildOpen(true)} size="sm" className="gap-1">
+                        <PlusCircle className="h-3.5 w-3.5" />
+                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                            Add Another Child
+                        </span>
+                    </Button>
+                 )}
               </div>
             </div>
             
