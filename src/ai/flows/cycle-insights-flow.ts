@@ -8,7 +8,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit/zod';
+import { z } from 'zod';
 import type { Cycle } from '@/lib/types';
 
 // Define the Zod schema for the flow's output
