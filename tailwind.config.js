@@ -10,8 +10,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Inter"', 'sans-serif'],
-        body: ['"Inter"', 'sans-serif'],
+        sans: ["var(--font-sans)", 'sans-serif'],
+        body: ["var(--font-sans)", 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
