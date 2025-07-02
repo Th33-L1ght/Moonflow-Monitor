@@ -171,11 +171,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const updateUserProfile = async (data: { photoURL?: string }) => {
     if (!auth?.currentUser) throw new Error("User not authenticated.");
     await updateProfile(auth.currentUser, data);
-    // The user object in firebase has been updated, now update our local AppUser
+    // After updating in Firebase, update our local state for immediate UI feedback.
     setUser(prevUser => {
-        if (!prevUser) return null;
-        const updatedFirebaseUser = { ...auth.currentUser, ...data };
-        return { ...prevUser, ...updatedFirebaseUser };
+        if (!prevUser || !auth?.currentUser) return null;
+        // Create a new user object, preserving the existing custom fields (like role)
+        // and updating only the properties from the now-updated auth.currentUser.
+        return {
+            ...prevUser,
+            photoURL: auth.currentUser.photoURL,
+        };
     });
   };
 
