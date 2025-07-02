@@ -74,13 +74,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const childProfile = await getChildProfileForUser(firebaseUser.uid);
     if (childProfile) {
         setUser({
-            ...firebaseUser,
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+            emailVerified: firebaseUser.emailVerified,
+            isAnonymous: firebaseUser.isAnonymous,
+            metadata: firebaseUser.metadata,
+            providerData: firebaseUser.providerData,
+            providerId: firebaseUser.providerId,
+            tenantId: firebaseUser.tenantId,
+            refreshToken: firebaseUser.refreshToken,
+            delete: firebaseUser.delete,
+            getIdToken: firebaseUser.getIdToken,
+            getIdTokenResult: firebaseUser.getIdTokenResult,
+            reload: firebaseUser.reload,
+            toJSON: firebaseUser.toJSON,
             role: 'child',
             childProfile: childProfile
         });
     } else {
          setUser({
-            ...firebaseUser,
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+            emailVerified: firebaseUser.emailVerified,
+            isAnonymous: firebaseUser.isAnonymous,
+            metadata: firebaseUser.metadata,
+            providerData: firebaseUser.providerData,
+            providerId: firebaseUser.providerId,
+            tenantId: firebaseUser.tenantId,
+            refreshToken: firebaseUser.refreshToken,
+            delete: firebaseUser.delete,
+            getIdToken: firebaseUser.getIdToken,
+            getIdTokenResult: firebaseUser.getIdTokenResult,
+            reload: firebaseUser.reload,
+            toJSON: firebaseUser.toJSON,
             role: 'parent',
         });
     }
@@ -174,13 +204,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // After updating in Firebase, update our local state for immediate UI feedback.
     setUser(prevUser => {
         if (!prevUser) return null;
-        // This is much safer. We update the local state with the same data
-        // we sent to Firebase, avoiding any race conditions with the auth listener.
-        const updatedUser: AppUser = {
-            ...prevUser,
-            photoURL: data.photoURL || null,
-        };
-        return updatedUser;
+        const updatedUser = { ...prevUser };
+        if (data.photoURL) {
+            updatedUser.photoURL = data.photoURL;
+        }
+        return updatedUser as AppUser;
     });
   };
 
