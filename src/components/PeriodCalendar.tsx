@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Calendar as CalendarIcon, PlusCircle } from 'lucide-react';
 import { addDays, format, isSameDay } from 'date-fns';
-import { DateRange } from 'react-day-picker';
+import { DateRange, DayContentProps } from 'react-day-picker';
 
 import { cn, toDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -133,7 +133,7 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
     )
   };
 
-  const DayContent = (props: { date: Date; displayMonth: Date }) => {
+  const DayContent = (props: DayContentProps) => {
     const moodEntry = moodDays.find(md => isSameDay(md.date, props.date));
     if (moodEntry) {
       return (
@@ -143,7 +143,7 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
         </div>
       );
     }
-    return format(props.date, 'd');
+    return <>{format(props.date, 'd')}</>;
   };
 
   return (
