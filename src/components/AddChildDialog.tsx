@@ -19,6 +19,8 @@ import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { PadsButterflyIcon as ButterflyIcon } from './PadsButterflyIcon';
 import { logError } from '@/lib/error-logging';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface AddChildDialogProps {
   isOpen: boolean;
@@ -44,21 +46,19 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
   const [name, setName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-        toast({
-            title: 'Authentication Error',
-            description: 'You must be logged in to add a profile.',
-            variant: 'destructive',
-        });
+        setError('You must be logged in to add a profile.');
         return;
     }
     if (!name.trim() || !selectedAvatar) return;
 
+    setError(null);
     setLoading(true);
     try {
       const result = await addChildForUser(user.uid, name.trim(), selectedAvatar);
@@ -75,8 +75,6 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
           });
           onChildAdded();
           setOpen(false);
-          setName('');
-          setSelectedAvatar(null);
       } else {
          throw new Error(result.error || 'An unknown error occurred.');
       }
@@ -84,15 +82,11 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
       logError(error, { location: 'AddChildDialog.handleSubmit', userId: user.uid });
       let description = 'Failed to add profile. Please try again.';
       if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('permission-denied'))) {
-        description = 'Permission denied. Please ensure your Firestore security rules are set up correctly in the Firebase Console.';
+        description = 'Permission denied. The app is being blocked by your database security rules. Please update them in the Firebase Console.';
       } else if (error.message) {
         description = error.message;
       }
-      toast({
-        title: 'Error Adding Profile',
-        description: description,
-        variant: 'destructive',
-      });
+      setError(description);
     } finally {
       setLoading(false);
     }
@@ -104,6 +98,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
         setName('');
         setSelectedAvatar(null);
         setLoading(false);
+        setError(null);
       }
       setOpen(open);
     }}>
@@ -115,7 +110,14 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
               Enter a name and choose an avatar to start tracking.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-6 py-4">
+          <div className="grid gap-4 py-4">
+             {error && (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error Adding Profile</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
                 Name
