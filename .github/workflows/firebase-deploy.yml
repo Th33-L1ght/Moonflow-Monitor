@@ -35,6 +35,6 @@ jobs:
           channelId: live
           projectId: moonflow-monitor
           entryPoint: .
-          firebaseToolsVersion: latest
+          firebaseToolsVersion: 13.11.2
         env:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
