@@ -1,5 +1,5 @@
 import { genkit } from 'genkit';
-import { googleAI } from '@genkit-ai/google-ai';
+import { googleAI } from '@genkit-ai/googleai';
 import { enableFirebaseTelemetry } from '@genkit-ai/firebase';
 
 // This enables sending telemetry to Google Cloud Trace and other services.
