@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn, Link2Off } from 'lucide-react';
+import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn, Link2Off, UserCheck2 } from 'lucide-react';
 import { getCycleStatus } from '@/lib/utils';
 import type { Child } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
@@ -118,8 +117,14 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
           </Avatar>
           <div className="flex-1">
             <CardTitle className="text-xl">{child.name}</CardTitle>
-            <div className="text-sm text-muted-foreground mt-1">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1 flex-wrap">
               <Badge variant={statusColor}>{statusText}</Badge>
+              {hasAccount && (
+                <Badge variant="outline" className="gap-1 pl-1.5 pr-2.5">
+                  <UserCheck2 className="h-3.5 w-3.5" />
+                  Account Linked
+                </Badge>
+              )}
             </div>
           </div>
           <DropdownMenu>
@@ -133,33 +138,36 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
                 <Edit className="mr-2 h-4 w-4" />
                 <span>View & Edit Details</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {isFirebaseConfigured && !hasAccount && (
-                <>
-                <DropdownMenuItem onSelect={() => setCreateLoginOpen(true)}>
-                    <LogIn className="mr-2 h-4 w-4" />
-                    <span>Create Child Login</span>
-                </DropdownMenuItem>
-                 <DropdownMenuItem onSelect={() => setInviteOpen(true)}>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    <span>Invite via Email</span>
-                </DropdownMenuItem>
-                </>
-              )}
-               {isFirebaseConfigured && hasAccount && (
-                 <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
+
+              {isFirebaseConfigured && <DropdownMenuSeparator />}
+              
+              {isFirebaseConfigured && (
+                hasAccount ? (
+                  <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
                     <Link2Off className="mr-2 h-4 w-4" />
                     <span>Unlink Account</span>
-                </DropdownMenuItem>
+                  </DropdownMenuItem>
+                ) : (
+                  <>
+                    <DropdownMenuItem onSelect={() => setCreateLoginOpen(true)}>
+                      <LogIn className="mr-2 h-4 w-4" />
+                      <span>Create Child Login</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => setInviteOpen(true)}>
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      <span>Invite via Email</span>
+                    </DropdownMenuItem>
+                  </>
+                )
               )}
+
               <DropdownMenuSeparator />
+              
               {hasAccount ? (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div>
-                        <DeleteMenuItem />
-                      </div>
+                      <div><DeleteMenuItem /></div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Unlink account before deleting profile.</p>
@@ -209,7 +217,7 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             <AlertDialogHeader>
             <AlertDialogTitle>Unlink Account?</AlertDialogTitle>
             <AlertDialogDescription>
-                This will remove the current login from {child.name}'s profile. You should only do this if they have forgotten their password. You can then create a new login for them.
+                This will remove the current login from {child.name}'s profile. This action does not delete any cycle data. You should only do this if they have forgotten their password. You can then create a new login for them.
             </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
