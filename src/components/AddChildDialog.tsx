@@ -141,7 +141,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
           </div>
           <DialogFooter>
             <Button type="submit" disabled={loading || !name.trim() || !selectedAvatar}>
-              {loading ? 'Adding...' : 'Add Child'}
+              {loading ? 'Adding...' : 'Add Profile'}
             </Button>
           </DialogFooter>
         </form>
