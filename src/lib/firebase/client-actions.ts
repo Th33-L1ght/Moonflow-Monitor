@@ -193,6 +193,10 @@ export async function getInviteInfo(inviteId: string): Promise<{ childName: stri
 export async function deleteChildAction(childId: string): Promise<{ success: boolean; error?: string }> {
     if (!db) return { success: false, error: 'Firebase not configured.'};
     try {
+        const child = await getChild(childId);
+        if (child?.childUid) {
+            return { success: false, error: "Cannot delete a profile with a linked user account." };
+        }
         await deleteDoc(doc(db, 'children', childId));
         return { success: true };
     } catch (error) {

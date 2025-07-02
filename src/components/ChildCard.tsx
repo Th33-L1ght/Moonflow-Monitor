@@ -27,6 +27,7 @@ import { deleteChildAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { logError } from '@/lib/error-logging';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface ChildCardProps {
   child: Child;
@@ -76,6 +77,17 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
     setDeleteConfirmOpen(false);
   }
 
+  const DeleteMenuItem = () => (
+    <DropdownMenuItem 
+        onSelect={() => setDeleteConfirmOpen(true)} 
+        className="text-destructive focus:text-destructive"
+        disabled={hasAccount}
+    >
+        <Trash2 className="mr-2 h-4 w-4" />
+        <span>Delete Profile</span>
+    </DropdownMenuItem>
+  );
+
   return (
     <>
       <Card className="flex flex-col">
@@ -121,10 +133,23 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => setDeleteConfirmOpen(true)} className="text-destructive focus:text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                <span>Delete Profile</span>
-              </DropdownMenuItem>
+              {hasAccount ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {/* The div is necessary for the tooltip to work on a disabled item */}
+                      <div>
+                        <DeleteMenuItem />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Cannot delete a profile with a linked account.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <DeleteMenuItem />
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
