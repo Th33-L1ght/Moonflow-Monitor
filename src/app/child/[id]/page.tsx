@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getChild, updateChild } from '@/app/actions';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AIInsightCard } from '@/components/AIInsightCard';
+// import { AIInsightCard } from '@/components/AIInsightCard';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Edit } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -228,7 +228,7 @@ export default function ChildDetailPage() {
                 <div hidden={activeTab !== 'overview'}>
                     <div className="space-y-6">
                         <CycleStatusWheel child={child} />
-                        <AIInsightCard child={child} />
+                        {/* <AIInsightCard child={child} /> */}
                         <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
                     </div>
                 </div>
