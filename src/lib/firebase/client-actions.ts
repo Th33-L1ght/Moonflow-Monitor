@@ -119,14 +119,14 @@ export async function addChildForUser(userId: string, childName: string, avatarU
         await addDoc(collection(db, 'children'), newChildData);
         return { success: true };
     } catch (error: any) {
-      logError(error, { location: 'AddChildDialog.handleSubmit', userId });
-      let description = 'Failed to add profile. Please try again.';
-      if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('permission-denied'))) {
-        description = 'Permission denied. The app is being blocked by your database security rules. Please update them in the Firebase Console.';
-      } else if (error.message) {
-        description = error.message;
+      logError(error, { location: 'client-actions.addChildForUser', userId, childName });
+      let message = error.message || 'An unknown error occurred while adding the profile.';
+      if (error.code === 'permission-denied') {
+        message = 'Permission Denied: Your database security rules are blocking this request. Please update your rules in the Firebase Console.';
+      } else if (error.code === 'failed-precondition') {
+          message = "Your database needs a special index to work correctly. Please check the developer console (press F12) for a link to create it.";
       }
-      return { success: false, error: description };
+      return { success: false, error: message };
     }
 }
 

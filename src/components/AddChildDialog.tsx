@@ -60,29 +60,26 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
 
     setError(null);
     setLoading(true);
-    try {
-      const result = await addChildForUser(user.uid, name.trim(), selectedAvatar);
 
-      if (result.success) {
-          toast({
-            title: "Profile Added",
-            description: (
-                <div className="flex items-center gap-2">
-                    <ButterflyIcon className="h-5 w-5 text-primary" />
-                    <span>{name.trim()} has been added successfully.</span>
-                </div>
-            ),
-          });
-          onChildAdded();
-          setOpen(false);
-      } else {
-         throw new Error(result.error || 'An unknown error occurred.');
-      }
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
+    const result = await addChildForUser(user.uid, name.trim(), selectedAvatar);
+
+    if (result.success) {
+      toast({
+        title: "Profile Added",
+        description: (
+            <div className="flex items-center gap-2">
+                <ButterflyIcon className="h-5 w-5 text-primary" />
+                <span>{name.trim()} has been added successfully.</span>
+            </div>
+        ),
+      });
+      onChildAdded();
+      setOpen(false);
+    } else {
+      setError(result.error || 'An unknown error occurred.');
     }
+    
+    setLoading(false);
   };
 
   return (
