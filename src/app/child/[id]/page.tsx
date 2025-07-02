@@ -19,6 +19,7 @@ import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 import { EditChildDialog } from '@/components/EditChildDialog';
 import dynamic from 'next/dynamic';
+import { AIInsightCard } from '@/components/AIInsightCard';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -222,6 +223,7 @@ export default function ChildDetailPage() {
                 <div hidden={activeTab !== 'overview'}>
                     <div className="space-y-6">
                         <CycleStatusWheel child={child} />
+                        <AIInsightCard />
                         <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
                     </div>
                 </div>

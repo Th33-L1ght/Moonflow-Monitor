@@ -1,3 +1,5 @@
-// This file is intentionally left empty.
-// All server-side actions have been removed to convert this to a static application.
-// Client-side data fetching logic is now handled in src/lib/firebase/client-actions.ts
+
+'use server';
+
+// This file is not in use.
+// AI features have been removed to resolve deployment issues.
