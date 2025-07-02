@@ -67,6 +67,12 @@ export default function LoginPage() {
     setLoginStep('pending');
     setError(null);
 
+    if (!email.includes('@')) {
+        setError("Please use a valid email address to create a parent account. Usernames without an '@' are for child logins.");
+        setLoginStep('idle');
+        return;
+    }
+
     if (!isFirebaseConfigured) {
         setError("Firebase is not configured. Please add your credentials to the .env file to create an account.");
         setLoginStep('idle');
@@ -86,6 +92,8 @@ export default function LoginPage() {
           setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
       } else if (err.code === 'auth/email-already-in-use') {
         setError('This email address is already in use by another account.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('The email address you entered is not valid. Please check it and try again.');
       } else {
         setError(err.message);
       }
