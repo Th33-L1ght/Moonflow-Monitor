@@ -11,12 +11,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { generateInvite } from '@/lib/firebase/client-actions';
-import { Copy, Check } from 'lucide-react';
+import { Share2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface InviteDialogProps {
@@ -28,7 +26,6 @@ interface InviteDialogProps {
 export function InviteDialog({ isOpen, setOpen, childId }: InviteDialogProps) {
   const [inviteLink, setInviteLink] = useState('');
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -54,46 +51,58 @@ export function InviteDialog({ isOpen, setOpen, childId }: InviteDialogProps) {
     }
   }, [isOpen, user, childId, setOpen, toast]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(inviteLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+  const handleShare = async () => {
+    const shareData = {
+        title: 'Invitation to Light Flow',
+        text: "You've been invited to join a profile on Light Flow. Click this link to get started.",
+        url: inviteLink,
+    };
+
+    if (navigator.share && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        console.error('Error sharing:', error);
+        // Fallback to copy if user cancels the share dialog
+        navigator.clipboard.writeText(inviteLink);
+        toast({
+          title: "Link Copied",
+          description: "Sharing was cancelled. The invite link has been copied to your clipboard.",
+        });
+      }
+    } else {
+      // Fallback for browsers that don't support navigator.share
+      navigator.clipboard.writeText(inviteLink);
+      toast({
+        title: "Link Copied",
+        description: "Your browser doesn't support direct sharing. The invite link has been copied to your clipboard.",
+      });
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Invite Link</DialogTitle>
+            <DialogTitle>Share Invite</DialogTitle>
             <DialogDescription>
-              Share this one-time link with your child to let them create an account and log their own symptoms.
+              Send this one-time invite to your child. They can use it to create an account and link it to this profile.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <Label htmlFor="invite-link">One-Time Invite Link</Label>
+          <div className="py-4">
             {loading ? (
-                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-12 w-full" />
             ) : (
-                <div className="relative">
-                    <Input
-                        id="invite-link"
-                        value={inviteLink}
-                        readOnly
-                        className="pr-10"
-                    />
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-                        onClick={handleCopy}
-                    >
-                        {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                </div>
+                <Button onClick={handleShare} className="w-full h-12 text-lg">
+                    <Share2 className="mr-2 h-5 w-5" />
+                    Share Invite Link
+                </Button>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
+          <DialogFooter className="sm:justify-center">
+            <DialogDescription>
+                You can send the link via WhatsApp, email, or any other app.
+            </DialogDescription>
           </DialogFooter>
       </DialogContent>
     </Dialog>
