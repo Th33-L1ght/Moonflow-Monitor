@@ -43,7 +43,7 @@ There are two ways to allow a child to log in and manage their own profile:
 ### Forgotten Passwords
 
 *   **Parent Accounts**: If you forget your password, you can use the "Forgot Password?" link on the login page, which will send a reset link to your email address.
-*   **Child Accounts**: If a child forgets their password (for a username-based login), the parent can reset their access. On the child's card, use the menu to select **"Unlink Account"**. This will disconnect their old login, allowing you to use **"Create Child Login"** to set up a new one.
+*   **Child Accounts**: If a child forgets their password (for a username-based login), the parent can reset their access. On the child's card, use the menu to select **"Unlink Account"**. This will disconnect their old login, allowing you to use **"Create Child Login"** to set up a new one. **This action is safe and does not delete any of the child's cycle data.**
 
 ## Monitoring Your App
 
