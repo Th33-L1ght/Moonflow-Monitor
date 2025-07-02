@@ -6,10 +6,9 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
-import { getChild, updateChild } from '@/app/actions';
+import { getChild, updateChild } from '@/lib/firebase/client-actions';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AIInsightCard } from '@/components/AIInsightCard';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Edit } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +19,7 @@ import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 import { EditChildDialog } from '@/components/EditChildDialog';
 import dynamic from 'next/dynamic';
+import { AIInsightCard } from '@/components/AIInsightCard';
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -121,7 +121,8 @@ const SymptomTracker = dynamic(() => import('@/components/SymptomTracker').then(
 
 
 export default function ChildDetailPage() {
-  const { id: childId } = useParams<{ id: string }>();
+  const params = useParams();
+  const childId = Array.isArray(params.id) ? params.id[0] : params.id;
   const { user } = useAuth();
   const router = useRouter();
   const [child, setChild] = useState<Child | null>(null);
@@ -132,21 +133,17 @@ export default function ChildDetailPage() {
   useEffect(() => {
     if (!user || !childId) return;
 
-    // Optimization: If the logged-in user is the child being viewed,
-    // use the profile data we already fetched during login to avoid a network request.
     if (user.role === 'child' && user.childProfile && user.childProfile.id === childId) {
       setChild(user.childProfile);
       setLoading(false);
     } else {
-      // Otherwise, fetch the data (e.g., for a parent viewing the page)
       const fetchChildData = async () => {
         setLoading(true);
         const childData = await getChild(childId);
-        // Ensure the user is authorized to view this profile
         if (childData && (childData.parentUid === user.uid || childData.childUid === user.uid)) {
           setChild(childData);
         } else {
-          setChild(null); // Not found or not authorized
+          setChild(null);
         }
         setLoading(false);
       };
@@ -157,9 +154,7 @@ export default function ChildDetailPage() {
 
   const handleUpdate = (newChildData: Partial<Omit<Child, 'id'>>) => {
     if (user && child) {
-        // Optimistically update the local state first for a responsive UI
         setChild(prev => prev ? { ...prev, ...newChildData, cycles: newChildData.cycles || prev.cycles } : null);
-        // Then, update the data in Firestore
         updateChild(child.id, newChildData);
     }
   }
@@ -228,7 +223,7 @@ export default function ChildDetailPage() {
                 <div hidden={activeTab !== 'overview'}>
                     <div className="space-y-6">
                         <CycleStatusWheel child={child} />
-                        <AIInsightCard child={child} />
+                        <AIInsightCard />
                         <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
                     </div>
                 </div>
