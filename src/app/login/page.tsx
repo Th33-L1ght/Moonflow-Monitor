@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from "react";
@@ -13,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from "@/lib/firebase/client";
 
 
 export default function LoginPage() {
@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loginStep, setLoginStep] = useState<'idle' | 'pending'>('idle');
-  const { auth, signIn, signUp, isFirebaseConfigured } = useAuth();
+  const { signIn, signUp, isFirebaseConfigured } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
