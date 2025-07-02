@@ -74,43 +74,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const childProfile = await getChildProfileForUser(firebaseUser.uid);
     if (childProfile) {
         setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName,
-            photoURL: firebaseUser.photoURL,
-            emailVerified: firebaseUser.emailVerified,
-            isAnonymous: firebaseUser.isAnonymous,
-            metadata: firebaseUser.metadata,
-            providerData: firebaseUser.providerData,
-            providerId: firebaseUser.providerId,
-            tenantId: firebaseUser.tenantId,
-            refreshToken: firebaseUser.refreshToken,
-            delete: firebaseUser.delete,
-            getIdToken: firebaseUser.getIdToken,
-            getIdTokenResult: firebaseUser.getIdTokenResult,
-            reload: firebaseUser.reload,
-            toJSON: firebaseUser.toJSON,
+            ...firebaseUser,
             role: 'child',
             childProfile: childProfile
         });
     } else {
          setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName,
-            photoURL: firebaseUser.photoURL,
-            emailVerified: firebaseUser.emailVerified,
-            isAnonymous: firebaseUser.isAnonymous,
-            metadata: firebaseUser.metadata,
-            providerData: firebaseUser.providerData,
-            providerId: firebaseUser.providerId,
-            tenantId: firebaseUser.tenantId,
-            refreshToken: firebaseUser.refreshToken,
-            delete: firebaseUser.delete,
-            getIdToken: firebaseUser.getIdToken,
-            getIdTokenResult: firebaseUser.getIdTokenResult,
-            reload: firebaseUser.reload,
-            toJSON: firebaseUser.toJSON,
+            ...firebaseUser,
             role: 'parent',
         });
     }
@@ -203,7 +173,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await updateProfile(auth.currentUser, { photoURL: data.photoURL || null });
     // After updating in Firebase, refetch the user state to ensure all data is correct and type-safe.
     if (auth.currentUser) {
-        await setUserStateFromFirebaseUser(auth.currentUser);
+        await auth.currentUser.reload();
+        const reloadedUser = auth.currentUser;
+        await setUserStateFromFirebaseUser(reloadedUser);
     }
   };
 
