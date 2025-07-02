@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { FlyingButterflies } from '@/components/FlyingButterflies';
 import { Logo } from '@/components/Logo';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, AlertCircle } from 'lucide-react';
 
 const DashboardSkeleton = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -29,6 +29,20 @@ const DashboardSkeleton = () => (
     </div>
 );
 
+const DashboardErrorState = ({ message }: { message: string }) => (
+    <div className="text-center py-20 px-6 rounded-lg border-2 border-dashed border-destructive/50 bg-destructive/10">
+        <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
+        <h2 className="mt-4 text-2xl font-bold font-body text-destructive-foreground">Dashboard Error</h2>
+        <p className="mt-2 text-destructive-foreground/80 max-w-lg mx-auto">
+            There was a problem loading your data from the database. This is usually due to a configuration issue in your Firebase project.
+        </p>
+        <p className="mt-2 text-sm text-destructive-foreground/60 max-w-lg mx-auto">
+             Error details: {message}
+        </p>
+    </div>
+);
+
+
 const EmptyState = ({ onAddChildClick }: { onAddChildClick: () => void }) => (
     <div className="text-center py-20 px-6 rounded-lg border-2 border-dashed bg-muted/20 relative overflow-hidden">
         <FlyingButterflies />
@@ -36,7 +50,7 @@ const EmptyState = ({ onAddChildClick }: { onAddChildClick: () => void }) => (
             <div className="p-4 bg-background/80 backdrop-blur-sm rounded-full mb-4 inline-block">
                  <Logo />
             </div>
-            <h2 className="text-2xl font-bold font-body">Welcome to Light Flow</h2>
+            <h2 className="text-2xl font-bold font-body">Welcome to Moonflow Monitor</h2>
             <p className="mt-2 text-muted-foreground max-w-md mx-auto">
                 It looks like you don't have any child profiles yet. Get started by adding your first child.
             </p>
@@ -53,13 +67,27 @@ export default function ParentDashboardPage() {
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddChildOpen, setAddChildOpen] = useState(false);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
 
   const fetchChildren = useCallback(async () => {
     if (user) {
       setLoading(true);
-      const userChildren = await getChildrenForUser(user.uid);
-      setChildren(userChildren || []);
-      setLoading(false);
+      setDashboardError(null);
+      try {
+        const userChildren = await getChildrenForUser(user.uid);
+        setChildren(userChildren || []);
+      } catch (error: any) {
+        let message = error.message || "Failed to load your dashboard data.";
+        if (error.code === 'failed-precondition') {
+          message = "Your database needs a special index to display your data. Please check the developer console (press F12) for a link to create it.";
+        } else if (error.code === 'permission-denied') {
+          message = "Your database security rules are preventing you from seeing your data. Please update your rules in the Firebase Console."
+        }
+        setDashboardError(message);
+        setChildren([]);
+      } finally {
+        setLoading(false);
+      }
     }
   }, [user]);
 
@@ -101,6 +129,8 @@ export default function ParentDashboardPage() {
 
             {loading ? (
               <DashboardSkeleton />
+            ) : dashboardError ? (
+                <DashboardErrorState message={dashboardError} />
             ) : children.length === 0 ? (
                 <EmptyState onAddChildClick={() => setAddChildOpen(true)} />
             ) : (

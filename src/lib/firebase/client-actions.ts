@@ -103,7 +103,7 @@ export async function getChildrenForUser(userId: string): Promise<Child[]> {
     return snapshot.docs.map((doc) => ({ id: doc.id, ...convertTimestampsToDates(doc.data()) } as Child));
   } catch (error) {
     logError(error, { location: 'client-actions.getChildrenForUser', userId });
-    return [];
+    throw error; // Re-throw the error to be handled by the UI
   }
 }
 
@@ -118,9 +118,15 @@ export async function addChildForUser(userId: string, childName: string, avatarU
         };
         await addDoc(collection(db, 'children'), newChildData);
         return { success: true };
-    } catch (error) {
-        logError(error, { location: 'client-actions.addChildForUser', userId });
-        return { success: false, error: 'Failed to add profile.' };
+    } catch (error: any) {
+      logError(error, { location: 'AddChildDialog.handleSubmit', userId });
+      let description = 'Failed to add profile. Please try again.';
+      if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('permission-denied'))) {
+        description = 'Permission denied. The app is being blocked by your database security rules. Please update them in the Firebase Console.';
+      } else if (error.message) {
+        description = error.message;
+      }
+      return { success: false, error: description };
     }
 }
 

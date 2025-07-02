@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -18,7 +19,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { PadsButterflyIcon as ButterflyIcon } from './PadsButterflyIcon';
-import { logError } from '@/lib/error-logging';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
 
@@ -79,14 +79,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
          throw new Error(result.error || 'An unknown error occurred.');
       }
     } catch (error: any) {
-      logError(error, { location: 'AddChildDialog.handleSubmit', userId: user.uid });
-      let description = 'Failed to add profile. Please try again.';
-      if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('permission-denied'))) {
-        description = 'Permission denied. The app is being blocked by your database security rules. Please update them in the Firebase Console.';
-      } else if (error.message) {
-        description = error.message;
-      }
-      setError(description);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
