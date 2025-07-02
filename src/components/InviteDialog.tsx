@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { generateInvite } from '@/app/actions';
+import { generateInvite } from '@/lib/firebase/client-actions';
 import { Copy, Check } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 
@@ -37,7 +37,7 @@ export function InviteDialog({ isOpen, setOpen, childId }: InviteDialogProps) {
         setLoading(true);
         const inviteId = await generateInvite(user.uid, childId);
         if (inviteId) {
-          const origin = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+          const origin = typeof window !== 'undefined' ? window.location.origin : '';
           setInviteLink(`${origin}/invite/${inviteId}`);
         } else {
           toast({

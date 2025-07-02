@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { deleteChildAction } from '@/app/actions';
+import { deleteChildAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -76,7 +76,6 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
           </Avatar>
           <div className="flex-1">
             <CardTitle className="text-xl">{child.name}</CardTitle>
-            {/* This div was changed from CardDescription to fix a hydration error, as a <p> cannot contain a <div> (the Badge) */}
             <div className="text-sm text-muted-foreground mt-1">
               <Badge variant={statusColor}>{statusText}</Badge>
             </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { getInviteInfo, acceptInviteInDb } from '@/app/actions';
+import { getInviteInfo, acceptInviteInDb } from '@/lib/firebase/client-actions';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,8 +19,8 @@ const InvitePageSkeleton = () => (
 )
 
 export default function InvitePage() {
-    const { inviteId } = useParams<{ inviteId: string }>();
-    const router = useRouter();
+    const params = useParams();
+    const inviteId = Array.isArray(params.inviteId) ? params.inviteId[0] : params.inviteId;
     const { toast } = useToast();
     const { signUpAndSignIn } = useAuth();
 
@@ -53,6 +53,12 @@ export default function InvitePage() {
         setFormLoading(true);
         setError(null);
         
+        if (!inviteId) {
+            setError("Invalid invite link.");
+            setFormLoading(false);
+            return;
+        }
+
         try {
             const userCredential = await signUpAndSignIn(email, password);
             const dbResult = await acceptInviteInDb(inviteId, userCredential.user.uid);

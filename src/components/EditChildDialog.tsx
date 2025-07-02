@@ -16,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import type { Child } from '@/lib/types';
-import { updateChild } from '@/app/actions';
+import { updateChild } from '@/lib/firebase/client-actions';
 import { PadsButterflyIcon } from './PadsButterflyIcon';
 
 interface EditChildDialogProps {

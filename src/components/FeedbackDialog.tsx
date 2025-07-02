@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { submitFeedbackAction } from '@/app/actions';
+import { submitFeedbackAction } from '@/lib/firebase/client-actions';
 import { Label } from './ui/label';
 
 interface FeedbackDialogProps {

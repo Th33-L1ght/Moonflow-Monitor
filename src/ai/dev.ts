@@ -1,2 +1,2 @@
-// Flows will be imported for their side effects in this file.
-import '@/ai/flows/cycle-insights-flow';
+// This file is intentionally left empty.
+// AI features have been removed to convert this to a static application.

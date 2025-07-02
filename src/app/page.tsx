@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getChildrenForUser } from '@/app/actions';
+import { getChildrenForUser } from '@/lib/firebase/client-actions';
 import type { Child } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import { Header } from '@/components/Header';
@@ -59,7 +59,6 @@ export default function ParentDashboardPage() {
     if (user) {
       setLoading(true);
       const userChildren = await getChildrenForUser(user.uid);
-      // This ensures that we always set an array, preventing runtime errors.
       setChildren(userChildren || []);
       setLoading(false);
     }
@@ -69,7 +68,6 @@ export default function ParentDashboardPage() {
     if (user) {
       fetchChildren();
     } else {
-      // If there's no user, ensure we stop loading and clear the children list.
       setLoading(false);
       setChildren([]);
     }
