@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -50,7 +49,15 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !name.trim() || !selectedAvatar) return;
+    if (!user) {
+        toast({
+            title: 'Authentication Error',
+            description: 'You must be logged in to add a profile.',
+            variant: 'destructive',
+        });
+        return;
+    }
+    if (!name.trim() || !selectedAvatar) return;
 
     setLoading(true);
     try {
@@ -58,7 +65,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
 
       if (result.success) {
           toast({
-            title: "Child added",
+            title: "Profile Added",
             description: (
                 <div className="flex items-center gap-2">
                     <ButterflyIcon className="h-5 w-5 text-primary" />
@@ -75,9 +82,15 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
       }
     } catch (error: any) {
       logError(error, { location: 'AddChildDialog.handleSubmit', userId: user.uid });
+      let description = 'Failed to add profile. Please try again.';
+      if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('permission-denied'))) {
+        description = 'Permission denied. Please ensure your Firestore security rules are set up correctly in the Firebase Console.';
+      } else if (error.message) {
+        description = error.message;
+      }
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to add child. Please try again.',
+        title: 'Error Adding Profile',
+        description: description,
         variant: 'destructive',
       });
     } finally {
