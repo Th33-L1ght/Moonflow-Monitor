@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { Logo } from '@/components/Logo';
+import { logError } from '@/lib/error-logging';
 
 const InvitePageSkeleton = () => (
     <div className="w-full min-h-screen flex items-center justify-center p-4 bg-background">
@@ -75,6 +76,7 @@ export default function InvitePage() {
             }
 
         } catch (error: any) {
+            logError(error, { location: 'InvitePage.handleSignUp', inviteId, email });
             let message = 'An unexpected error occurred. Please try again.';
             if (error.code === 'auth/email-already-in-use') {
                 message = 'This email address is already in use. Please use a different email.';

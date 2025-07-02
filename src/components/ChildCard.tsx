@@ -26,6 +26,7 @@ import {
 import { deleteChildAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/error-logging';
 
 interface ChildCardProps {
   child: Child;
@@ -49,19 +50,28 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
   const hasAccount = !!child.childUid;
 
   const handleDelete = async () => {
-    const result = await deleteChildAction(child.id);
-    if (result.success) {
-        toast({
-            title: "Profile Deleted",
-            description: `${child.name}'s profile has been removed.`,
-        });
-        onChildDeleted();
-    } else {
-        toast({
-            title: "Error",
-            description: result.error,
-            variant: "destructive",
-        });
+    try {
+      const result = await deleteChildAction(child.id);
+      if (result.success) {
+          toast({
+              title: "Profile Deleted",
+              description: `${child.name}'s profile has been removed.`,
+          });
+          onChildDeleted();
+      } else {
+          toast({
+              title: "Error",
+              description: result.error,
+              variant: "destructive",
+          });
+      }
+    } catch (error) {
+      logError(error, { location: 'ChildCard.handleDelete', childId: child.id });
+       toast({
+          title: "Error",
+          description: "An unexpected error occurred while deleting the profile.",
+          variant: "destructive",
+      });
     }
     setDeleteConfirmOpen(false);
   }

@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import type { Child } from '@/lib/types';
 import { db } from './client';
+import { logError } from '../error-logging';
 
 // Helper function to convert Firestore Timestamps to JS Date objects
 function convertTimestampsToDates(data: any): any {
@@ -60,7 +61,7 @@ export async function getChild(childId: string): Promise<Child | null> {
             return null;
         }
     } catch (error) {
-        console.error("Error fetching child:", error);
+        logError(error, { location: 'client-actions.getChild', childId });
         return null;
     }
 }
@@ -72,20 +73,25 @@ export async function updateChild(childId: string, data: Partial<Omit<Child, 'id
         await updateDoc(childDocRef, data);
         return { success: true };
     } catch (error) {
-        console.error("Failed to update child:", error);
+        logError(error, { location: 'client-actions.updateChild', childId });
         return { success: false, error: 'Failed to update profile.' };
     }
 }
 
 export async function getChildProfileForUser(userId: string): Promise<Child | null> {
     if (!db) return null;
-    const q = query(collection(db, 'children'), where('childUid', '==', userId), limit(1));
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) {
+    try {
+        const q = query(collection(db, 'children'), where('childUid', '==', userId), limit(1));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            return null;
+        }
+        const childDoc = snapshot.docs[0];
+        return { id: childDoc.id, ...convertTimestampsToDates(childDoc.data()) } as Child;
+    } catch (error) {
+        logError(error, { location: 'client-actions.getChildProfileForUser', userId });
         return null;
     }
-    const childDoc = snapshot.docs[0];
-    return { id: childDoc.id, ...convertTimestampsToDates(childDoc.data()) } as Child;
 }
 
 export async function getChildrenForUser(userId: string): Promise<Child[]> {
@@ -95,7 +101,7 @@ export async function getChildrenForUser(userId: string): Promise<Child[]> {
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...convertTimestampsToDates(doc.data()) } as Child));
   } catch (error) {
-    console.error("Error fetching children for user:", error);
+    logError(error, { location: 'client-actions.getChildrenForUser', userId });
     return [];
   }
 }
@@ -112,17 +118,22 @@ export async function addChildForUser(userId: string, childName: string, avatarU
         await addDoc(collection(db, 'children'), newChildData);
         return { success: true };
     } catch (error) {
-        console.error("Failed to add child:", error);
+        logError(error, { location: 'client-actions.addChildForUser', userId });
         return { success: false, error: 'Failed to add profile.' };
     }
 }
 
 async function getInvite(inviteId: string): Promise<Invite | null> {
     if (!db) return null;
-    const docRef = doc(db, 'invites', inviteId);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) return null;
-    return { id: docSnap.id, ...convertTimestampsToDates(docSnap.data()) } as Invite;
+    try {
+        const docRef = doc(db, 'invites', inviteId);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) return null;
+        return { id: docSnap.id, ...convertTimestampsToDates(docSnap.data()) } as Invite;
+    } catch(error) {
+        logError(error, { location: 'client-actions.getInvite', inviteId });
+        return null;
+    }
 }
 
 export async function acceptInviteInDb(inviteId: string, childUid: string): Promise<{ success: boolean; error?: string }> {
@@ -143,7 +154,7 @@ export async function acceptInviteInDb(inviteId: string, childUid: string): Prom
       await batch.commit();
       return { success: true };
     } catch(error: any) {
-        console.error("Error accepting invite in DB:", error);
+        logError(error, { location: 'client-actions.acceptInviteInDb', inviteId, childUid });
         return { success: false, error: error.message || "Failed to update database." };
     }
 }
@@ -156,7 +167,7 @@ export async function generateInvite(parentUid: string, childId: string): Promis
         const docRef = await addDoc(collection(db, 'invites'), inviteData);
         return docRef.id;
     } catch (error) {
-        console.error("Failed to generate invite:", error);
+        logError(error, { location: 'client-actions.generateInvite', parentUid, childId });
         return null;
     }
 }
@@ -174,7 +185,7 @@ export async function getInviteInfo(inviteId: string): Promise<{ childName: stri
         }
         return { childName: child.name };
     } catch (error) {
-        console.error("Error fetching invite info:", error);
+        logError(error, { location: 'client-actions.getInviteInfo', inviteId });
         return { error: 'An unexpected error occurred.' };
     }
 }
@@ -185,7 +196,7 @@ export async function deleteChildAction(childId: string): Promise<{ success: boo
         await deleteDoc(doc(db, 'children', childId));
         return { success: true };
     } catch (error) {
-        console.error("Failed to delete child:", error);
+        logError(error, { location: 'client-actions.deleteChildAction', childId });
         return { success: false, error: 'Failed to delete profile.' };
     }
 }
@@ -200,7 +211,7 @@ export async function submitFeedbackAction(userId: string, feedbackText: string)
         });
         return { success: true };
     } catch (error) {
-        console.error("Failed to submit feedback:", error);
+        logError(error, { location: 'client-actions.submitFeedbackAction', userId });
         return { success: false, error: 'Failed to submit feedback.' };
     }
 }

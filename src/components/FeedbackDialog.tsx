@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { submitFeedbackAction } from '@/lib/firebase/client-actions';
 import { Label } from './ui/label';
+import { logError } from '@/lib/error-logging';
 
 interface FeedbackDialogProps {
   isOpen: boolean;
@@ -50,7 +51,7 @@ export function FeedbackDialog({ isOpen, setOpen }: FeedbackDialogProps) {
         });
       }
     } catch (error) {
-       console.error("Failed to submit feedback:", error);
+       logError(error, { location: 'FeedbackDialog.handleSubmit', userId: user.uid });
        toast({
           title: 'Error',
           description: 'An unexpected error occurred while submitting feedback.',

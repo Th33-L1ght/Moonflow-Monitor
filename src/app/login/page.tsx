@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from "@/lib/firebase/client";
+import { logError } from "@/lib/error-logging";
 
 
 export default function LoginPage() {
@@ -46,6 +47,7 @@ export default function LoginPage() {
       await signIn(loginIdentifier, password);
       // On successful sign-in, AuthContext now sets the user and triggers a redirect immediately.
     } catch (err: any) {
+      logError(err, { location: 'LoginPage.handleLogin', loginIdentifier });
       if (err.code === 'auth/configuration-not-found') {
           setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
       } else if (err.code === 'auth/invalid-credential') {
@@ -79,6 +81,7 @@ export default function LoginPage() {
       });
       // The `signUp` function in AuthContext now handles setting the user state.
     } catch (err: any) {
+      logError(err, { location: 'LoginPage.handleSignUp', email });
       if (err.code === 'auth/configuration-not-found') {
           setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
       } else if (err.code === 'auth/email-already-in-use') {
@@ -113,6 +116,7 @@ export default function LoginPage() {
             description: "Check your inbox for instructions to reset your password.",
         });
     } catch (error: any) {
+        logError(error, { location: 'LoginPage.handlePasswordReset', email });
         let message = 'An unexpected error occurred.';
         if (error.code === 'auth/user-not-found') {
             message = 'No user found with this email address.';

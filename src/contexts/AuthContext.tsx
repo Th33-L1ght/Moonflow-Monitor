@@ -15,6 +15,7 @@ import type { AppUser } from '@/lib/auth-types';
 import { getChildProfileForUser } from '@/lib/firebase/client-actions';
 import { auth } from '@/lib/firebase/client';
 import { isFirebaseConfigured } from '@/lib/firebase/client';
+import { logError } from '@/lib/error-logging';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -86,42 +87,71 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   
   const signIn = async (email: string, pass: string) => {
     if (!auth) throw new Error("Firebase not configured.");
-    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-    await setUserStateFromFirebaseUser(userCredential.user);
-    return userCredential;
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+      await setUserStateFromFirebaseUser(userCredential.user);
+      return userCredential;
+    } catch(err) {
+      logError(err, { location: 'AuthContext.signIn', email });
+      throw err;
+    }
   }
 
   const signUp = async (email: string, pass: string) => {
     if (!auth) throw new Error("Firebase not configured.");
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    await setUserStateFromFirebaseUser(userCredential.user);
-    return userCredential;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      await setUserStateFromFirebaseUser(userCredential.user);
+      return userCredential;
+    } catch(err) {
+      logError(err, { location: 'AuthContext.signUp', email });
+      throw err;
+    }
   }
 
   const signUpWithDummyEmail = async (username: string, pass: string) => {
     if (!auth) throw new Error("Firebase not configured.");
     const dummyEmail = `${username.toLowerCase().trim()}@lightflow.app`;
-    return await createUserWithEmailAndPassword(auth, dummyEmail, pass);
+    try {
+      return await createUserWithEmailAndPassword(auth, dummyEmail, pass);
+    } catch(err) {
+      logError(err, { location: 'AuthContext.signUpWithDummyEmail', username });
+      throw err;
+    }
   }
 
   const signUpAndSignIn = async (email: string, pass: string) => {
     if (!auth) throw new Error("Firebase not configured.");
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    await setUserStateFromFirebaseUser(userCredential.user);
-    return userCredential;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      await setUserStateFromFirebaseUser(userCredential.user);
+      return userCredential;
+    } catch(err) {
+      logError(err, { location: 'AuthContext.signUpAndSignIn', email });
+      throw err;
+    }
   }
 
   const signOut = async () => {
     if (!auth) throw new Error("Firebase not configured.");
-    await firebaseSignOut(auth);
-    setUser(null);
+    try {
+      await firebaseSignOut(auth);
+      setUser(null);
+    } catch (err) {
+      logError(err, { location: 'AuthContext.signOut' });
+    }
   };
 
   const updateUserProfile = async (data: { photoURL?: string }) => {
     if (!auth?.currentUser) throw new Error("User not authenticated.");
-    await updateProfile(auth.currentUser, { photoURL: data.photoURL || null });
-    await auth.currentUser.reload();
-    await setUserStateFromFirebaseUser(auth.currentUser);
+    try {
+      await updateProfile(auth.currentUser, { photoURL: data.photoURL || null });
+      await auth.currentUser.reload();
+      await setUserStateFromFirebaseUser(auth.currentUser);
+    } catch (err) {
+      logError(err, { location: 'AuthContext.updateUserProfile', userId: auth.currentUser.uid });
+      throw err;
+    }
   };
 
   return (

@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getAnalytics, type Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -19,11 +20,13 @@ export const isFirebaseConfigured = Object.values(firebaseConfig).every(
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
 let db: Firestore | undefined;
+let analytics: Analytics | undefined;
 
 if (typeof window !== 'undefined' && isFirebaseConfigured) {
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
+    analytics = getAnalytics(app);
 }
 
-export { app, auth, db };
+export { app, auth, db, analytics };

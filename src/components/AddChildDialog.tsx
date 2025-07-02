@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { PadsButterflyIcon as ButterflyIcon } from './PadsButterflyIcon';
+import { logError } from '@/lib/error-logging';
 
 interface AddChildDialogProps {
   isOpen: boolean;
@@ -75,7 +76,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
          throw new Error(result.error || 'An unknown error occurred.');
       }
     } catch (error: any) {
-      console.error(error);
+      logError(error, { location: 'AddChildDialog.handleSubmit', userId: user.uid });
       toast({
         title: 'Error',
         description: error.message || 'Failed to add child. Please try again.',

@@ -18,6 +18,7 @@ import type { Child } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/error-logging';
 
 interface CreateChildLoginDialogProps {
   isOpen: boolean;
@@ -61,6 +62,7 @@ export function CreateChildLoginDialog({ isOpen, setOpen, child, onLoginCreated 
         }
 
     } catch(error: any) {
+        logError(error, { location: 'CreateChildLoginDialog.handleSubmit', childId: child.id, username });
         let message = 'An unexpected error occurred. Please try again.';
         if (error.code === 'auth/email-already-in-use') {
             message = 'This username is already taken. Please choose another one.';
