@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -8,12 +9,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { addChildForUser } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
@@ -41,7 +40,6 @@ const avatars: AvatarOption[] = [
   { url: 'https://placehold.co/100x100/fed7aa/9a3412.png', hint: 'butterfly orange' },
   { url: 'https://placehold.co/100x100/bfdbfe/1e3a8a.png', hint: 'butterfly blue' },
 ];
-
 
 export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialogProps) {
   const [name, setName] = useState('');
@@ -88,15 +86,14 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" className="gap-1">
-          <PlusCircle className="h-3.5 w-3.5" />
-          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-            Add Child
-          </span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        setName('');
+        setSelectedAvatar(null);
+        setLoading(false);
+      }
+      setOpen(open);
+    }}>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>

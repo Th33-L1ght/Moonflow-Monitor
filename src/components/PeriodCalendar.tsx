@@ -135,16 +135,17 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
 
   const DayContent = (props: DayContentProps): React.ReactElement => {
     const moodEntry = moodDays.find(md => isSameDay(md.date, props.date));
+    const dayNumber = format(props.date, 'd');
+
     if (moodEntry) {
       return (
         <div className="relative w-full h-full flex items-center justify-center">
-          {format(props.date, 'd')}
+          {dayNumber}
           <span className="absolute bottom-0 text-xs">{moodEmojis[moodEntry.mood]}</span>
         </div>
       );
     }
-    // This explicit return of a fragment with the formatted date resolves the build error.
-    return <>{format(props.date, 'd')}</>;
+    return <>{dayNumber}</>;
   };
 
   return (

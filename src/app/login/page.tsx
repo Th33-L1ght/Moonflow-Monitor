@@ -2,12 +2,10 @@
 'use client';
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Logo } from "@/components/Logo"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Logo } from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -15,67 +13,74 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from "@/lib/firebase/client";
 import { logError } from "@/lib/error-logging";
-
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LoginPage() {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [loginStep, setLoginStep] = useState<'idle' | 'pending'>('idle');
+  const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp, isFirebaseConfigured } = useAuth();
-  const router = useRouter();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const clearForm = () => {
+    setEmail('');
+    setPassword('');
+    setError(null);
+  };
+
+  const handleModeChange = (newMode: 'login' | 'signup') => {
+    setMode(newMode);
+    clearForm();
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginStep('pending');
+    setIsLoading(true);
     setError(null);
 
+    if (mode === 'login') {
+      await handleLogin();
+    } else {
+      await handleSignUp();
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleLogin = async () => {
     if (!isFirebaseConfigured) {
         setError("Firebase is not configured. Please add your credentials to the .env file.");
-        setLoginStep('idle');
         return;
     }
 
     let loginIdentifier = email.trim();
-    // If it looks like a username (no @), treat it as a child login.
     if (loginIdentifier && !loginIdentifier.includes('@')) {
         loginIdentifier = `${loginIdentifier.toLowerCase()}@lightflow.app`;
     }
 
     try {
       await signIn(loginIdentifier, password);
-      // On successful sign-in, AuthContext now sets the user and triggers a redirect immediately.
     } catch (err: any) {
       logError(err, { location: 'LoginPage.handleLogin', loginIdentifier });
       if (err.code === 'auth/configuration-not-found') {
-          setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
+          setError("Email/Password sign-in isn't enabled in your Firebase project.");
       } else if (err.code === 'auth/invalid-credential') {
-          setError("Incorrect email or password. Please try again, or use the 'Forgot Password?' link to reset it.");
+          setError("Incorrect email or password. Please try again, or use the 'Forgot Password?' link.");
       } else {
         setError(err.message || 'An unexpected error occurred.');
       }
-      setLoginStep('idle'); // Reset on error
     }
   };
 
   const handleSignUp = async () => {
-    if (!email || !password) {
-        setError("Please enter both email and password.");
-        return;
-    }
-    setLoginStep('pending');
-    setError(null);
-
-    if (!email.includes('@')) {
-        setError("Please use a valid email address to create a parent account. Usernames without an '@' are for child logins.");
-        setLoginStep('idle');
-        return;
-    }
-
     if (!isFirebaseConfigured) {
-        setError("Firebase is not configured. Please add your credentials to the .env file to create an account.");
-        setLoginStep('idle');
+        setError("Firebase is not configured. Please add your credentials to the .env file.");
+        return;
+    }
+    if (!email.includes('@')) {
+        setError("Please use a valid email address to create a parent account.");
         return;
     }
 
@@ -85,30 +90,28 @@ export default function LoginPage() {
           title: "Account Created",
           description: "Welcome! Logging you in now...",
       });
-      // The `signUp` function in AuthContext now handles setting the user state.
     } catch (err: any) {
       logError(err, { location: 'LoginPage.handleSignUp', email });
       if (err.code === 'auth/configuration-not-found') {
-          setError("Email/Password sign-in isn't enabled. Please enable it in your Firebase project's Authentication settings.");
+          setError("Email/Password sign-in isn't enabled in your Firebase project.");
       } else if (err.code === 'auth/email-already-in-use') {
         setError('This email address is already in use by another account.');
       } else if (err.code === 'auth/invalid-email') {
-        setError('The email address you entered is not valid. Please check it and try again.');
+        setError('The email address you entered is not valid.');
       } else {
         setError(err.message);
       }
-      setLoginStep('idle');
     }
   };
 
   const handlePasswordReset = async () => {
     setError(null);
     if (!auth) {
-        setError("Authentication service is not available. Please check your configuration.");
+        setError("Authentication service is not available.");
         return;
     }
     if (!email) {
-      setError("Please enter your email address in the field above to reset your password.");
+      setError("Please enter your email address to reset your password.");
       return;
     }
     if (!email.includes('@')) {
@@ -116,7 +119,7 @@ export default function LoginPage() {
       return;
     }
     
-    setLoginStep('pending');
+    setIsLoading(true);
     try {
         await sendPasswordResetEmail(auth, email);
         toast({
@@ -125,100 +128,111 @@ export default function LoginPage() {
         });
     } catch (error: any) {
         logError(error, { location: 'LoginPage.handlePasswordReset', email });
-        let message = 'An unexpected error occurred.';
-        if (error.code === 'auth/user-not-found') {
-            message = 'No user found with this email address.';
-        }
-        setError(message);
+        setError(error.message || 'Failed to send password reset email.');
     }
-    setLoginStep('idle');
+    setIsLoading(false);
   };
-
-
-  const isLoading = loginStep === 'pending';
 
   return (
     <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40">
-        {isLoading ? (
-            <div className="flex flex-col items-center gap-4 text-center">
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                <h1 className="text-2xl font-bold font-body">Just a moment...</h1>
-                <p className="text-muted-foreground">We're getting things ready for you.</p>
-            </div>
-        ) : (
-            <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center space-y-6">
-                <Logo />
-                
-                <div className="w-full bg-card p-8 rounded-lg border shadow-sm">
-                  <div className="text-center mb-6">
-                    <h1 className="font-body text-2xl font-bold">Welcome</h1>
-                    <p className="text-muted-foreground text-sm mt-1">
-                      Log in or create an account.
-                    </p>
-                  </div>
-
-                  <form onSubmit={handleLogin} className="w-full space-y-4">
-                  {error && (
-                      <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Error</AlertTitle>
-                      <AlertDescription>{error}</AlertDescription>
-                      </Alert>
-                  )}
-                   {!isFirebaseConfigured && (
-                      <Alert>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Demo Mode</AlertTitle>
-                        <AlertDescription>The app is running in demo mode. Please configure Firebase in your <code>.env</code> file to enable full functionality.</AlertDescription>
-                      </Alert>
-                    )}
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email or Username</Label>
-                    <Input
-                      id="email"
-                      type="text"
-                      placeholder="Email or Username"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      disabled={isLoading}
-                      className="bg-background"
-                      autoComplete="username"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                     <div className="flex items-center justify-between">
-                        <Label htmlFor="password">Password</Label>
-                        <button
-                            type="button"
-                            onClick={handlePasswordReset}
-                            className="text-xs text-primary underline-offset-4 hover:underline"
-                        >
-                            Forgot password?
-                        </button>
-                    </div>
-                    <Input 
-                      id="password" 
-                      type="password" 
-                      required 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      disabled={isLoading}
-                      className="bg-background"
-                      autoComplete="current-password"
-                    />
-                  </div>
-                  <Button type="submit" className="w-full font-bold" disabled={isLoading}>
-                    Login
-                  </Button>
-                  <Button variant="outline" className="w-full" type="button" onClick={handleSignUp} disabled={isLoading}>
-                    Create Parent Account
-                  </Button>
-                  </form>
+      {isLoading && !error ? (
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <h1 className="text-2xl font-bold font-body">Just a moment...</h1>
+          <p className="text-muted-foreground">We're getting things ready for you.</p>
+        </div>
+      ) : (
+        <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center space-y-6">
+          <Logo />
+          <Card className="w-full">
+            <CardHeader className="text-center">
+              <CardTitle className="font-body text-2xl font-bold">
+                {mode === 'login' ? 'Welcome Back!' : 'Create an Account'}
+              </CardTitle>
+              <CardDescription>
+                {mode === 'login' ? 'Log in to see your family\'s cycles.' : 'Sign up to start tracking.'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleFormSubmit} className="space-y-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                {!isFirebaseConfigured && (
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Demo Mode</AlertTitle>
+                    <AlertDescription>The app is running in demo mode. Please configure Firebase to enable full functionality.</AlertDescription>
+                  </Alert>
+                )}
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email or Username</Label>
+                  <Input
+                    id="email"
+                    type="text"
+                    placeholder="you@example.com or username"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-background"
+                    autoComplete="username"
+                  />
                 </div>
-            </div>
-        )}
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    {mode === 'login' && (
+                      <button
+                        type="button"
+                        onClick={handlePasswordReset}
+                        className="text-xs text-primary underline-offset-4 hover:underline"
+                        disabled={isLoading}
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    className="bg-background"
+                    autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  />
+                </div>
+                <Button type="submit" className="w-full font-bold" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (mode === 'login' ? 'Login' : 'Create Account')}
+                </Button>
+              </form>
+              <div className="mt-4 text-center text-sm">
+                {mode === 'login' ? (
+                  <>
+                    Don&apos;t have an account?{" "}
+                    <button onClick={() => handleModeChange('signup')} className="font-semibold text-primary underline-offset-4 hover:underline" disabled={isLoading}>
+                      Sign up
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    Already have an account?{" "}
+                    <button onClick={() => handleModeChange('login')} className="font-semibold text-primary underline-offset-4 hover:underline" disabled={isLoading}>
+                      Log in
+                    </button>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
-  )
+  );
 }
