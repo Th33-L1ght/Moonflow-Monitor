@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -138,7 +139,7 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
             onValueChange={(value) => {
               if (value) setCramp(value);
             }}
-            className="grid grid-cols-4 gap-3"
+            className="grid grid-cols-2 sm:grid-cols-4 gap-3"
             disabled={!canEdit || !isOnPeriod}
           >
             {crampLevels.map(({ level, emoji, label }) => (
@@ -162,7 +163,7 @@ export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps
             onValueChange={(value) => {
               if (value) setMood(value);
             }}
-            className="grid grid-cols-4 gap-3"
+            className="grid grid-cols-2 sm:grid-cols-4 gap-3"
             disabled={!canEdit || !isOnPeriod}
           >
             {moods.map(({ mood, emoji }) => (

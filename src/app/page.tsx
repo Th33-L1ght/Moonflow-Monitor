@@ -50,7 +50,7 @@ const EmptyState = ({ onAddChildClick }: { onAddChildClick: () => void }) => (
             <div className="p-4 bg-background/80 backdrop-blur-sm rounded-full mb-4 inline-block">
                  <Logo />
             </div>
-            <h2 className="text-2xl font-bold font-body">Welcome to Moonflow Monitor</h2>
+            <h2 className="text-2xl font-bold font-body">Welcome to Light Flow</h2>
             <p className="mt-2 text-muted-foreground max-w-md mx-auto">
                 It looks like you don't have any child profiles yet. Get started by adding your first child.
             </p>
@@ -108,13 +108,13 @@ export default function ParentDashboardPage() {
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto w-full">
             <div className="flex items-center justify-between mb-8">
-              <h1 className="font-body text-4xl font-bold">Your Family's Cycles</h1>
+              <h1 className="font-body text-3xl md:text-4xl font-bold">Your Family's Cycles</h1>
               <div className="flex items-center gap-2">
                  {children.length > 0 && (
                     <Button onClick={() => setAddChildOpen(true)} size="sm" className="gap-1">
                         <PlusCircle className="h-3.5 w-3.5" />
                         <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                            Add Another Child
+                            Add Profile
                         </span>
                     </Button>
                  )}

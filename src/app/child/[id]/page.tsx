@@ -184,7 +184,7 @@ export default function ChildDetailPage() {
       <div className="flex min-h-screen w-full flex-col bg-muted/40 text-foreground">
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-4xl mx-auto w-full">
-            <div className="mb-8 flex items-center justify-between">
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     {user?.role === 'parent' && (
                         <Button variant="outline" size="icon" onClick={() => router.push('/')}>
@@ -196,7 +196,7 @@ export default function ChildDetailPage() {
                       <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h1 className="font-body text-3xl font-bold">{child.name}</h1>
+                      <h1 className="font-body text-2xl md:text-3xl font-bold">{child.name}</h1>
                       <p className="text-muted-foreground">Cycle Dashboard</p>
                     </div>
                      {canEdit && (
@@ -210,13 +210,15 @@ export default function ChildDetailPage() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5 bg-card mb-6 border">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="calendar">Calendar</TabsTrigger>
-                <TabsTrigger value="charts">Charts</TabsTrigger>
-                <TabsTrigger value="journal">Journal</TabsTrigger>
-                <TabsTrigger value="log">Log Symptoms</TabsTrigger>
-              </TabsList>
+              <div className="w-full overflow-x-auto pb-2">
+                <TabsList className="inline-flex bg-card mb-6 border">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="calendar">Calendar</TabsTrigger>
+                  <TabsTrigger value="charts">Charts</TabsTrigger>
+                  <TabsTrigger value="journal">Journal</TabsTrigger>
+                  <TabsTrigger value="log">Log Symptoms</TabsTrigger>
+                </TabsList>
+              </div>
             </Tabs>
             
             <div className="mt-6">

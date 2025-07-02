@@ -73,7 +73,7 @@ export function PeriodToggleSwitch({ child, onUpdate }: PeriodToggleSwitchProps)
   };
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex flex-shrink-0 items-center space-x-2">
       <Switch
         id={`period-toggle-${child.id}`}
         checked={isOnPeriod}
