@@ -34,16 +34,21 @@ You can find the public URL for your deployed application in the **Firebase Cons
 
 ## Monitoring Your App
 
-Your application is set up to send feedback and error reports to your Firebase project.
+Your application is set up to send all its data, including user feedback and error reports, to your Firebase project.
 
-### Viewing User Feedback
-When a user submits feedback via the app, it's stored in your database.
-1. In the Firebase Console, navigate to the **Build** section in the left menu.
-2. Click on **Firestore Database**.
-3. Look for a collection named `feedback`. All submissions will appear here.
+### Viewing Your App's Data (Child Profiles, Feedback, etc.)
+
+All of the data for your app—user accounts, child profiles, cycle logs, and user feedback—is stored in your **Firestore Database**. Think of it as the master spreadsheet for your application.
+
+1.  In the Firebase Console, navigate to the **Build** section in the left menu.
+2.  Click on **Firestore Database**.
+
+**Important:** The database will appear empty at first. As you use the app, "collections" of data will appear automatically. For example, after you add your first child, a `children` collection will be created. After you submit feedback, a `feedback` collection will appear.
 
 ### Viewing Error Reports
-When an error occurs in the app, it is logged as an Analytics event.
-1. In the Firebase Console, navigate to the **Release & Monitor** section in the left menu.
-2. Click on **Analytics**, then select **Events**.
-3. Look for an event name called `app_error`. Clicking on this will show you details about any errors that have occurred. (Note: It can take a few hours for events to appear).
+
+When an error occurs in your app, it is logged to **Firebase Analytics** so you can see if users are having problems.
+
+1.  In the Firebase Console, navigate to the **Release & Monitor** section in the left menu.
+2.  Click on **Analytics**, then select the **Events** tab.
+3.  Look for an event name called `app_error`. (Note: It can take a few hours for new events to appear).

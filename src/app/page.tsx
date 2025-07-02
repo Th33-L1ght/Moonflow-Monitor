@@ -83,13 +83,11 @@ export default function ParentDashboardPage() {
             <div className="flex items-center justify-between mb-8">
               <h1 className="font-body text-4xl font-bold">Your Family's Cycles</h1>
               <div className="flex items-center gap-2">
-                 {children.length > 0 && (
-                    <AddChildDialog 
-                        isOpen={isAddChildOpen}
-                        setOpen={setAddChildOpen}
-                        onChildAdded={fetchChildren}
-                    />
-                 )}
+                 <AddChildDialog 
+                     isOpen={isAddChildOpen}
+                     setOpen={setAddChildOpen}
+                     onChildAdded={fetchChildren}
+                 />
               </div>
             </div>
             
