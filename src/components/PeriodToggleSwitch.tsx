@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -32,7 +33,7 @@ export function PeriodToggleSwitch({ child, onUpdate }: PeriodToggleSwitchProps)
         return; // Already on period, do nothing
       }
       const newCycle: Cycle = {
-        id: `cycle_${Date.now()}`,
+        id: crypto.randomUUID(),
         startDate: new Date(),
         endDate: addDays(new Date(), 4), // Default 5 day period
         symptoms: [],

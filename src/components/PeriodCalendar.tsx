@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -64,7 +65,7 @@ export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps
 
     const newCycleWithId: Cycle = {
       ...newCycle,
-      id: `cycle_${Date.now()}`
+      id: crypto.randomUUID(),
     }
 
     try {

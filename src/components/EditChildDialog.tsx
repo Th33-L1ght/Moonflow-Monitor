@@ -17,7 +17,7 @@ import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import type { Child } from '@/lib/types';
 import { updateChild } from '@/app/actions';
-import { PadsButterflyIcon as ButterflyIcon } from './PadsButterflyIcon';
+import { PadsButterflyIcon } from './PadsButterflyIcon';
 
 interface EditChildDialogProps {
   isOpen: boolean;
@@ -68,7 +68,7 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
         title: "Profile Updated",
         description: (
             <div className="flex items-center gap-2">
-                <ButterflyIcon className="h-5 w-5 text-primary" />
+                <PadsButterflyIcon className="h-5 w-5 text-primary" />
                 <span>{updatedData.name}'s profile has been updated successfully.</span>
             </div>
         ),
