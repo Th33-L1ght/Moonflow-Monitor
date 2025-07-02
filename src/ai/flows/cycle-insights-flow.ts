@@ -1,5 +1,3 @@
-// Temporarily disabled to resolve deployment issues.
-/*
 'use server';
 /**
  * @fileOverview An AI flow to generate insights from cycle data.
@@ -7,7 +5,7 @@
  * - generateCycleInsight - A function that analyzes cycle data and returns an insight.
  * - CycleInsightInput - The input type for the generateCycleInsight function.
  * - CycleInsightOutput - The return type for the generateCycleInsight function.
- * /
+ */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
@@ -76,4 +74,3 @@ const cycleInsightFlow = ai.defineFlow(
     return output;
   }
 );
-*/
