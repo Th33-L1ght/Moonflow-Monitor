@@ -11,7 +11,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)", 'sans-serif'],
-        body: ["var(--font-sans)", 'sans-serif'],
+        body: ["var(--font-cursive)", 'cursive'],
       },
       colors: {
         background: 'hsl(var(--background))',

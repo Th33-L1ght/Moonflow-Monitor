@@ -56,7 +56,10 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
         setError('You must be logged in to add a profile.');
         return;
     }
-    if (!name.trim() || !selectedAvatar) return;
+    if (!name.trim() || !selectedAvatar) {
+      setError('Please provide a name and select an avatar.');
+      return;
+    }
 
     setError(null);
     setLoading(true);
@@ -95,7 +98,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add a New Profile</DialogTitle>
+            <DialogTitle>Add New Profile</DialogTitle>
             <DialogDescription>
               Enter a name and choose an avatar to start tracking.
             </DialogDescription>
@@ -125,22 +128,27 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
                 <Label className="text-right pt-2">
                     Avatar
                 </Label>
-                <div className="col-span-3 flex flex-wrap gap-3">
-                    {avatars.map(avatar => (
-                        <button
-                            type="button"
-                            key={avatar.url}
-                            onClick={() => setSelectedAvatar(avatar.url)}
-                            className={cn(
-                                "rounded-full ring-2 ring-transparent transition-all hover:ring-primary focus:outline-none focus:ring-primary",
-                                selectedAvatar === avatar.url ? "ring-primary ring-offset-2 ring-offset-background" : ""
-                            )}
-                        >
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src={avatar.url} alt="Avatar" data-ai-hint={avatar.hint} />
-                            </Avatar>
-                        </button>
-                    ))}
+                <div className="col-span-3">
+                  <div className="flex flex-wrap gap-3">
+                      {avatars.map(avatar => (
+                          <button
+                              type="button"
+                              key={avatar.url}
+                              onClick={() => setSelectedAvatar(avatar.url)}
+                              className={cn(
+                                  "rounded-full ring-2 ring-transparent transition-all hover:ring-primary focus:outline-none focus:ring-primary",
+                                  selectedAvatar === avatar.url ? "ring-primary ring-offset-2 ring-offset-background" : ""
+                              )}
+                          >
+                              <Avatar className="h-12 w-12">
+                                  <AvatarImage src={avatar.url} alt="Avatar" data-ai-hint={avatar.hint} />
+                              </Avatar>
+                          </button>
+                      ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    An avatar selection is required.
+                  </p>
                 </div>
             </div>
           </div>
