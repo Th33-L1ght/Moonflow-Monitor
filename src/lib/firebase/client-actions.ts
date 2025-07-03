@@ -101,9 +101,15 @@ export async function getChildrenForUser(userId: string): Promise<Child[]> {
     const q = query(collection(db, 'children'), where('parentUid', '==', userId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...convertTimestampsToDates(doc.data()) } as Child));
-  } catch (error) {
+  } catch (error: any) {
     logError(error, { location: 'client-actions.getChildrenForUser', userId });
-    throw error; // Re-throw the error to be handled by the UI
+    let message = error.message || "Failed to load your dashboard data.";
+    if (error.code === 'failed-precondition') {
+      message = "Your database needs a special index to display your data. Please check the developer console (press F12) for a link to create it.";
+    } else if (error.code === 'permission-denied') {
+      message = "Your database security rules are preventing you from seeing your data. Please update your rules in the Firebase Console."
+    }
+    throw new Error(message);
   }
 }
 
@@ -237,8 +243,12 @@ export async function submitFeedbackAction(userId: string, feedbackText: string)
             createdAt: serverTimestamp(),
         });
         return { success: true };
-    } catch (error) {
+    } catch (error: any) {
         logError(error, { location: 'client-actions.submitFeedbackAction', userId });
-        return { success: false, error: 'Failed to submit feedback.' };
+        let message = error.message || 'An unknown error occurred while submitting feedback.';
+        if (error.code === 'permission-denied') {
+            message = 'Permission Denied: Your database security rules are blocking this request. Please update your rules in the Firebase Console.';
+        }
+        return { success: false, error: message };
     }
 }
