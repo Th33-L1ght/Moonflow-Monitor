@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -30,6 +29,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { PadsButterflyIcon as ButterflyIcon } from './PadsButterflyIcon';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface AddChildDialogProps {
   isOpen: boolean;
@@ -58,6 +59,7 @@ const formSchema = z.object({
 
 export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialogProps) {
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -70,15 +72,12 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user) {
-      toast({
-        title: 'Error: Not Logged In',
-        description: 'You must be logged in to add a profile.',
-        variant: 'destructive',
-      });
+      setApiError('You must be logged in to add a profile.');
       return;
     }
 
     setLoading(true);
+    setApiError(null);
 
     try {
       const result = await addChildForUser(user.uid, values.name, values.avatarUrl);
@@ -96,30 +95,37 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
         onChildAdded();
         form.reset();
       } else {
+        const errorMessage = result.error || 'An unknown error occurred.';
+        setApiError(errorMessage);
         toast({
             title: 'Failed to Add Profile',
-            description: result.error || 'An unknown error occurred.',
+            description: errorMessage,
             variant: 'destructive',
         });
       }
     } catch (err: any) {
+        const errorMessage = err.message || 'An unexpected error occurred. Please try again.';
+        setApiError(errorMessage);
         toast({
             title: 'Critical Error',
-            description: err.message || 'An unexpected error occurred. Please try again.',
+            description: errorMessage,
             variant: 'destructive',
         });
     } finally {
         setLoading(false);
     }
   };
+  
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      form.reset();
+      setApiError(null);
+    }
+    setOpen(open);
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) {
-        form.reset();
-      }
-      setOpen(open);
-    }}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -138,7 +144,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Olivia" {...field} />
+                      <Input placeholder="e.g. Olivia" {...field} onChange={(e) => { field.onChange(e); setApiError(null); }} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -156,7 +162,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
                           <button
                             type="button"
                             key={avatar.url}
-                            onClick={() => field.onChange(avatar.url)}
+                            onClick={() => { field.onChange(avatar.url); setApiError(null); }}
                             className={cn(
                               "rounded-full ring-2 ring-transparent transition-all hover:ring-primary focus:outline-none focus:ring-primary",
                               field.value === avatar.url ? "ring-primary ring-offset-2 ring-offset-background" : ""
@@ -174,6 +180,14 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
                 )}
               />
             </div>
+
+            {apiError && (
+              <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{apiError}</AlertDescription>
+              </Alert>
+            )}
             
             <DialogFooter>
               <Button type="submit" disabled={loading}>
