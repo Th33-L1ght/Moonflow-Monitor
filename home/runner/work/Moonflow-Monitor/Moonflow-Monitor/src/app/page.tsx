@@ -49,7 +49,7 @@ const EmptyState = () => (
             </div>
             <h2 className="text-2xl font-bold font-body">Welcome to Light Flow</h2>
             <p className="mt-2 text-muted-foreground max-w-md mx-auto">
-                It looks like you don't have any child profiles yet. You can add one in a future update.
+                It looks like you don&apos;t have any child profiles yet. Add one from the user menu in the top right to get started.
             </p>
         </div>
     </div>
@@ -96,7 +96,7 @@ export default function ParentDashboardPage() {
   return (
     <AuthGuard>
       <div className="flex flex-col min-h-screen bg-muted/40">
-        <Header />
+        <Header onChildAdded={fetchChildren} />
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto w-full">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">

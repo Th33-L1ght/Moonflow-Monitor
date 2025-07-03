@@ -1,7 +1,6 @@
-
 'use client';
 
-import { LogOut, User as UserIcon, MessageSquare } from 'lucide-react';
+import { LogOut, User as UserIcon, MessageSquare, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -18,12 +17,18 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { EditParentProfileDialog } from './EditParentProfileDialog';
 import { FeedbackDialog } from './FeedbackDialog';
+import { AddChildDialog } from './AddChildDialog';
 
 
-export function Header() {
+export interface HeaderProps {
+    onChildAdded?: () => void;
+}
+
+export function Header({ onChildAdded }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
   const [isFeedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const [isAddChildDialogOpen, setAddChildDialogOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -34,6 +39,7 @@ export function Header() {
   };
 
   const canEditProfile = user?.role === 'parent';
+  const handleChildAdded = onChildAdded || (() => {});
 
   return (
     <>
@@ -56,15 +62,22 @@ export function Header() {
             <DropdownMenuLabel>{user?.email || 'My Account'}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {canEditProfile && (
-              <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
-                  <UserIcon className="mr-2 h-4 w-4" />
-                  <span>Edit Profile</span>
-              </DropdownMenuItem>
+              <>
+                <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    <span>Edit Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setAddChildDialogOpen(true)}>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    <span>Add Child Profile</span>
+                </DropdownMenuItem>
+              </>
             )}
             <DropdownMenuItem onSelect={() => setFeedbackDialogOpen(true)}>
                 <MessageSquare className="mr-2 h-4 w-4" />
                 <span>Feedback</span>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
@@ -73,7 +86,10 @@ export function Header() {
         </DropdownMenu>
       </header>
       {canEditProfile && (
-        <EditParentProfileDialog isOpen={isProfileDialogOpen} setOpen={setProfileDialogOpen} />
+        <>
+          <EditParentProfileDialog isOpen={isProfileDialogOpen} setOpen={setProfileDialogOpen} />
+          <AddChildDialog isOpen={isAddChildDialogOpen} setOpen={setAddChildDialogOpen} onChildAdded={handleChildAdded} />
+        </>
       )}
       <FeedbackDialog isOpen={isFeedbackDialogOpen} setOpen={setFeedbackDialogOpen} />
     </>
