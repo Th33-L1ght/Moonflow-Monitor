@@ -210,15 +210,13 @@ export default function ChildDetailPage() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="w-full overflow-x-auto pb-2">
-                <TabsList className="inline-flex bg-card mb-6 border">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="calendar">Calendar</TabsTrigger>
-                  <TabsTrigger value="charts">Charts</TabsTrigger>
-                  <TabsTrigger value="journal">Journal</TabsTrigger>
-                  <TabsTrigger value="log">Log Symptoms</TabsTrigger>
-                </TabsList>
-              </div>
+              <TabsList className="grid w-full grid-cols-5 bg-card mb-6 border">
+                <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+                <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendar</TabsTrigger>
+                <TabsTrigger value="charts" className="text-xs sm:text-sm">Charts</TabsTrigger>
+                <TabsTrigger value="journal" className="text-xs sm:text-sm">Journal</TabsTrigger>
+                <TabsTrigger value="log" className="text-xs sm:text-sm">Log Symptoms</TabsTrigger>
+              </TabsList>
             </Tabs>
             
             <div className="mt-6">
