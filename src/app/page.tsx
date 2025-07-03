@@ -8,12 +8,10 @@ import type { Child } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import { Header } from '@/components/Header';
 import { ChildCard } from '@/components/ChildCard';
-import { AddChildDialog } from '@/components/AddChildDialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
 import { FlyingButterflies } from '@/components/FlyingButterflies';
 import { Logo } from '@/components/Logo';
-import { PlusCircle, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 const DashboardSkeleton = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -43,7 +41,7 @@ const DashboardErrorState = ({ message }: { message: string }) => (
 );
 
 
-const EmptyState = ({ onAddChildClick }: { onAddChildClick: () => void }) => (
+const EmptyState = () => (
     <div className="text-center py-20 px-6 rounded-lg border-2 border-dashed bg-muted/20 relative overflow-hidden">
         <FlyingButterflies />
         <div className="relative z-10 flex flex-col items-center">
@@ -52,12 +50,8 @@ const EmptyState = ({ onAddChildClick }: { onAddChildClick: () => void }) => (
             </div>
             <h2 className="text-2xl font-bold font-body">Welcome to Light Flow</h2>
             <p className="mt-2 text-muted-foreground max-w-md mx-auto">
-                It looks like you don't have any child profiles yet. Get started by adding your first child.
+                It looks like you don't have any child profiles yet. You can add one in a future update.
             </p>
-            <Button onClick={onAddChildClick} className="mt-6">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Your First Child
-            </Button>
         </div>
     </div>
 );
@@ -66,7 +60,6 @@ export default function ParentDashboardPage() {
   const { user } = useAuth();
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAddChildOpen, setAddChildOpen] = useState(false);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
 
   const fetchChildren = useCallback(async () => {
@@ -109,30 +102,14 @@ export default function ParentDashboardPage() {
           <div className="max-w-7xl mx-auto w-full">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
               <h1 className="font-body text-3xl md:text-4xl font-bold">Your Family's Cycles</h1>
-              <div className="flex items-center gap-2">
-                 {children.length > 0 && (
-                    <Button onClick={() => setAddChildOpen(true)} size="sm" className="gap-1">
-                        <PlusCircle className="h-3.5 w-3.5" />
-                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                            Add Profile
-                        </span>
-                    </Button>
-                 )}
-              </div>
             </div>
-            
-            <AddChildDialog 
-                isOpen={isAddChildOpen}
-                setOpen={setAddChildOpen}
-                onChildAdded={fetchChildren}
-            />
 
             {loading ? (
               <DashboardSkeleton />
             ) : dashboardError ? (
                 <DashboardErrorState message={dashboardError} />
             ) : children.length === 0 ? (
-                <EmptyState onAddChildClick={() => setAddChildOpen(true)} />
+                <EmptyState />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {children.map((child) => (

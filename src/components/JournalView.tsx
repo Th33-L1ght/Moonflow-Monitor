@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Child, SymptomLog } from '@/lib/types';

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -10,25 +11,34 @@ import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Edit } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getCyclePrediction } from '@/lib/utils';
 import { PadReminderCard } from '@/components/PadReminderCard';
 import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 import { EditChildDialog } from '@/components/EditChildDialog';
-import dynamic from 'next/dynamic';
 import { AIInsightCard } from '@/components/AIInsightCard';
+import PeriodCalendar from '@/components/PeriodCalendar';
+import MoodChart from '@/components/MoodChart';
+import CycleLengthChart from '@/components/CycleLengthChart';
+import JournalView from '@/components/JournalView';
+import SymptomTracker from '@/components/SymptomTracker';
+
 
 const DetailPageSkeleton = () => (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
         <main className="flex-1 p-4 md:p-8">
             <div className="max-w-4xl mx-auto w-full">
-                <Skeleton className="h-10 w-48 mb-4" />
-                <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <Skeleton className="h-28 rounded-lg" />
-                    <Skeleton className="h-28 rounded-lg" />
-                    <Skeleton className="h-28 rounded-lg" />
+                <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <Skeleton className="h-10 w-10 rounded-md" />
+                        <Skeleton className="h-16 w-16 rounded-full" />
+                        <div>
+                            <Skeleton className="h-8 w-32 mb-2" />
+                            <Skeleton className="h-4 w-48" />
+                        </div>
+                    </div>
+                     <Skeleton className="h-10 w-32" />
                 </div>
                 <Skeleton className="h-10 w-full mb-8" />
                 <Skeleton className="h-96 w-full" />
@@ -36,88 +46,6 @@ const DetailPageSkeleton = () => (
         </main>
     </div>
 );
-
-const PeriodCalendar = dynamic(() => import('@/components/PeriodCalendar'), {
-    loading: () => (
-        <Card>
-            <CardHeader>
-                <CardTitle>Period Calendar</CardTitle>
-                <CardDescription>
-                Visualize current and past cycles. Click a date range to log a new period.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="flex justify-center p-4 border rounded-lg bg-background">
-                    <Skeleton className="h-[290px] w-[280px]" />
-                </div>
-            </CardContent>
-        </Card>
-    ),
-    ssr: false
-});
-
-const MoodChart = dynamic(() => import('@/components/MoodChart'), {
-    loading: () => (
-        <Card>
-            <CardHeader>
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2 mt-2" />
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="h-48 w-full" />
-            </CardContent>
-        </Card>
-    ),
-    ssr: false
-});
-
-const CycleLengthChart = dynamic(() => import('@/components/CycleLengthChart'), {
-    loading: () => (
-        <Card>
-            <CardHeader>
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2 mt-2" />
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="h-48 w-full" />
-            </CardContent>
-        </Card>
-    ),
-    ssr: false
-});
-
-const JournalView = dynamic(() => import('@/components/JournalView'), {
-    loading: () => (
-        <Card>
-            <CardHeader>
-                <Skeleton className="h-6 w-1/4" />
-                <Skeleton className="h-4 w-1/2 mt-2" />
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="h-96 w-full" />
-            </CardContent>
-        </Card>
-    )
-});
-
-const SymptomTracker = dynamic(() => import('@/components/SymptomTracker'), {
-    loading: () => (
-        <Card>
-            <CardHeader>
-                <Skeleton className="h-6 w-1/3" />
-                <Skeleton className="h-4 w-2/3 mt-2" />
-            </CardHeader>
-            <CardContent className="grid gap-8">
-                <Skeleton className="h-28 w-full" />
-                <Skeleton className="h-28 w-full" />
-                <Skeleton className="h-32 w-full" />
-                <Skeleton className="h-12 w-full" />
-            </CardContent>
-        </Card>
-    ),
-    ssr: false
-});
-
 
 export default function ChildDetailPage() {
   const params = useParams();
@@ -209,7 +137,7 @@ export default function ChildDetailPage() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5 bg-card mb-6 border">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-card mb-6 border">
                 <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
                 <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendar</TabsTrigger>
                 <TabsTrigger value="charts" className="text-xs sm:text-sm">Charts</TabsTrigger>
