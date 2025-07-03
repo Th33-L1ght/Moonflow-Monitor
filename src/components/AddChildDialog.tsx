@@ -49,9 +49,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent default form submission
-
+  const handleSubmit = async () => {
     if (!user) {
       setError('You must be logged in to add a profile.');
       return;
@@ -99,7 +97,6 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
       setOpen(open);
     }}>
       <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add New Profile</DialogTitle>
             <DialogDescription>
@@ -156,11 +153,10 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading || !name.trim() || !selectedAvatar}>
+            <Button type="button" onClick={handleSubmit} disabled={loading || !name.trim() || !selectedAvatar}>
               {loading ? 'Adding...' : 'Add Profile'}
             </Button>
           </DialogFooter>
-        </form>
       </DialogContent>
     </Dialog>
   );
