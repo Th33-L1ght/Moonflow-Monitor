@@ -1,6 +1,6 @@
 
 import './globals.css';
-import { Inter, Dancing_Script } from 'next/font/google';
+import { Inter, Courgette } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/contexts/AuthContext';
 import type { Metadata, Viewport } from 'next';
@@ -11,10 +11,10 @@ const inter = Inter({
   variable: '--font-sans',
 });
 
-const dancingScript = Dancing_Script({
+const courgette = Courgette({
   subsets: ['latin'],
   variable: '--font-cursive',
-  weight: '700',
+  weight: '400',
 });
 
 
@@ -33,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("font-sans antialiased", inter.variable, dancingScript.variable)}>
+      <body className={cn("font-sans antialiased", inter.variable, courgette.variable)}>
         <AuthProvider>
             {children}
             <Toaster />
