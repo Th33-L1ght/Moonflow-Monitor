@@ -102,6 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!auth) throw new Error("Firebase not configured.");
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      // Only send verification for real emails, not child username accounts
       if (!email.endsWith('@lightflow.app')) {
         await sendEmailVerification(userCredential.user);
       }

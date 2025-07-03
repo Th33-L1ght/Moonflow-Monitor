@@ -145,6 +145,9 @@ export default function LoginPage() {
     );
   }
 
+  const emailLabel = mode === 'login' ? 'Email or Username' : 'Email Address';
+  const emailPlaceholder = mode === 'login' ? 'you@example.com or username' : 'you@example.com';
+
   return (
     <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40">
       <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center space-y-6">
@@ -175,11 +178,11 @@ export default function LoginPage() {
                 </Alert>
               )}
               <div className="grid gap-2">
-                <Label htmlFor="email">Email or Username</Label>
+                <Label htmlFor="email">{emailLabel}</Label>
                 <Input
                   id="email"
                   type="text"
-                  placeholder="you@example.com or username"
+                  placeholder={emailPlaceholder}
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
