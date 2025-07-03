@@ -107,7 +107,7 @@ export default function ParentDashboardPage() {
         <Header />
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto w-full">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
               <h1 className="font-body text-3xl md:text-4xl font-bold">Your Family's Cycles</h1>
               <div className="flex items-center gap-2">
                  {children.length > 0 && (
