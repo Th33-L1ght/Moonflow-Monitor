@@ -18,8 +18,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { PadsButterflyIcon as ButterflyIcon } from './PadsButterflyIcon';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { AlertCircle } from 'lucide-react';
 
 interface AddChildDialogProps {
   isOpen: boolean;
@@ -45,21 +43,27 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
   const [name, setName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async () => {
     if (!user) {
-      setError('You must be logged in to add a profile.');
+      toast({
+        title: 'Error: Not Logged In',
+        description: 'You must be logged in to add a profile.',
+        variant: 'destructive',
+      });
       return;
     }
     if (!name.trim() || !selectedAvatar) {
-      setError('Please provide a name and select an avatar.');
+       toast({
+        title: 'Missing Information',
+        description: 'Please provide a name and select an avatar.',
+        variant: 'destructive',
+      });
       return;
     }
 
-    setError(null);
     setLoading(true);
 
     try {
@@ -77,11 +81,19 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
         setOpen(false);
         onChildAdded();
       } else {
-        setError(result.error || 'An unknown error occurred.');
-        setLoading(false);
+        toast({
+            title: 'Failed to Add Profile',
+            description: result.error || 'An unknown error occurred.',
+            variant: 'destructive',
+        });
       }
     } catch (err: any) {
-        setError(err.message || 'A critical error occurred. Please try again.');
+        toast({
+            title: 'Critical Error',
+            description: err.message || 'An unexpected error occurred. Please try again.',
+            variant: 'destructive',
+        });
+    } finally {
         setLoading(false);
     }
   };
@@ -92,7 +104,6 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
         setName('');
         setSelectedAvatar(null);
         setLoading(false);
-        setError(null);
       }
       setOpen(open);
     }}>
@@ -104,13 +115,6 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-             {error && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error Adding Profile</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            )}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
                 Name
