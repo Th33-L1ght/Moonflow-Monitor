@@ -21,7 +21,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 
-export function CycleLengthChart({ child }: CycleLengthChartProps) {
+export default function CycleLengthChart({ child }: CycleLengthChartProps) {
      const chartData = useMemo(() => {
         if (!child || child.cycles.length < 2) {
             return [];

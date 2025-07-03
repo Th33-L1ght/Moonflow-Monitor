@@ -26,7 +26,7 @@ const chartConfig = {
     Moody: { label: 'Moody', color: moodColors.Moody },
 } satisfies ChartConfig;
 
-export function MoodChart({ child }: MoodChartProps) {
+export default function MoodChart({ child }: MoodChartProps) {
     const chartData = useMemo(() => {
         const moodDataByDay: { [key: number]: { [key in Mood]?: number } & { name: string } } = {};
 

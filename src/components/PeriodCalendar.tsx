@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -40,7 +39,7 @@ const moodEmojis: Record<Mood, string> = {
 };
 
 
-export function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps) {
+export default function PeriodCalendar({ child, onUpdate, canEdit }: PeriodCalendarProps) {
   const [date, setDate] = React.useState<DateRange | undefined>();
   const [isLoading, setIsLoading] = React.useState(false);
   const [isDialogOpen, setDialogOpen] = React.useState(false);

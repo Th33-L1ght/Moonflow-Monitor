@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -38,7 +37,7 @@ const DetailPageSkeleton = () => (
     </div>
 );
 
-const PeriodCalendar = dynamic(() => import('@/components/PeriodCalendar').then(mod => mod.PeriodCalendar), {
+const PeriodCalendar = dynamic(() => import('@/components/PeriodCalendar'), {
     loading: () => (
         <Card>
             <CardHeader>
@@ -57,7 +56,7 @@ const PeriodCalendar = dynamic(() => import('@/components/PeriodCalendar').then(
     ssr: false
 });
 
-const MoodChart = dynamic(() => import('@/components/MoodChart').then(mod => mod.MoodChart), {
+const MoodChart = dynamic(() => import('@/components/MoodChart'), {
     loading: () => (
         <Card>
             <CardHeader>
@@ -72,7 +71,7 @@ const MoodChart = dynamic(() => import('@/components/MoodChart').then(mod => mod
     ssr: false
 });
 
-const CycleLengthChart = dynamic(() => import('@/components/CycleLengthChart').then(mod => mod.CycleLengthChart), {
+const CycleLengthChart = dynamic(() => import('@/components/CycleLengthChart'), {
     loading: () => (
         <Card>
             <CardHeader>
@@ -87,7 +86,7 @@ const CycleLengthChart = dynamic(() => import('@/components/CycleLengthChart').t
     ssr: false
 });
 
-const JournalView = dynamic(() => import('@/components/JournalView').then(mod => mod.JournalView), {
+const JournalView = dynamic(() => import('@/components/JournalView'), {
     loading: () => (
         <Card>
             <CardHeader>
@@ -101,7 +100,7 @@ const JournalView = dynamic(() => import('@/components/JournalView').then(mod =>
     )
 });
 
-const SymptomTracker = dynamic(() => import('@/components/SymptomTracker').then(mod => mod.SymptomTracker), {
+const SymptomTracker = dynamic(() => import('@/components/SymptomTracker'), {
     loading: () => (
         <Card>
             <CardHeader>

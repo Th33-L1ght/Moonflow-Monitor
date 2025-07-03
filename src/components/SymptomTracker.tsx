@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -38,7 +37,7 @@ interface SymptomTrackerProps {
     canEdit: boolean;
 }
 
-export function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps) {
+export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrackerProps) {
   const [cramp, setCramp] = React.useState<string>('1');
   const [mood, setMood] = React.useState<string>('Happy');
   const [note, setNote] = React.useState<string>('');

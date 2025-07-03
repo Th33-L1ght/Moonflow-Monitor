@@ -12,7 +12,7 @@ interface JournalViewProps {
     child: Child;
 }
 
-export function JournalView({ child }: JournalViewProps) {
+export default function JournalView({ child }: JournalViewProps) {
     const journalEntries = useMemo(() => {
         if (!child || !child.cycles) {
             return [];
