@@ -1,6 +1,11 @@
+
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
 import {
   Dialog,
   DialogContent,
@@ -9,9 +14,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { addChildForUser } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
@@ -39,14 +51,24 @@ const avatars: AvatarOption[] = [
   { url: 'https://placehold.co/100x100/bfdbfe/1e3a8a.png', hint: 'butterfly blue' },
 ];
 
+const formSchema = z.object({
+  name: z.string().min(1, { message: 'Please enter a name.' }),
+  avatarUrl: z.string({ required_error: 'Please select an avatar.' }),
+});
+
 export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialogProps) {
-  const [name, setName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const handleSubmit = async () => {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user) {
       toast({
         title: 'Error: Not Logged In',
@@ -55,31 +77,24 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
       });
       return;
     }
-    if (!name.trim() || !selectedAvatar) {
-       toast({
-        title: 'Missing Information',
-        description: 'Please provide a name and select an avatar.',
-        variant: 'destructive',
-      });
-      return;
-    }
 
     setLoading(true);
 
     try {
-      const result = await addChildForUser(user.uid, name.trim(), selectedAvatar);
+      const result = await addChildForUser(user.uid, values.name, values.avatarUrl);
       if (result.success) {
         toast({
           title: "Profile Added",
           description: (
               <div className="flex items-center gap-2">
                   <ButterflyIcon className="h-5 w-5 text-primary" />
-                  <span>{name.trim()} has been added successfully.</span>
+                  <span>{values.name} has been added successfully.</span>
               </div>
           ),
         });
         setOpen(false);
         onChildAdded();
+        form.reset();
       } else {
         toast({
             title: 'Failed to Add Profile',
@@ -101,66 +116,72 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) {
-        setName('');
-        setSelectedAvatar(null);
-        setLoading(false);
+        form.reset();
       }
       setOpen(open);
     }}>
       <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add New Profile</DialogTitle>
-            <DialogDescription>
-              Enter a name and choose an avatar to start tracking.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
-                placeholder="e.g. Olivia"
-                required
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <DialogHeader className='text-left'>
+              <DialogTitle>Add New Profile</DialogTitle>
+              <DialogDescription>
+                Enter a name and choose an avatar to start tracking.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Olivia" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="avatarUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Avatar</FormLabel>
+                    <FormControl>
+                      <div className="flex flex-wrap gap-3">
+                        {avatars.map(avatar => (
+                          <button
+                            type="button"
+                            key={avatar.url}
+                            onClick={() => field.onChange(avatar.url)}
+                            className={cn(
+                              "rounded-full ring-2 ring-transparent transition-all hover:ring-primary focus:outline-none focus:ring-primary",
+                              field.value === avatar.url ? "ring-primary ring-offset-2 ring-offset-background" : ""
+                            )}
+                          >
+                            <Avatar className="h-12 w-12">
+                              <AvatarImage src={avatar.url} alt="Avatar" data-ai-hint={avatar.hint} />
+                            </Avatar>
+                          </button>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-                <Label className="text-right pt-2">
-                    Avatar
-                </Label>
-                <div className="col-span-3">
-                  <div className="flex flex-wrap gap-3">
-                      {avatars.map(avatar => (
-                          <button
-                              type="button"
-                              key={avatar.url}
-                              onClick={() => setSelectedAvatar(avatar.url)}
-                              className={cn(
-                                  "rounded-full ring-2 ring-transparent transition-all hover:ring-primary focus:outline-none focus:ring-primary",
-                                  selectedAvatar === avatar.url ? "ring-primary ring-offset-2 ring-offset-background" : ""
-                              )}
-                          >
-                              <Avatar className="h-12 w-12">
-                                  <AvatarImage src={avatar.url} alt="Avatar" data-ai-hint={avatar.hint} />
-                              </Avatar>
-                          </button>
-                      ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    An avatar selection is required.
-                  </p>
-                </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" onClick={handleSubmit} disabled={loading || !name.trim() || !selectedAvatar}>
-              {loading ? 'Adding...' : 'Add Profile'}
-            </Button>
-          </DialogFooter>
+            
+            <DialogFooter>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Adding...' : 'Add Profile'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
