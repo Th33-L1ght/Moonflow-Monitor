@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -50,11 +49,10 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!user) {
-        setError('You must be logged in to add a profile.');
-        return;
+      setError('You must be logged in to add a profile.');
+      return;
     }
     if (!name.trim() || !selectedAvatar) {
       setError('Please provide a name and select an avatar.');
@@ -64,25 +62,28 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
     setError(null);
     setLoading(true);
 
-    const result = await addChildForUser(user.uid, name.trim(), selectedAvatar);
-
-    if (result.success) {
-      toast({
-        title: "Profile Added",
-        description: (
-            <div className="flex items-center gap-2">
-                <ButterflyIcon className="h-5 w-5 text-primary" />
-                <span>{name.trim()} has been added successfully.</span>
-            </div>
-        ),
-      });
-      onChildAdded();
-      setOpen(false);
-    } else {
-      setError(result.error || 'An unknown error occurred.');
+    try {
+      const result = await addChildForUser(user.uid, name.trim(), selectedAvatar);
+      if (result.success) {
+        toast({
+          title: "Profile Added",
+          description: (
+              <div className="flex items-center gap-2">
+                  <ButterflyIcon className="h-5 w-5 text-primary" />
+                  <span>{name.trim()} has been added successfully.</span>
+              </div>
+          ),
+        });
+        onChildAdded();
+        setOpen(false);
+      } else {
+        setError(result.error || 'An unknown error occurred.');
+      }
+    } catch (err: any) {
+        setError(err.message || 'A critical error occurred. Please try again.');
+    } finally {
+        setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   return (
@@ -96,7 +97,6 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
       setOpen(open);
     }}>
       <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add New Profile</DialogTitle>
             <DialogDescription>
@@ -153,11 +153,10 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading || !name.trim() || !selectedAvatar}>
+            <Button type="button" onClick={handleSubmit} disabled={loading || !name.trim() || !selectedAvatar}>
               {loading ? 'Adding...' : 'Add Profile'}
             </Button>
           </DialogFooter>
-        </form>
       </DialogContent>
     </Dialog>
   );
