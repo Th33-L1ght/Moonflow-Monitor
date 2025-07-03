@@ -8,6 +8,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  sendEmailVerification,
 } from 'firebase/auth';
 import type { User, UserCredential } from 'firebase/auth';
 import { useRouter, usePathname } from 'next/navigation';
@@ -101,6 +102,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!auth) throw new Error("Firebase not configured.");
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      if (!email.endsWith('@lightflow.app')) {
+        await sendEmailVerification(userCredential.user);
+      }
       await setUserStateFromFirebaseUser(userCredential.user);
       return userCredential;
     } catch(err) {
@@ -124,6 +128,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!auth) throw new Error("Firebase not configured.");
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      await sendEmailVerification(userCredential.user);
       await setUserStateFromFirebaseUser(userCredential.user);
       return userCredential;
     } catch(err) {

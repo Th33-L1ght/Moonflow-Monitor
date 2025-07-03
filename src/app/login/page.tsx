@@ -87,8 +87,8 @@ export default function LoginPage() {
     try {
       await signUp(email, password);
       toast({
-          title: "Account Created",
-          description: "Welcome! Logging you in now...",
+          title: "Account Created!",
+          description: "We've sent a welcome email to verify your address.",
       });
     } catch (err: any)      {
       logError(err, { location: 'LoginPage.handleSignUp', email });

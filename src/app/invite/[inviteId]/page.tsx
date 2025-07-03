@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -68,7 +69,7 @@ export default function InvitePage() {
                  setSuccess(true);
                  toast({
                     title: "Account Created!",
-                    description: "You're now being redirected.",
+                    description: "We've sent a verification email. You're now being redirected.",
                 });
                 // AuthContext redirect will handle the rest
             } else {
