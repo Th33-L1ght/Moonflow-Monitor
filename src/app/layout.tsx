@@ -1,6 +1,6 @@
 
 import './globals.css';
-import { Inter, Caveat } from 'next/font/google';
+import { Inter, Dancing_Script } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/contexts/AuthContext';
 import type { Metadata, Viewport } from 'next';
@@ -11,7 +11,7 @@ const inter = Inter({
   variable: '--font-sans',
 });
 
-const caveat = Caveat({
+const dancingScript = Dancing_Script({
   subsets: ['latin'],
   variable: '--font-cursive',
   weight: '700',
@@ -33,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("font-sans antialiased", inter.variable, caveat.variable)}>
+      <body className={cn("font-sans antialiased", inter.variable, dancingScript.variable)}>
         <AuthProvider>
             {children}
             <Toaster />
