@@ -103,7 +103,7 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
       <Card className="flex flex-col">
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar className="h-12 w-12">
-            <AvatarImage src={child.avatarUrl} alt={child.name} />
+            <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
             <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1">

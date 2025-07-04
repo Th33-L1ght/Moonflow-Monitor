@@ -119,7 +119,7 @@ export default function ChildDetailPage() {
                         </Button>
                     )}
                     <Avatar className="h-16 w-16 border">
-                      <AvatarImage src={child.avatarUrl} alt={child.name} />
+                      <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
                       <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
