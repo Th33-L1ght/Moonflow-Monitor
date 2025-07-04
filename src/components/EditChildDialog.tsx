@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -13,11 +14,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarImage } from './ui/avatar';
-import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import type { Child } from '@/lib/types';
 import { updateChild } from '@/lib/firebase/client-actions';
 import { PadsButterflyIcon } from './PadsButterflyIcon';
+import { Camera, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { storage } from '@/lib/firebase/client';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { logError } from '@/lib/error-logging';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 interface EditChildDialogProps {
   isOpen: boolean;
@@ -26,43 +32,70 @@ interface EditChildDialogProps {
   onChildUpdated: () => void;
 }
 
-interface AvatarOption {
-  url: string;
-  hint: string;
-}
-
-const avatars: AvatarOption[] = [
-  { url: 'https://placehold.co/100x100/fecdd3/9f1239.png', hint: 'butterfly pink' },
-  { url: 'https://placehold.co/100x100/d9f99d/365314.png', hint: 'butterfly green' },
-  { url: 'https://placehold.co/100x100/cffafe/155e75.png', hint: 'butterfly cyan' },
-  { url: 'https://placehold.co/100x100/e9d5ff/581c87.png', hint: 'butterfly purple' },
-  { url: 'https://placehold.co/100x100/fed7aa/9a3412.png', hint: 'butterfly orange' },
-  { url: 'https://placehold.co/100x100/bfdbfe/1e3a8a.png', hint: 'butterfly blue' },
-];
-
 export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: EditChildDialogProps) {
   const [name, setName] = useState(child.name);
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(child.avatarUrl);
+  const [selectedAvatarPreview, setSelectedAvatarPreview] = useState<string | null>(child.avatarUrl);
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (child) {
       setName(child.name);
-      setSelectedAvatar(child.avatarUrl);
+      setSelectedAvatarPreview(child.avatarUrl);
+      setSelectedAvatarFile(null);
+      setError(null);
     }
   }, [child, isOpen]);
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+       if (file.size > 2 * 1024 * 1024) { // 2MB limit
+          setError("File is too large. Please select an image under 2MB.");
+          return;
+      }
+      setSelectedAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !selectedAvatar) return;
+    if (!name.trim() || !selectedAvatarPreview) return;
+    if (!user) {
+        setError("You must be logged in to do this.");
+        return;
+    }
 
     setLoading(true);
+    setError(null);
+
     try {
+      let avatarUrl = child.avatarUrl;
+      
+      if (selectedAvatarFile && selectedAvatarPreview) {
+        if (!storage) throw new Error("Storage not configured.");
+        const filePath = `avatars/${user.uid}/${child.id}/${Date.now()}_${selectedAvatarFile.name}`;
+        const storageRef = ref(storage, filePath);
+        
+        await uploadString(storageRef, selectedAvatarPreview, 'data_url');
+        avatarUrl = await getDownloadURL(storageRef);
+      }
+
       const updatedData = {
         name: name.trim(),
-        avatarUrl: selectedAvatar,
+        avatarUrl: avatarUrl,
       };
+
       await updateChild(child.id, updatedData);
       toast({
         title: "Profile Updated",
@@ -75,13 +108,9 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
       });
       onChildUpdated();
       setOpen(false);
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update profile. Please try again.',
-        variant: 'destructive',
-      });
+    } catch (err: any) {
+      logError(err, { location: 'EditChildDialog.handleSubmit', childId: child.id });
+      setError(err.message || 'Failed to update profile.');
     } finally {
       setLoading(false);
     }
@@ -94,10 +123,17 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
           <DialogHeader>
             <DialogTitle>Edit {child.name}'s Profile</DialogTitle>
             <DialogDescription>
-              Update the name or avatar for this profile.
+              Update the name or upload a new avatar.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-6 py-4">
+           <div className="grid gap-6 py-4">
+             {error && (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
                 Name
@@ -111,31 +147,32 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
                 required
               />
             </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-                <Label className="text-right pt-2">
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">
                     Avatar
                 </Label>
-                <div className="col-span-3 flex flex-wrap gap-3">
-                    {avatars.map(avatar => (
-                        <button
-                            type="button"
-                            key={avatar.url}
-                            onClick={() => setSelectedAvatar(avatar.url)}
-                            className={cn(
-                                "rounded-full ring-2 ring-transparent transition-all hover:ring-primary focus:outline-none focus:ring-primary",
-                                selectedAvatar === avatar.url ? "ring-primary ring-offset-2 ring-offset-background" : ""
-                            )}
-                        >
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src={avatar.url} alt="Avatar" data-ai-hint={avatar.hint} />
-                            </Avatar>
-                        </button>
-                    ))}
+                <div className="col-span-3 flex items-center gap-4">
+                    <Avatar className="h-16 w-16 border">
+                        <AvatarImage src={selectedAvatarPreview ?? undefined} alt={child.name} />
+                        <AvatarFallback>
+                            <Camera className="h-6 w-6 text-muted-foreground" />
+                        </AvatarFallback>
+                    </Avatar>
+                     <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                        Upload New
+                    </Button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                        accept="image/png, image/jpeg, image/gif"
+                    />
                 </div>
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading || !name.trim() || !selectedAvatar}>
+            <Button type="submit" disabled={loading || !name.trim()}>
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>

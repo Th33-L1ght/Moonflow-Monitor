@@ -1,3 +1,4 @@
+
 'use client';
 
 import { LogOut, User as UserIcon, MessageSquare, UserPlus } from 'lucide-react';
@@ -52,7 +53,7 @@ export function Header({ onChildAdded }: HeaderProps) {
           <DropdownMenuTrigger asChild>
             <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
               <Avatar className="h-12 w-12">
-                <AvatarImage src={user?.photoURL || "https://placehold.co/100x100.png"} alt="User avatar" data-ai-hint="person avatar"/>
+                <AvatarImage src={user?.photoURL ?? undefined} alt="User avatar" />
                 <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>

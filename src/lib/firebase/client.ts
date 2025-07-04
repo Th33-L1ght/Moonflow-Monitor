@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
 // import { getAnalytics, type Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
@@ -20,6 +21,7 @@ export const isFirebaseConfigured = Object.values(firebaseConfig).every(
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
 let db: Firestore | undefined;
+let storage: FirebaseStorage | undefined;
 let analytics: any; // type Analytics, but disabled.
 
 if (typeof window !== 'undefined') {
@@ -27,6 +29,7 @@ if (typeof window !== 'undefined') {
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
+    storage = getStorage(app);
     // Analytics is disabled to prevent ad-blockers from causing console errors.
     // analytics = getAnalytics(app);
   } else {
@@ -39,4 +42,4 @@ if (typeof window !== 'undefined') {
 }
 
 
-export { app, auth, db, analytics };
+export { app, auth, db, storage, analytics };

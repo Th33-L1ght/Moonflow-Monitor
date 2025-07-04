@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,11 +15,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { Avatar, AvatarImage } from './ui/avatar';
-import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { addChildForUser } from '@/lib/firebase/client-actions';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Camera } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { storage } from '@/lib/firebase/client';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { logError } from '@/lib/error-logging';
 
 interface AddChildDialogProps {
   isOpen: boolean;
@@ -26,61 +29,80 @@ interface AddChildDialogProps {
   onChildAdded: () => void;
 }
 
-interface AvatarOption {
-  url: string;
-  hint: string;
-}
-
-const avatars: AvatarOption[] = [
-  { url: 'https://placehold.co/100x100/fecdd3/9f1239.png', hint: 'butterfly pink' },
-  { url: 'https://placehold.co/100x100/d9f99d/365314.png', hint: 'butterfly green' },
-  { url: 'https://placehold.co/100x100/cffafe/155e75.png', hint: 'butterfly cyan' },
-  { url: 'https://placehold.co/100x100/e9d5ff/581c87.png', hint: 'butterfly purple' },
-  { url: 'https://placehold.co/100x100/fed7aa/9a3412.png', hint: 'butterfly orange' },
-  { url: 'https://placehold.co/100x100/bfdbfe/1e3a8a.png', hint: 'butterfly blue' },
-  { url: 'https://placehold.co/100x100/fef08a/854d0e.png', hint: 'butterfly yellow' },
-  { url: 'https://placehold.co/100x100/fca5a5/991b1b.png', hint: 'butterfly red' },
-];
-
 export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialogProps) {
   const [name, setName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+  const [selectedAvatarPreview, setSelectedAvatarPreview] = useState<string | null>(null);
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetForm = () => {
     setName('');
-    setSelectedAvatar(null);
+    setSelectedAvatarPreview(null);
+    setSelectedAvatarFile(null);
     setLoading(false);
     setError(null);
   }
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+          setError("File is too large. Please select an image under 2MB.");
+          return;
+      }
+      setSelectedAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !name.trim() || !selectedAvatar) {
-        setError('Please enter a name and select an avatar.');
+    if (!user || !name.trim() || !selectedAvatarFile || !selectedAvatarPreview) {
+        setError('Please enter a name and upload an avatar.');
         return;
     }
 
     setLoading(true);
     setError(null);
     
-    const result = await addChildForUser(user.uid, name.trim(), selectedAvatar);
+    try {
+        if (!storage) throw new Error("Storage not configured.");
 
-    if (result.success) {
-      toast({
-        title: 'Profile Added!',
-        description: `${name.trim()} has been added to your family.`,
-      });
-      onChildAdded();
-      setOpen(false);
-      resetForm();
-    } else {
-      setError(result.error || 'An unexpected error occurred.');
+        const filePath = `avatars/${user.uid}/${Date.now()}_${selectedAvatarFile.name}`;
+        const storageRef = ref(storage, filePath);
+        
+        await uploadString(storageRef, selectedAvatarPreview, 'data_url');
+        const avatarUrl = await getDownloadURL(storageRef);
+        
+        const result = await addChildForUser(user.uid, name.trim(), avatarUrl);
+
+        if (result.success) {
+        toast({
+            title: 'Profile Added!',
+            description: `${name.trim()} has been added to your family.`,
+        });
+        onChildAdded();
+        setOpen(false);
+        resetForm();
+        } else {
+        setError(result.error || 'An unexpected error occurred.');
+        }
+
+    } catch (err: any) {
+        logError(err, { location: 'AddChildDialog.handleSubmit' });
+        setError(err.message || 'Failed to upload avatar.');
+    } finally {
+        setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -119,31 +141,32 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
                 required
               />
             </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-                <Label className="text-right pt-2">
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">
                     Avatar
                 </Label>
-                <div className="col-span-3 flex flex-wrap gap-3">
-                    {avatars.map(avatar => (
-                        <button
-                            type="button"
-                            key={avatar.url}
-                            onClick={() => setSelectedAvatar(avatar.url)}
-                            className={cn(
-                                "rounded-full ring-2 ring-transparent transition-all hover:ring-primary focus:outline-none focus:ring-primary",
-                                selectedAvatar === avatar.url ? "ring-primary ring-offset-2 ring-offset-background" : ""
-                            )}
-                        >
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src={avatar.url} alt="Avatar" data-ai-hint={avatar.hint} />
-                            </Avatar>
-                        </button>
-                    ))}
+                <div className="col-span-3 flex items-center gap-4">
+                    <Avatar className="h-16 w-16 border">
+                        <AvatarImage src={selectedAvatarPreview ?? undefined} alt="Avatar preview" />
+                        <AvatarFallback>
+                            <Camera className="h-6 w-6 text-muted-foreground" />
+                        </AvatarFallback>
+                    </Avatar>
+                    <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                        Upload Image
+                    </Button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                        accept="image/png, image/jpeg, image/gif"
+                    />
                 </div>
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading || !name.trim() || !selectedAvatar}>
+            <Button type="submit" disabled={loading || !name.trim() || !selectedAvatarFile}>
               {loading ? 'Adding...' : 'Add Profile'}
             </Button>
           </DialogFooter>
