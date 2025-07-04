@@ -6,20 +6,24 @@ import { getChildrenForUser } from '@/lib/firebase/client-actions';
 import type { Child } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import { Header } from '@/components/Header';
+import { ChildCard } from '@/components/ChildCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FlyingButterflies } from '@/components/FlyingButterflies';
 import { Logo } from '@/components/Logo';
 import { AlertCircle } from 'lucide-react';
 import { setCache } from '@/lib/cache';
-import { CycleStatusWheel } from '@/components/CycleStatusWheel';
-import Link from 'next/link';
+import FamilyCycleStatus from '@/components/FamilyCycleStatus';
+import FamilyMoodChart from '@/components/FamilyMoodChart';
 
 const DashboardSkeleton = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 place-items-center">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex flex-col items-center gap-4">
-                <Skeleton className="h-64 w-64 rounded-full" />
-                <Skeleton className="h-8 w-32" />
+            <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="h-40 rounded-xl" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                </div>
             </div>
         ))}
     </div>
@@ -96,12 +100,12 @@ export default function ParentDashboardPage() {
 
   return (
     <AuthGuard>
-      <div className="flex flex-col min-h-screen bg-muted/40">
+      <div className="flex min-h-screen flex-col bg-background">
         <Header onChildAdded={fetchChildren} />
         <main className="flex-1 p-4 md:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto w-full">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-              <h1 className="font-body text-3xl md:text-4xl font-bold">Your Family's Cycles</h1>
+          <div className="mx-auto w-full max-w-7xl">
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+              <h1 className="font-body text-3xl font-bold md:text-4xl">Your Family's Dashboard</h1>
             </div>
 
             {loading ? (
@@ -111,18 +115,26 @@ export default function ParentDashboardPage() {
             ) : children.length === 0 ? (
                 <EmptyState />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 place-items-center">
-                {children.map((child) => (
-                  <Link
-                    key={child.id}
-                    href={`/child/${child.id}`}
-                    className="flex flex-col items-center justify-center gap-2 text-center group"
-                  >
-                    <CycleStatusWheel child={child} />
-                    <h2 className="text-2xl font-bold font-body transition-colors group-hover:text-primary">{child.name}</h2>
-                  </Link>
-                ))}
-              </div>
+                <div className="flex flex-col gap-8 lg:flex-row">
+                    <aside className="w-full lg:w-1/3 lg:flex-shrink-0">
+                        <div className="space-y-6">
+                            <FamilyCycleStatus children={children} />
+                            <FamilyMoodChart children={children} />
+                        </div>
+                    </aside>
+                    <div className="flex-1">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            {children.map((child) => (
+                            <ChildCard 
+                                key={child.id} 
+                                child={child} 
+                                onChildDeleted={fetchChildren}
+                                onChildUpdated={fetchChildren}
+                            />
+                            ))}
+                        </div>
+                    </div>
+                </div>
             )}
           </div>
         </main>
