@@ -1,7 +1,7 @@
 
 'use client';
 
-import { LogOut, User as UserIcon, MessageSquare, UserPlus } from 'lucide-react';
+import { LogOut, User as UserIcon, MessageSquare, UserPlus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { EditParentProfileDialog } from './EditParentProfileDialog';
 import { FeedbackDialog } from './FeedbackDialog';
 import { AddChildDialog } from './AddChildDialog';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 
 export interface HeaderProps {
@@ -30,6 +31,7 @@ export function Header({ onChildAdded }: HeaderProps) {
   const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
   const [isFeedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [isAddChildDialogOpen, setAddChildDialogOpen] = useState(false);
+  const [isDeleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -79,6 +81,12 @@ export function Header({ onChildAdded }: HeaderProps) {
                 <span>Feedback</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            {canEditProfile && (
+                <DropdownMenuItem onSelect={() => setDeleteAccountDialogOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    <span>Delete Account</span>
+                </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
@@ -90,6 +98,7 @@ export function Header({ onChildAdded }: HeaderProps) {
         <>
           <EditParentProfileDialog isOpen={isProfileDialogOpen} setOpen={setProfileDialogOpen} />
           <AddChildDialog isOpen={isAddChildDialogOpen} setOpen={setAddChildDialogOpen} onChildAdded={handleChildAdded} />
+          <DeleteAccountDialog isOpen={isDeleteAccountDialogOpen} setOpen={setDeleteAccountDialogOpen} />
         </>
       )}
       <FeedbackDialog isOpen={isFeedbackDialogOpen} setOpen={setFeedbackDialogOpen} />

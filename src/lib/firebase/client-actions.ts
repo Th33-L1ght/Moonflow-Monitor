@@ -252,3 +252,32 @@ export async function submitFeedbackAction(userId: string, feedbackText: string)
         return { success: false, error: message };
     }
 }
+
+export async function deleteAllUserDataAction(userId: string): Promise<{ success: boolean; error?: string }> {
+    if (!db) return { success: false, error: 'Firebase not configured.' };
+
+    try {
+        const batch = writeBatch(db);
+
+        // Find and delete children documents
+        const childrenQuery = query(collection(db, 'children'), where('parentUid', '==', userId));
+        const childrenSnapshot = await getDocs(childrenQuery);
+        childrenSnapshot.forEach(doc => batch.delete(doc.ref));
+
+        // Find and delete feedback documents
+        const feedbackQuery = query(collection(db, 'feedback'), where('userId', '==', userId));
+        const feedbackSnapshot = await getDocs(feedbackQuery);
+        feedbackSnapshot.forEach(doc => batch.delete(doc.ref));
+        
+        // Find and delete invite documents
+        const invitesQuery = query(collection(db, 'invites'), where('parentUid', '==', userId));
+        const invitesSnapshot = await getDocs(invitesQuery);
+        invitesSnapshot.forEach(doc => batch.delete(doc.ref));
+
+        await batch.commit();
+        return { success: true };
+    } catch (error) {
+        logError(error, { location: 'client-actions.deleteAllUserDataAction', userId });
+        return { success: false, error: 'Failed to delete user data.' };
+    }
+}

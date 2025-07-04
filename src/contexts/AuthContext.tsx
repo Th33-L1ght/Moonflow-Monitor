@@ -9,11 +9,12 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   sendEmailVerification,
+  deleteUser,
 } from 'firebase/auth';
 import type { User, UserCredential } from 'firebase/auth';
 import { useRouter, usePathname } from 'next/navigation';
 import type { AppUser } from '@/lib/auth-types';
-import { getChildProfileForUser } from '@/lib/firebase/client-actions';
+import { getChildProfileForUser, deleteAllUserDataAction } from '@/lib/firebase/client-actions';
 import { auth } from '@/lib/firebase/client';
 import { isFirebaseConfigured } from '@/lib/firebase/client';
 import { logError } from '@/lib/error-logging';
@@ -28,6 +29,7 @@ interface AuthContextType {
   signUpAndSignIn: (email: string, pass: string) => Promise<UserCredential>;
   signOut: () => Promise<void>;
   updateUserProfile: (data: { photoURL?: string }) => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -160,8 +162,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const deleteAccount = async () => {
+    if (!auth?.currentUser) throw new Error("User not authenticated.");
+    const userId = auth.currentUser.uid;
+    try {
+        // Step 1: Delete all Firestore data associated with the user
+        const deleteDataResult = await deleteAllUserDataAction(userId);
+        if (!deleteDataResult.success) {
+            throw new Error(deleteDataResult.error || 'Failed to delete user data.');
+        }
+
+        // Step 2: Delete the user from Firebase Auth
+        await deleteUser(auth.currentUser);
+        setUser(null); // Force sign out in the app state
+    } catch (err: any) {
+        logError(err, { location: 'AuthContext.deleteAccount', userId });
+        if (err.code === 'auth/requires-recent-login') {
+            throw new Error('This is a sensitive operation. Please log out and log back in before deleting your account.');
+        }
+        throw err;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, isFirebaseConfigured, signIn, signUp, signUpAndSignIn, signUpWithDummyEmail, signOut, updateUserProfile }}>
+    <AuthContext.Provider value={{ user, loading, isFirebaseConfigured, signIn, signUp, signUpAndSignIn, signUpWithDummyEmail, signOut, updateUserProfile, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );
