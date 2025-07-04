@@ -135,7 +135,7 @@ export default function ParentDashboardPage() {
                         <h2 className="text-2xl font-bold font-body">Your Family's Profiles</h2>
                         <p className="text-muted-foreground">Manage individual profiles below.</p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {children.map((child) => (
                         <ChildCard 
                             key={child.id} 
