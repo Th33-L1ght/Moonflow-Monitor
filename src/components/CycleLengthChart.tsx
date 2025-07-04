@@ -57,7 +57,7 @@ export default function CycleLengthChart({ child }: CycleLengthChartProps) {
             <CardContent>
                  {hasData ? (
                      <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                        <BarChart data={chartData} accessibilityLayer>
+                        <BarChart data={chartData}>
                             <CartesianGrid vertical={false} />
                             <XAxis
                                 dataKey="name"

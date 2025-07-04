@@ -64,7 +64,7 @@ export default function MoodChart({ child }: MoodChartProps) {
             <CardContent>
                 {hasData ? (
                      <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                        <BarChart data={chartData} accessibilityLayer>
+                        <BarChart data={chartData}>
                             <CartesianGrid vertical={false} />
                             <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
                             <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
