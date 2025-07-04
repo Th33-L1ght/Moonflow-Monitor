@@ -24,6 +24,7 @@ import CycleLengthChart from '@/components/CycleLengthChart';
 import JournalView from '@/components/JournalView';
 import SymptomTracker from '@/components/SymptomTracker';
 import { getCache, setCache } from '@/lib/cache';
+import Link from 'next/link';
 
 
 const DetailPageSkeleton = () => (
@@ -128,7 +129,7 @@ export default function ChildDetailPage() {
 
   return (
     <AuthGuard>
-      <div className="flex min-h-screen w-full flex-col bg-muted/40 text-foreground">
+      <div className="flex min-h-screen w-full flex-col bg-background text-foreground">
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-4xl mx-auto w-full">
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -156,15 +157,17 @@ export default function ChildDetailPage() {
                 {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
             </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-card mb-6 border">
-                <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-                <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendar</TabsTrigger>
-                <TabsTrigger value="charts" className="text-xs sm:text-sm">Charts</TabsTrigger>
-                <TabsTrigger value="journal" className="text-xs sm:text-sm">Journal</TabsTrigger>
-                <TabsTrigger value="log" className="text-xs sm:text-sm">Log Symptoms</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="w-full overflow-x-auto scrollbar-hide">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="inline-block min-w-full">
+                <TabsList className="bg-card mb-6 border">
+                  <TabsTrigger value="overview" className="px-2">Overview</TabsTrigger>
+                  <TabsTrigger value="calendar" className="px-2">Calendar</TabsTrigger>
+                  <TabsTrigger value="charts" className="px-2">Charts</TabsTrigger>
+                  <TabsTrigger value="journal" className="px-2">Journal</TabsTrigger>
+                  <TabsTrigger value="log" className="px-2">Log Symptoms</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
             
             <div className="mt-6">
                 <div hidden={activeTab !== 'overview'}>
