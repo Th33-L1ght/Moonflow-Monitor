@@ -164,7 +164,7 @@ export default function ChildDetailPage() {
       <div className="flex min-h-screen w-full flex-col bg-muted/40 text-foreground">
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-4xl mx-auto w-full">
-            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-4">
                     {user?.role === 'parent' && (
                         <Button variant="outline" size="icon" onClick={() => router.push('/')}>
@@ -180,7 +180,7 @@ export default function ChildDetailPage() {
                       <p className="text-muted-foreground">Cycle Dashboard</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-start sm:self-auto">
                     {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
                     {canEdit && (
                         <DropdownMenu>
@@ -213,12 +213,12 @@ export default function ChildDetailPage() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-card mb-6 border">
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 bg-card mb-6 border">
                 <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
                 <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendar</TabsTrigger>
                 <TabsTrigger value="charts" className="text-xs sm:text-sm">Charts</TabsTrigger>
                 <TabsTrigger value="journal" className="text-xs sm:text-sm">Journal</TabsTrigger>
-                <TabsTrigger value="log" className="text-xs sm:text-sm">Log Symptoms</TabsTrigger>
+                <TabsTrigger value="log" className="text-xs sm:text-sm">Log</TabsTrigger>
               </TabsList>
             </Tabs>
             
