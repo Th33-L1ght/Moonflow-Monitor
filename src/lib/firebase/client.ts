@@ -22,12 +22,21 @@ let auth: Auth | undefined;
 let db: Firestore | undefined;
 let analytics: any; // type Analytics, but disabled.
 
-if (typeof window !== 'undefined' && isFirebaseConfigured) {
+if (typeof window !== 'undefined') {
+  if (isFirebaseConfigured) {
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
     // Analytics is disabled to prevent ad-blockers from causing console errors.
     // analytics = getAnalytics(app);
+  } else {
+    console.warn(
+      'FIREBASE IS NOT CONFIGURED. The app is running in demo mode. ' +
+      'Please create a .env file with your Firebase project credentials ' +
+      'to connect to your database and authentication. See .env.example for details.'
+    );
+  }
 }
+
 
 export { app, auth, db, analytics };
