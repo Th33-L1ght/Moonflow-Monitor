@@ -33,17 +33,15 @@ Keep these values handy for the next step.
 Now, we'll put those credentials into your app's code editor.
 
 1.  **Find the File Explorer:** On the far left edge of the Firebase Studio editor, click the icon that looks like **two overlapping pages** to open the file list.
-2.  **Create a `.env` file:**
-    *   In the **File Explorer**, right-click on the empty space at the bottom of the file list.
-    *   Select **New File**.
-    *   Name the new file exactly **`.env`** and press Enter.
+2.  **Open or Create a `.env` file:**
+    *   In the **File Explorer**, look for a file named `.env`. If it doesn't exist, right-click on the empty space at the bottom of the file list, select **New File**, and name it exactly **`.env`**.
 
 3.  **Copy the Template:**
     *   In the File Explorer, find and open the file named **`.env.example`**.
     *   Select and copy all the text inside it.
 
 4.  **Paste and Fill In Your Credentials:**
-    *   Open your new, empty **`.env`** file.
+    *   Open your **`.env`** file.
     *   Paste the text you just copied.
     *   Now, replace the placeholder values (like `YOUR_API_KEY_HERE`) with the actual credentials you got from the Firebase Console in Step 1.
 
