@@ -32,16 +32,17 @@ Keep these values handy for the next step.
 
 Now, we'll put those credentials into your app's code editor.
 
-1.  **Create a `.env` file:**
-    *   In the **File Explorer** on the left side of Firebase Studio, right-click on the empty space at the bottom of the file list.
+1.  **Find the File Explorer:** On the far left edge of the Firebase Studio editor, click the icon that looks like **two overlapping pages** to open the file list.
+2.  **Create a `.env` file:**
+    *   In the **File Explorer**, right-click on the empty space at the bottom of the file list.
     *   Select **New File**.
     *   Name the new file exactly **`.env`** and press Enter.
 
-2.  **Copy the Template:**
+3.  **Copy the Template:**
     *   In the File Explorer, find and open the file named **`.env.example`**.
     *   Select and copy all the text inside it.
 
-3.  **Paste and Fill In Your Credentials:**
+4.  **Paste and Fill In Your Credentials:**
     *   Open your new, empty **`.env`** file.
     *   Paste the text you just copied.
     *   Now, replace the placeholder values (like `YOUR_API_KEY_HERE`) with the actual credentials you got from the Firebase Console in Step 1.
@@ -53,7 +54,7 @@ Now, we'll put those credentials into your app's code editor.
     ...and so on for all the other keys.
     ```
 
-4.  **Save the file.**
+5.  **Save the file.**
 
 That's it! Your application is now connected to your Firebase project. The next time you sign up for an account, it will appear in the **Authentication -> Users** tab in your Firebase Console.
 

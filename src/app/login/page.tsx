@@ -163,18 +163,21 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleFormSubmit} className="space-y-4">
+              {!isFirebaseConfigured && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Action Required: Connect to Firebase</AlertTitle>
+                  <AlertDescription>
+                    The app is in <strong>demo mode</strong>. You must connect it to your Firebase project to save any data.
+                    Please follow the step-by-step guide in the `README.md` file.
+                  </AlertDescription>
+                </Alert>
+              )}
               {error && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Error</AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-              {!isFirebaseConfigured && (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Demo Mode</AlertTitle>
-                  <AlertDescription>The app is running in demo mode. Please configure Firebase to enable full functionality.</AlertDescription>
                 </Alert>
               )}
               <div className="grid gap-2">
@@ -216,7 +219,7 @@ export default function LoginPage() {
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 />
               </div>
-              <Button type="submit" className="w-full font-bold" disabled={isLoading}>
+              <Button type="submit" className="w-full font-bold" disabled={isLoading || !isFirebaseConfigured}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (mode === 'login' ? 'Login' : 'Create Account')}
               </Button>
             </form>
