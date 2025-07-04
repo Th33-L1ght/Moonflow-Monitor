@@ -1,7 +1,7 @@
 
 'use client';
 
-import { LogOut, User as UserIcon, MessageSquare, UserPlus, Trash2 } from 'lucide-react';
+import { LogOut, User as UserIcon, MessageSquare, UserPlus, Trash2, HeartHandshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -23,14 +23,17 @@ import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 
 export interface HeaderProps {
-    onChildAdded?: () => void;
+    onProfileAdded?: () => void;
+    hasParentProfile?: boolean;
 }
 
-export function Header({ onChildAdded }: HeaderProps) {
+export function Header({ onProfileAdded, hasParentProfile }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
   const [isFeedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [isAddChildDialogOpen, setAddChildDialogOpen] = useState(false);
+  const [isCreatingParentProfile, setCreatingParentProfile] = useState(false);
+
   const [isDeleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -41,8 +44,18 @@ export function Header({ onChildAdded }: HeaderProps) {
     }
   };
 
+  const handleAddChild = () => {
+    setCreatingParentProfile(false);
+    setAddChildDialogOpen(true);
+  }
+
+  const handleAddParentProfile = () => {
+    setCreatingParentProfile(true);
+    setAddChildDialogOpen(true);
+  }
+
   const canEditProfile = user?.role === 'parent';
-  const handleChildAdded = onChildAdded || (() => {});
+  const handleProfileAdded = onProfileAdded || (() => {});
 
   return (
     <>
@@ -68,12 +81,18 @@ export function Header({ onChildAdded }: HeaderProps) {
               <>
                 <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
                     <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Edit Profile</span>
+                    <span>Edit My Avatar</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setAddChildDialogOpen(true)}>
+                <DropdownMenuItem onSelect={handleAddChild}>
                     <UserPlus className="mr-2 h-4 w-4" />
                     <span>Add Child Profile</span>
                 </DropdownMenuItem>
+                 {!hasParentProfile && (
+                    <DropdownMenuItem onSelect={handleAddParentProfile}>
+                        <HeartHandshake className="mr-2 h-4 w-4" />
+                        <span>Create My Profile</span>
+                    </DropdownMenuItem>
+                 )}
               </>
             )}
             <DropdownMenuItem onSelect={() => setFeedbackDialogOpen(true)}>
@@ -97,7 +116,12 @@ export function Header({ onChildAdded }: HeaderProps) {
       {canEditProfile && (
         <>
           <EditParentProfileDialog isOpen={isProfileDialogOpen} setOpen={setProfileDialogOpen} />
-          <AddChildDialog isOpen={isAddChildDialogOpen} setOpen={setAddChildDialogOpen} onChildAdded={handleChildAdded} />
+          <AddChildDialog 
+            isOpen={isAddChildDialogOpen} 
+            setOpen={setAddChildDialogOpen} 
+            onProfileAdded={handleProfileAdded}
+            isForParent={isCreatingParentProfile}
+          />
           <DeleteAccountDialog isOpen={isDeleteAccountDialogOpen} setOpen={setDeleteAccountDialogOpen} />
         </>
       )}

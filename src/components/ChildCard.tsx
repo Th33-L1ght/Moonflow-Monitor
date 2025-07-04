@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn, Link2Off } from 'lucide-react';
+import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn, Link2Off, HeartHandshake } from 'lucide-react';
 import { getCycleStatus, getCyclePrediction } from '@/lib/utils';
 import type { Child } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
@@ -105,7 +106,10 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <CardTitle>{child.name}</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+                {child.isParentProfile && <HeartHandshake className="h-5 w-5 text-primary" />}
+                {child.name}
+            </CardTitle>
             <CardDescription>{getStatusText()}</CardDescription>
           </div>
            <DropdownMenu>
@@ -119,25 +123,31 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
                 <Edit className="mr-2 h-4 w-4" />
                 <span>View & Edit Details</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {isFirebaseConfigured && !hasAccount && (
+
+              {!child.isParentProfile && (
                 <>
-                <DropdownMenuItem onSelect={() => setCreateLoginOpen(true)}>
-                    <LogIn className="mr-2 h-4 w-4" />
-                    <span>Create Child Login</span>
-                </DropdownMenuItem>
-                 <DropdownMenuItem onSelect={() => setInviteOpen(true)}>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    <span>Invite via Email</span>
-                </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {isFirebaseConfigured && !hasAccount && (
+                        <>
+                        <DropdownMenuItem onSelect={() => setCreateLoginOpen(true)}>
+                            <LogIn className="mr-2 h-4 w-4" />
+                            <span>Create Child Login</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => setInviteOpen(true)}>
+                            <UserPlus className="mr-2 h-4 w-4" />
+                            <span>Invite via Email</span>
+                        </DropdownMenuItem>
+                        </>
+                    )}
+                    {isFirebaseConfigured && hasAccount && (
+                        <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
+                            <Link2Off className="mr-2 h-4 w-4" />
+                            <span>Unlink Account</span>
+                        </DropdownMenuItem>
+                    )}
                 </>
               )}
-               {isFirebaseConfigured && hasAccount && (
-                 <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
-                    <Link2Off className="mr-2 h-4 w-4" />
-                    <span>Unlink Account</span>
-                </DropdownMenuItem>
-              )}
+              
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setDeleteConfirmOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                 <Trash2 className="mr-2 h-4 w-4" />

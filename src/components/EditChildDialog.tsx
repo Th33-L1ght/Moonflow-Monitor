@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -23,6 +24,8 @@ import { storage } from '@/lib/firebase/client';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { logError } from '@/lib/error-logging';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { defaultAvatars } from '@/lib/default-avatars';
+import { cn } from '@/lib/utils';
 
 interface EditChildDialogProps {
   isOpen: boolean;
@@ -33,8 +36,7 @@ interface EditChildDialogProps {
 
 export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: EditChildDialogProps) {
   const [name, setName] = useState(child.name);
-  const [selectedAvatarPreview, setSelectedAvatarPreview] = useState<string | null>(child.avatarUrl);
-  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(child.avatarUrl);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -46,8 +48,7 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
   useEffect(() => {
     if (child) {
       setName(child.name);
-      setSelectedAvatarPreview(child.avatarUrl);
-      setSelectedAvatarFile(null);
+      setAvatarUrl(child.avatarUrl);
       setError(null);
     }
   }, [child, isOpen]);
@@ -59,10 +60,9 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
           setError("File is too large. Please select an image under 2MB.");
           return;
       }
-      setSelectedAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedAvatarPreview(reader.result as string);
+        setAvatarUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
       setError(null);
@@ -71,7 +71,7 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !selectedAvatarPreview) return;
+    if (!name.trim() || !avatarUrl) return;
     if (!user) {
         setError("You must be logged in to do this.");
         return;
@@ -81,20 +81,20 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
     setError(null);
 
     try {
-      let avatarUrl = child.avatarUrl;
+      let finalAvatarUrl = child.avatarUrl;
       
-      if (selectedAvatarFile && selectedAvatarPreview) {
-        if (!storage) throw new Error("Storage not configured.");
-        const filePath = `avatars/${user.uid}/${child.id}/${Date.now()}_${selectedAvatarFile.name}`;
-        const storageRef = ref(storage, filePath);
-        
-        await uploadString(storageRef, selectedAvatarPreview, 'data_url');
-        avatarUrl = await getDownloadURL(storageRef);
+      if (avatarUrl && avatarUrl !== child.avatarUrl) {
+          if (!storage) throw new Error("Storage not configured.");
+          const filePath = `avatars/${user.uid}/${child.id}/${Date.now()}`;
+          const storageRef = ref(storage, filePath);
+          
+          await uploadString(storageRef, avatarUrl, 'data_url');
+          finalAvatarUrl = await getDownloadURL(storageRef);
       }
-
+      
       const updatedData = {
         name: name.trim(),
-        avatarUrl: avatarUrl,
+        avatarUrl: finalAvatarUrl,
       };
 
       await updateChild(child.id, updatedData);
@@ -119,7 +119,7 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Edit {child.name}'s Profile</DialogTitle>
@@ -135,33 +135,39 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-x-4 gap-y-2">
-              <Label htmlFor="name" className="md:text-right">
+            <div className="space-y-2">
+              <Label htmlFor="name">
                 Name
               </Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="md:col-span-3"
                 placeholder="e.g. Olivia"
                 required
+                disabled={!!child.isParentProfile}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 items-start md:items-center gap-x-4 gap-y-2">
-                <Label className="md:text-right">
+             <div className="space-y-2">
+                <Label>
                     Avatar
                 </Label>
-                <div className="md:col-span-3 flex items-center gap-4">
-                    <Avatar className="h-16 w-16 border">
-                        <AvatarImage src={selectedAvatarPreview ?? undefined} alt={child.name} data-ai-hint="child portrait" />
-                        <AvatarFallback>
-                            <Camera className="h-6 w-6 text-muted-foreground" />
-                        </AvatarFallback>
-                    </Avatar>
-                    <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
-                        Upload New
-                    </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                    {defaultAvatars.map((url, index) => (
+                        <button key={index} type="button" onClick={() => setAvatarUrl(url)} className={cn("rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", avatarUrl === url && "ring-2 ring-primary")}>
+                            <Avatar className="h-12 w-12 border-2 border-transparent">
+                                <AvatarImage src={url} alt={`Default Avatar ${index + 1}`} />
+                            </Avatar>
+                        </button>
+                    ))}
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className={cn("rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", avatarUrl && !defaultAvatars.includes(avatarUrl) && "ring-2 ring-primary")}>
+                         <Avatar className="h-12 w-12 border-dashed border-2 flex items-center justify-center bg-muted">
+                            <AvatarImage src={avatarUrl ?? undefined} alt="Uploaded Avatar" />
+                            <AvatarFallback>
+                                <Camera className="h-5 w-5 text-muted-foreground" />
+                            </AvatarFallback>
+                         </Avatar>
+                    </button>
                     <input
                         type="file"
                         ref={fileInputRef}

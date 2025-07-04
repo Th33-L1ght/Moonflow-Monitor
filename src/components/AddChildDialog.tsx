@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -21,27 +22,39 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { storage } from '@/lib/firebase/client';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { logError } from '@/lib/error-logging';
+import { defaultAvatars } from '@/lib/default-avatars';
+import { cn } from '@/lib/utils';
 
 interface AddChildDialogProps {
   isOpen: boolean;
   setOpen: (isOpen: boolean) => void;
-  onChildAdded: () => void;
+  onProfileAdded: () => void;
+  isForParent: boolean;
 }
 
-export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialogProps) {
+export function AddChildDialog({ isOpen, setOpen, onProfileAdded, isForParent }: AddChildDialogProps) {
   const [name, setName] = useState('');
-  const [selectedAvatarPreview, setSelectedAvatarPreview] = useState<string | null>(null);
-  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (isOpen) {
+        if (isForParent && user?.displayName) {
+            setName(user.displayName);
+        } else if (isForParent && user?.email) {
+            setName(user.email.split('@')[0]);
+        }
+    }
+  }, [isOpen, isForParent, user]);
+
+
   const resetForm = () => {
     setName('');
-    setSelectedAvatarPreview(null);
-    setSelectedAvatarFile(null);
+    setAvatarUrl(null);
     setLoading(false);
     setError(null);
   }
@@ -53,10 +66,9 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
           setError("File is too large. Please select an image under 2MB.");
           return;
       }
-      setSelectedAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedAvatarPreview(reader.result as string);
+        setAvatarUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
       setError(null);
@@ -65,8 +77,8 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !name.trim() || !selectedAvatarFile || !selectedAvatarPreview) {
-        setError('Please enter a name and upload an avatar.');
+    if (!user || !name.trim() || !avatarUrl) {
+        setError('Please enter a name and select an avatar.');
         return;
     }
 
@@ -76,20 +88,25 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
     try {
         if (!storage) throw new Error("Storage not configured.");
 
-        const filePath = `avatars/${user.uid}/${Date.now()}_${selectedAvatarFile.name}`;
-        const storageRef = ref(storage, filePath);
+        let finalAvatarUrl = avatarUrl;
         
-        await uploadString(storageRef, selectedAvatarPreview, 'data_url');
-        const avatarUrl = await getDownloadURL(storageRef);
+        // Only upload to storage if it's a new file upload (base64 image data)
+        // Default avatars are already public-friendly data URIs but we upload them for consistency
+        if (avatarUrl.startsWith('data:image/jpeg') || avatarUrl.startsWith('data:image/png') || avatarUrl.startsWith('data:image/gif') || avatarUrl.startsWith('data:image/svg+xml')) {
+            const filePath = `avatars/${user.uid}/${Date.now()}`;
+            const storageRef = ref(storage, filePath);
+            await uploadString(storageRef, avatarUrl, 'data_url');
+            finalAvatarUrl = await getDownloadURL(storageRef);
+        }
         
-        const result = await addChildForUser(user.uid, name.trim(), avatarUrl);
+        const result = await addChildForUser(user.uid, name.trim(), finalAvatarUrl, isForParent);
 
         if (result.success) {
         toast({
             title: 'Profile Added!',
-            description: `${name.trim()} has been added to your family.`,
+            description: `${name.trim()} has been added.`,
         });
-        onChildAdded();
+        onProfileAdded();
         setOpen(false);
         resetForm();
         } else {
@@ -98,11 +115,17 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
 
     } catch (err: any) {
         logError(err, { location: 'AddChildDialog.handleSubmit' });
-        setError(err.message || 'Failed to upload avatar.');
+        setError(err.message || 'Failed to create profile.');
     } finally {
         setLoading(false);
     }
   };
+  
+  const dialogTitle = isForParent ? "Create Your Private Profile" : "Add New Child Profile";
+  const dialogDesc = isForParent 
+    ? "This profile is just for you. Your cycle data will be kept private."
+    : "Create a new profile for a child to track their cycle.";
+
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
@@ -111,12 +134,12 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
         }
         setOpen(open);
     }}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add New Profile</DialogTitle>
+            <DialogTitle>{dialogTitle}</DialogTitle>
             <DialogDescription>
-              Create a new profile to track a new cycle.
+              {dialogDesc}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-6 py-4">
@@ -127,33 +150,40 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-x-4 gap-y-2">
-              <Label htmlFor="name" className="md:text-right">
+            <div className="space-y-2">
+              <Label htmlFor="name">
                 Name
               </Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="md:col-span-3"
-                placeholder="e.g. Olivia"
+                placeholder={isForParent ? "Your Name" : "e.g. Olivia"}
                 required
+                disabled={isForParent}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 items-start md:items-center gap-x-4 gap-y-2">
-                <Label className="md:text-right">
+            <div className="space-y-2">
+                <Label>
                     Avatar
                 </Label>
-                <div className="md:col-span-3 flex items-center gap-4">
-                    <Avatar className="h-16 w-16 border">
-                        <AvatarImage src={selectedAvatarPreview ?? undefined} alt="Avatar preview" />
-                        <AvatarFallback>
-                            <Camera className="h-6 w-6 text-muted-foreground" />
-                        </AvatarFallback>
-                    </Avatar>
-                    <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
-                        Upload Image
-                    </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                    {defaultAvatars.map((url, index) => (
+                        <button key={index} type="button" onClick={() => setAvatarUrl(url)} className={cn("rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", avatarUrl === url && "ring-2 ring-primary")}>
+                            <Avatar className="h-12 w-12 border-2 border-transparent">
+                                <AvatarImage src={url} alt={`Default Avatar ${index + 1}`} />
+                            </Avatar>
+                        </button>
+                    ))}
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className={cn("rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", avatarUrl && !defaultAvatars.includes(avatarUrl) && "ring-2 ring-primary")}>
+                         <Avatar className="h-12 w-12 border-dashed border-2 flex items-center justify-center bg-muted">
+                            {avatarUrl && !defaultAvatars.includes(avatarUrl) ? (
+                                 <AvatarImage src={avatarUrl} alt="Uploaded Avatar" />
+                            ) : (
+                                <Camera className="h-5 w-5 text-muted-foreground" />
+                            )}
+                         </Avatar>
+                    </button>
                     <input
                         type="file"
                         ref={fileInputRef}
@@ -165,7 +195,7 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading || !name.trim() || !selectedAvatarFile}>
+            <Button type="submit" disabled={loading || !name.trim() || !avatarUrl}>
               {loading ? 'Adding...' : 'Add Profile'}
             </Button>
           </DialogFooter>

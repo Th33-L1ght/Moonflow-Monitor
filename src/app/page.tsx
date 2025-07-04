@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -16,7 +17,7 @@ import FamilyCycleStatus from '@/components/FamilyCycleStatus';
 import FamilyMoodChart from '@/components/FamilyMoodChart';
 
 const DashboardSkeleton = () => (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {[...Array(3)].map((_, i) => (
             <div key={i} className="flex flex-col space-y-3">
                 <Skeleton className="h-40 rounded-xl" />
@@ -52,7 +53,7 @@ const EmptyState = () => (
             </div>
             <h2 className="text-2xl font-bold font-body">Welcome to Light Flo</h2>
             <p className="mt-2 text-muted-foreground max-w-md mx-auto">
-                It looks like you don&apos;t have any child profiles yet. Add one from the user menu in the top right to get started.
+                It looks like you haven&apos;t created any profiles yet. Add one from the user menu in the top right to get started.
             </p>
         </div>
     </div>
@@ -60,19 +61,19 @@ const EmptyState = () => (
 
 export default function ParentDashboardPage() {
   const { user } = useAuth();
-  const [children, setChildren] = useState<Child[]>([]);
+  const [profiles, setProfiles] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
 
-  const fetchChildren = useCallback(async () => {
+  const fetchProfiles = useCallback(async () => {
     if (user) {
       setLoading(true);
       setDashboardError(null);
       try {
-        const userChildren = await getChildrenForUser(user.uid);
-        // Add fetched children to the cache to speed up navigation
-        userChildren.forEach(child => setCache(`child-${child.id}`, child));
-        setChildren(userChildren || []);
+        const userProfiles = await getChildrenForUser(user.uid);
+        // Add fetched profiles to the cache to speed up navigation
+        userProfiles.forEach(profile => setCache(`child-${profile.id}`, profile));
+        setProfiles(userProfiles.sort((a,b) => (a.isParentProfile ? -1 : 1)));
       } catch (error: any) {
         let message = error.message || "Failed to load your dashboard data.";
         if (error.code === 'failed-precondition') {
@@ -81,7 +82,7 @@ export default function ParentDashboardPage() {
           message = "Your database security rules are preventing you from seeing your data. Please update your rules in the Firebase Console."
         }
         setDashboardError(message);
-        setChildren([]);
+        setProfiles([]);
       } finally {
         setLoading(false);
       }
@@ -90,18 +91,19 @@ export default function ParentDashboardPage() {
 
   useEffect(() => {
     if (user) {
-      fetchChildren();
+      fetchProfiles();
     } else {
       setLoading(false);
-      setChildren([]);
+      setProfiles([]);
     }
-  }, [user, fetchChildren]);
+  }, [user, fetchProfiles]);
   
+  const hasParentProfile = profiles.some(p => p.isParentProfile);
 
   return (
     <AuthGuard>
       <div className="flex min-h-screen flex-col bg-background">
-        <Header onChildAdded={fetchChildren} />
+        <Header onProfileAdded={fetchProfiles} hasParentProfile={hasParentProfile} />
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-7xl">
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -112,24 +114,24 @@ export default function ParentDashboardPage() {
               <DashboardSkeleton />
             ) : dashboardError ? (
                 <DashboardErrorState message={dashboardError} />
-            ) : children.length === 0 ? (
+            ) : profiles.length === 0 ? (
                 <EmptyState />
             ) : (
-                <div className="flex flex-col gap-8 lg:flex-row">
-                    <aside className="w-full lg:w-1/3 lg:flex-shrink-0">
+                <div className="flex flex-col gap-8 xl:flex-row">
+                    <aside className="w-full xl:w-1/3 xl:flex-shrink-0">
                         <div className="space-y-6">
-                            <FamilyCycleStatus children={children} />
-                            <FamilyMoodChart children={children} />
+                            <FamilyCycleStatus children={profiles} />
+                            <FamilyMoodChart children={profiles} />
                         </div>
                     </aside>
                     <div className="flex-1">
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            {children.map((child) => (
+                            {profiles.map((profile) => (
                             <ChildCard 
-                                key={child.id} 
-                                child={child} 
-                                onChildDeleted={fetchChildren}
-                                onChildUpdated={fetchChildren}
+                                key={profile.id} 
+                                child={profile} 
+                                onChildDeleted={fetchProfiles}
+                                onChildUpdated={fetchProfiles}
                             />
                             ))}
                         </div>

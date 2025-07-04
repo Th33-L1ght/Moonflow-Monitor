@@ -113,19 +113,20 @@ export async function getChildrenForUser(userId: string): Promise<Child[]> {
   }
 }
 
-export async function addChildForUser(userId: string, childName: string, avatarUrl: string): Promise<{ success: boolean; error?: string }> {
+export async function addChildForUser(userId: string, profileName: string, avatarUrl: string, isParentProfile: boolean): Promise<{ success: boolean; error?: string }> {
     if (!db) return { success: false, error: 'Firebase not configured.'};
     try {
-        const newChildData: Omit<Child, 'id'> = {
-            name: childName,
+        const newProfileData: Omit<Child, 'id'> = {
+            name: profileName,
             avatarUrl,
             cycles: [],
             parentUid: userId,
+            isParentProfile: isParentProfile,
         };
-        await addDoc(collection(db, 'children'), newChildData);
+        await addDoc(collection(db, 'children'), newProfileData);
         return { success: true };
     } catch (error: any) {
-      logError(error, { location: 'client-actions.addChildForUser', userId, childName });
+      logError(error, { location: 'client-actions.addChildForUser', userId, profileName });
       let message = error.message || 'An unknown error occurred while adding the profile.';
       if (error.code === 'permission-denied') {
         message = 'Permission Denied: Your database security rules are blocking this request. Please update your rules in the Firebase Console.';
@@ -154,7 +155,7 @@ export async function acceptInviteInDb(inviteId: string, childUid: string): Prom
         return { success: false, error: "Database not configured." };
     }
     const invite = await getInvite(inviteId);
-    if (!invite || invite.status !== 'pending') {
+    if (!invite || invite.status !== 'accepted') {
         return { success: false, error: "Invite is invalid or has already been accepted." };
     }
     

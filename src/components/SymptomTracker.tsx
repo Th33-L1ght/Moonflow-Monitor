@@ -12,11 +12,12 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Button } from './ui/button';
 import { getCycleStatus, toDate } from '@/lib/utils';
-import type { Child, CrampLevel, Mood, SymptomLog } from '@/lib/types';
+import type { Child, CrampLevel, Mood, SymptomLog, PregnancyTestResult } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { isSameDay } from 'date-fns';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
+import { Baby, TestTube2 } from 'lucide-react';
 
 const crampLevels = [
   { level: 1, emoji: '😌', label: 'None' },
@@ -32,6 +33,11 @@ const moods: { mood: Mood, emoji: string }[] = [
   { mood: 'Sad', emoji: '😢' },
 ];
 
+const pregnancyTestResults: { result: PregnancyTestResult, label: string }[] = [
+    { result: 'positive', label: 'Positive' },
+    { result: 'negative', label: 'Negative' },
+];
+
 interface SymptomTrackerProps {
     child: Child;
     onUpdate: (data: Partial<Omit<Child, 'id'>>) => void;
@@ -42,11 +48,12 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
   const [cramp, setCramp] = React.useState<string>('1');
   const [mood, setMood] = React.useState<string>('Happy');
   const [note, setNote] = React.useState<string>('');
+  const [pregnancyTest, setPregnancyTest] = React.useState<string | undefined>();
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
 
   const { isOnPeriod, activeCycleId } = getCycleStatus(child);
-  const isButtonDisabled = !isOnPeriod || isLoading || !canEdit;
+  const isButtonDisabled = isLoading || !canEdit;
 
   // Set initial state based on today's log if it exists
   React.useEffect(() => {
@@ -57,17 +64,26 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
             setCramp(String(todayLog.crampLevel));
             setMood(todayLog.mood);
             setNote(todayLog.note || '');
+            setPregnancyTest(todayLog.pregnancyTestResult);
         } else {
+             // Reset form if no log for today
             setCramp('1');
             setMood('Happy');
             setNote('');
+            setPregnancyTest(undefined);
         }
+    } else {
+        // Reset form if not on period
+        setCramp('1');
+        setMood('Happy');
+        setNote('');
+        setPregnancyTest(undefined);
     }
   }, [child, activeCycleId]);
 
 
   const handleSaveLog = async () => {
-    if (!isOnPeriod || !activeCycleId) {
+    if (!activeCycleId && !child.isParentProfile) {
         toast({
             title: 'Not on period',
             description: "Symptoms can only be logged during a period.",
@@ -83,9 +99,11 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
         crampLevel: parseInt(cramp, 10) as CrampLevel,
         mood: mood as Mood,
         note: note.trim(),
+        pregnancyTestResult: pregnancyTest as PregnancyTestResult | undefined,
     };
 
     const updatedCycles = child.cycles.map(cycle => {
+        // Find the active cycle to update
         if (cycle.id === activeCycleId) {
             const existingLogIndex = cycle.symptoms.findIndex(symptom => 
                 isSameDay(toDate(symptom.date), toDate(newSymptomLog.date))
@@ -99,7 +117,9 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
                 updatedSymptoms = [...cycle.symptoms, newSymptomLog];
             }
             
-            return { ...cycle, symptoms: updatedSymptoms };
+            const isNowPregnancy = newSymptomLog.pregnancyTestResult === 'positive';
+
+            return { ...cycle, symptoms: updatedSymptoms, isPregnancy: cycle.isPregnancy || isNowPregnancy };
         }
         return cycle;
     });
@@ -108,7 +128,7 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
         onUpdate({ cycles: updatedCycles });
         toast({
             title: "Log Saved",
-            description: "Today's symptoms have been saved successfully."
+            description: "Today's log has been saved successfully."
         });
     } catch (error) {
         console.error(error);
@@ -127,7 +147,7 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
       <CardHeader>
         <CardTitle>Log Symptoms</CardTitle>
         <CardDescription>
-          {isOnPeriod ? (canEdit ? "How are you feeling today?" : "Viewing symptoms logged.") : "Tracking is available during a period."}
+          {canEdit ? "How are you feeling today?" : "Viewing symptoms logged."}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-8">
@@ -140,7 +160,7 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
               if (value) setCramp(value);
             }}
             className="grid grid-cols-2 sm:grid-cols-4 gap-3"
-            disabled={!canEdit || !isOnPeriod}
+            disabled={!canEdit}
           >
             {crampLevels.map(({ level, emoji, label }) => (
               <ToggleGroupItem
@@ -164,7 +184,7 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
               if (value) setMood(value);
             }}
             className="grid grid-cols-2 sm:grid-cols-4 gap-3"
-            disabled={!canEdit || !isOnPeriod}
+            disabled={!canEdit}
           >
             {moods.map(({ mood, emoji }) => (
               <ToggleGroupItem
@@ -179,6 +199,36 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
             ))}
           </ToggleGroup>
         </div>
+
+        {child.isParentProfile && (
+            <div className="border-t pt-8">
+                <h3 className="text-lg font-medium mb-1 flex items-center gap-2">
+                    <Baby className="h-5 w-5" />
+                    Fertility & Pregnancy
+                </h3>
+                 <p className="text-sm text-muted-foreground mb-4">Log ovulation or pregnancy test results.</p>
+                <ToggleGroup
+                    type="single"
+                    value={pregnancyTest}
+                    onValueChange={setPregnancyTest}
+                    className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+                    disabled={!canEdit}
+                >
+                    {pregnancyTestResults.map(({ result, label }) => (
+                    <ToggleGroupItem
+                        key={result}
+                        value={result}
+                        aria-label={label}
+                        className="flex flex-col h-20 w-full rounded-lg gap-1 data-[state=on]:bg-primary/20 data-[state=on]:text-primary border"
+                    >
+                        <TestTube2 className="text-3xl" />
+                        <span className="text-xs">{label}</span>
+                    </ToggleGroupItem>
+                    ))}
+                </ToggleGroup>
+            </div>
+        )}
+
         <div>
           <Label htmlFor="note" className="text-lg font-medium mb-3 block">
             Add a Note
@@ -188,7 +238,7 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
             placeholder="Any additional thoughts or symptoms... (e.g., cravings, headaches)"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            disabled={!canEdit || !isOnPeriod}
+            disabled={!canEdit}
             maxLength={500}
             className="min-h-[100px]"
           />
