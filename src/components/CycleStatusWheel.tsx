@@ -47,7 +47,7 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
     
     return (
         <div className="relative flex flex-col items-center justify-center gap-4 my-8">
-            <div className="relative h-64 w-64">
+            <div className="relative h-56 w-56 sm:h-64 sm:w-64">
                 <svg className="absolute inset-0" viewBox="0 0 120 120">
                     {/* Background Circle */}
                     <circle
@@ -75,7 +75,7 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                     <UterusIcon className={`w-16 h-16 mb-2 ${iconColorClass}`} />
                     <p className="font-semibold text-muted-foreground">{subText}</p>
-                    <p className="text-4xl font-bold font-body">{mainText}</p>
+                    <p className="text-3xl sm:text-4xl font-bold font-body">{mainText}</p>
                 </div>
             </div>
         </div>

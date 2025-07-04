@@ -33,7 +33,7 @@ export function FamilyCycleStatus({ children }: FamilyCycleStatusProps) {
             const statusColor = isOnPeriod ? 'destructive' : 'secondary';
 
             return (
-              <div key={child.id} className="flex items-center justify-between p-3 -m-3 rounded-lg hover:bg-muted/50 transition-colors">
+              <div key={child.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 -m-3 rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
@@ -44,7 +44,7 @@ export function FamilyCycleStatus({ children }: FamilyCycleStatusProps) {
                     <Badge variant={statusColor} className="mt-1">{statusText}</Badge>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => router.push(`/child/${child.id}`)}>
+                <Button variant="outline" size="sm" onClick={() => router.push(`/child/${child.id}`)} className="w-full sm:w-auto">
                   View Details
                 </Button>
               </div>

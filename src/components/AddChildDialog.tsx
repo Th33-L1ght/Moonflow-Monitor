@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef } from 'react';
@@ -128,24 +127,24 @@ export function AddChildDialog({ isOpen, setOpen, onChildAdded }: AddChildDialog
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
+            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-x-4 gap-y-2">
+              <Label htmlFor="name" className="md:text-right">
                 Name
               </Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
+                className="md:col-span-3"
                 placeholder="e.g. Olivia"
                 required
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">
+            <div className="grid grid-cols-1 md:grid-cols-4 items-start md:items-center gap-x-4 gap-y-2">
+                <Label className="md:text-right">
                     Avatar
                 </Label>
-                <div className="col-span-3 flex items-center gap-4">
+                <div className="md:col-span-3 flex items-center gap-4">
                     <Avatar className="h-16 w-16 border">
                         <AvatarImage src={selectedAvatarPreview ?? undefined} alt="Avatar preview" />
                         <AvatarFallback>
