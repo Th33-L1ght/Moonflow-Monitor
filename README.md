@@ -33,15 +33,15 @@ Keep these values handy for the next step.
 Now, we'll put those credentials into your app's code editor.
 
 1.  **Find the File Explorer:** On the far left edge of the Firebase Studio editor, click the icon that looks like **two overlapping pages** to open the file list.
-2.  **Open or Create a `.env` file:**
-    *   In the **File Explorer**, look for a file named `.env`. If it doesn't exist, right-click on the empty space at the bottom of the file list, select **New File**, and name it exactly **`.env`**.
+2.  **Create a `.env` file:**
+    *   In the **File Explorer**, right-click on the empty space at the bottom of the file list, select **New File**, and name it exactly **`.env`**.
 
 3.  **Copy the Template:**
     *   In the File Explorer, find and open the file named **`.env.example`**.
     *   Select and copy all the text inside it.
 
 4.  **Paste and Fill In Your Credentials:**
-    *   Open your **`.env`** file.
+    *   Open your new **`.env`** file.
     *   Paste the text you just copied.
     *   Now, replace the placeholder values (like `YOUR_API_KEY_HERE`) with the actual credentials you got from the Firebase Console in Step 1.
 
@@ -54,7 +54,7 @@ Now, we'll put those credentials into your app's code editor.
 
 5.  **Save the file.**
 
-That's it! Your application is now connected to your Firebase project. The next time you sign up for an account, it will appear in the **Authentication -> Users** tab in your Firebase Console.
+That's it! Your application is now connected to your Firebase project.
 
 ---
 
@@ -69,9 +69,9 @@ The easiest way to deploy your app is to use the **Publish** button at the top o
 1.  After I make changes for you, review them in the app preview.
 2.  When you're ready, click the blue **Publish** button.
 3.  A small window will pop up asking for a "commit message." This is just a short description of the changes (e.g., "Added delete profile button").
-4.  Type your message and click "Commit & Push".
+4.  Type your message and click "Commit & Push". This is a shortcut for `git push`.
 
-That's it! This automatically saves your changes and starts the deployment. You can monitor the progress in the **Actions** tab of your GitHub repository.
+That's it! This automatically saves your changes to GitHub and starts the deployment. You can monitor the progress in the **Actions** tab of your GitHub repository.
 
 ### Method 2: Using the Terminal
 
@@ -93,32 +93,21 @@ If you prefer using the command line, you can follow these steps:
 You can find the public URL for your deployed application in the **Firebase Console**.
 1. Navigate to your project: **moonflow-monitor**.
 2. Under the **Build** menu, click on **Hosting**.
-3. Your public URL (e.g., `moonflow-monitor.web.app`) will be listed there. You can visit this URL on your computer or phone.
+3. Your public URL (e.g., `moonflow-monitor.web.app`) will be listed there.
 
 ## Monitoring Your App
 
 Your application is set up to send all its data, including user feedback and error reports, to your Firebase project.
 
 ### Viewing User Login Accounts
-To see the actual user accounts that can log in (both parent emails and child usernames):
+To see the user accounts that have signed up:
 1. In the Firebase Console, navigate to the **Build** section in the left menu.
 2. Click on **Authentication**, and go to the **Users** tab.
 
-### Viewing Your App's Data (Child Profiles, Feedback, etc.)
-
-All of the data for your app—child profiles, cycle logs, and user feedback—is stored in your **Firestore Database**. Think of it as the master spreadsheet for your application.
+### Viewing Your App's Data (Child Profiles, etc.)
+All of the data for your app—child profiles, cycle logs, and user feedback—is stored in your **Firestore Database**.
 
 1.  In the Firebase Console, navigate to the **Build** section in the left menu.
 2.  Click on **Firestore Database**.
 
-**Important:** The database will appear empty at first. As you use the app, "collections" of data will appear automatically. For example, after you add your first child, a `children` collection will be created. After you submit feedback, a `feedback` collection will appear.
-
-### Viewing Error Reports
-
-When an error occurs in your app, it is logged to **Firebase Analytics** so you can see if users are having problems.
-
-1.  In the Firebase Console, navigate to the **Release & Monitor** section in the left menu.
-2.  Click on **Analytics**, then select the **Events** tab.
-3.  Look for an event name called `app_error`. (Note: It can take a few hours for new events to appear).
-
-**First Time Setup for Analytics:** If you've just enabled Analytics, it may show a screen asking you to "Add an app to get started". You can ignore this. Your app is already configured. Simply use your live app for a few minutes (e.g., log in and add a child) to send the first event. The screen will then be replaced with the proper Analytics dashboard automatically. This can sometimes take a few hours.
+**Important:** The database will appear empty at first. As you use the app, "collections" of data will appear automatically. For example, after you add your first child, a `children` collection will be created.
