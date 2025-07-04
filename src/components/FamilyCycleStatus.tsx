@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Child } from '@/lib/types';
@@ -5,7 +6,7 @@ import { getCycleStatus } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from './ui/button';
 
 interface FamilyCycleStatusProps {
@@ -13,8 +14,6 @@ interface FamilyCycleStatusProps {
 }
 
 export function FamilyCycleStatus({ children }: FamilyCycleStatusProps) {
-  const router = useRouter();
-
   if (children.length === 0) {
     return null;
   }
@@ -44,8 +43,8 @@ export function FamilyCycleStatus({ children }: FamilyCycleStatusProps) {
                     <Badge variant={statusColor} className="mt-1">{statusText}</Badge>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => router.push(`/child/${child.id}`)} className="w-full sm:w-auto">
-                  View Details
+                <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
+                    <Link href={`/child/${child.id}`}>View Details</Link>
                 </Button>
               </div>
             );
