@@ -10,7 +10,8 @@ interface FamilyCycleStatusProps {
 }
 
 export default function FamilyCycleStatus({ children }: FamilyCycleStatusProps) {
-  const statuses = children.map(child => ({
+  const childProfiles = children.filter(p => !p.isParentProfile);
+  const statuses = childProfiles.map(child => ({
     ...child,
     status: getCycleStatus(child),
   }));
@@ -18,8 +19,8 @@ export default function FamilyCycleStatus({ children }: FamilyCycleStatusProps) 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Current Cycle Status</CardTitle>
-        <CardDescription>A quick overview of everyone's cycle.</CardDescription>
+        <CardTitle>Child Cycle Status</CardTitle>
+        <CardDescription>A quick overview of your children's cycles.</CardDescription>
       </CardHeader>
       <CardContent>
         {statuses.length > 0 ? (
@@ -45,7 +46,7 @@ export default function FamilyCycleStatus({ children }: FamilyCycleStatusProps) 
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted-foreground">No profiles to display.</p>
+          <p className="text-sm text-muted-foreground">No child profiles to display.</p>
         )}
       </CardContent>
     </Card>

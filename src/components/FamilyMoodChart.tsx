@@ -25,10 +25,11 @@ const chartConfig = {
 
 export default function FamilyMoodChart({ children }: { children: Child[] }) {
     const chartData = useMemo(() => {
+        const childProfiles = children.filter(p => !p.isParentProfile);
         const moodCounts: { [key in Mood]?: number } = {};
         const thirtyDaysAgo = subDays(new Date(), 30);
         
-        children.forEach(child => {
+        childProfiles.forEach(child => {
             child.cycles.forEach(cycle => {
                 cycle.symptoms.forEach(symptom => {
                     const symptomDate = toDate(symptom.date);
@@ -54,8 +55,8 @@ export default function FamilyMoodChart({ children }: { children: Child[] }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Family Mood Overview</CardTitle>
-                <CardDescription>Moods logged in the last 30 days.</CardDescription>
+                <CardTitle>Children's Mood Overview</CardTitle>
+                <CardDescription>Moods logged by children in the last 30 days.</CardDescription>
             </CardHeader>
             <CardContent>
                  {hasData ? (
@@ -77,7 +78,7 @@ export default function FamilyMoodChart({ children }: { children: Child[] }) {
                 ) : (
                     <div className="flex flex-col items-center justify-center text-center text-muted-foreground min-h-[150px]">
                         <p className="font-semibold">No mood data.</p>
-                        <p className="text-sm">Log moods to see an overview here.</p>
+                        <p className="text-sm">Log moods on child profiles to see an overview here.</p>
                     </div>
                 )}
             </CardContent>
