@@ -1,66 +1,29 @@
-# Light Flow App
+# Moonflow Monitor
 
 This is a Next.js application built in Firebase Studio for tracking menstrual cycles.
 
 ---
 
-## **One-Time Setup: Connecting Your Firebase Project**
+## **One-Time Setup**
 
-For your app to save any data (like user accounts or child profiles), you must connect it to your Firebase project. **You only need to do this once.**
+Your app has two one-time setup steps that must be completed to function correctly.
 
-Here is the step-by-step guide. This does **not** involve using the terminal.
+### 1. Connect Your Code to Firebase (In the Editor)
 
-#### **Step 1: Get Your Credentials from the Firebase Console**
+For your app to save any data (like user accounts or child profiles), you must connect your code to your Firebase project.
 
-The "Firebase Console" is the website where you manage your project.
+1.  **Get Your Credentials:** Open the [Firebase Console](https://console.firebase.google.com/), select your project (`moonflow-monitor`), go to **Project settings** (⚙️ icon), find your web app, and copy the `Config` values (`apiKey`, `authDomain`, etc.).
+2.  **Add Credentials to Your App:** In the editor here, open the file explorer (📄 icon on the far left). Copy the contents of `.env.example`, paste them into the empty `.env` file, and fill in the values you just copied. Save the file.
 
-1.  **Open the Firebase Console:** [Click here to open the Firebase Console](https://console.firebase.google.com/).
-2.  **Select Your Project:** Click on your project, named `moonflow-monitor`.
-3.  **Go to Project Settings:** Click the gear icon ⚙️ next to "Project Overview" in the top-left menu, then select **Project settings**.
-4.  **Find Your Web App:** In the **General** tab, scroll down to the "Your apps" card. You should see a web app listed. If not, click the `</>` icon to create one and give it a nickname.
-5.  **Copy Credentials:** In the "SDK setup and configuration" section, select the `Config` option. You will see a block of code. You need to copy the values for the following keys:
-    *   `apiKey`
-    *   `authDomain`
-    *   `projectId`
-    *   `storageBucket`
-    *   `messagingSenderId`
-    *   `appId`
+### 2. Enable Hosting Backend (In the Firebase Console)
 
-Keep these values handy for the next step.
-
-#### **Step 2: Add Credentials to Your App in Firebase Studio**
-
-Now, we'll put those credentials into your app's code editor.
-
-1.  **Find the File Explorer:** On the far left edge of the Firebase Studio editor, click the icon that looks like **two overlapping pages** to open the file list.
-2.  **Create a `.env` file:**
-    *   In the **File Explorer**, right-click on the empty space at the bottom of the file list, select **New File**, and name it exactly **`.env`**.
-
-3.  **Copy the Template:**
-    *   In the File Explorer, find and open the file named **`.env.example`**.
-    *   Select and copy all the text inside it.
-
-4.  **Paste and Fill In Your Credentials:**
-    *   Open your new **`.env`** file.
-    *   Paste the text you just copied.
-    *   Now, replace the placeholder values (like `YOUR_API_KEY_HERE`) with the actual credentials you got from the Firebase Console in Step 1.
-
-    It should look something like this when you're done (but with your real values):
-    ```
-    NEXT_PUBLIC_FIREBASE_API_KEY=aiZaSy...
-    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=moonflow-monitor.firebaseapp.com
-    ...and so on for all the other keys.
-    ```
-
-5.  **Save the file.**
-
-That's it! Your application is now connected to your Firebase project.
+The first time you deploy, Firebase may ask you to **"Publish your app"** by linking a billing account and enabling services. This is a one-time step to set up the necessary server infrastructure for your app. **This process does not touch your code or GitHub.** It simply prepares Firebase to receive your deployments.
 
 ---
 
-## How to Deploy Changes
+## How to Deploy Changes (Push to GitHub)
 
-There are two ways to make your changes live for your users: using the "Publish" button (easiest) or using the terminal. Both methods achieve the same result.
+There are two ways to make your changes live for your users. Both methods push your code to GitHub, which automatically starts the deployment process.
 
 ### Method 1: The "Publish" Button (Recommended)
 
@@ -69,7 +32,7 @@ The easiest way to deploy your app is to use the **Publish** button at the top o
 1.  After I make changes for you, review them in the app preview.
 2.  When you're ready, click the blue **Publish** button.
 3.  A small window will pop up asking for a "commit message." This is just a short description of the changes (e.g., "Added delete profile button").
-4.  Type your message and click "Commit & Push". This is a shortcut for `git push`.
+4.  Type your message and click **Commit & Push**.
 
 That's it! This automatically saves your changes to GitHub and starts the deployment. You can monitor the progress in the **Actions** tab of your GitHub repository.
 
