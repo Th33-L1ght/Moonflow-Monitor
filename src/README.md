@@ -61,26 +61,33 @@ That's it! Your application is now connected to your Firebase project. The next 
 
 ## How to Deploy Changes
 
-This project uses GitHub Actions for automated deployments. Every time you push a change to the `main` branch, your live application will be updated automatically.
+There are two ways to make your changes live for your users: using the "Publish" button (easiest) or using the terminal. Both methods achieve the same result.
 
-1.  **Make your changes** in Firebase Studio.
+### Method 1: The "Publish" Button (Recommended)
 
-2.  **Open the Terminal** in the editor.
+The easiest way to deploy your app is to use the **Publish** button at the top of the editor.
 
-3.  **Run these three commands** to save your work and deploy it:
+1.  After I make changes for you, review them in the app preview.
+2.  When you're ready, click the blue **Publish** button.
+3.  A small window will pop up asking for a "commit message." This is just a short description of the changes (e.g., "Added delete profile button").
+4.  Type your message and click "Commit & Push".
 
+That's it! This automatically saves your changes and starts the deployment. You can monitor the progress in the **Actions** tab of your GitHub repository.
+
+### Method 2: Using the Terminal
+
+If you prefer using the command line, you can follow these steps:
+
+1.  **Open the Terminal** in the editor.
+2.  **Run these three commands** to save your work and deploy it:
     ```bash
     # Stage all your changes
     git add .
-
     # Commit the changes with a message describing what you did
     git commit -m "Your descriptive message here"
-
     # Push the changes to GitHub to start the deployment
     git push
     ```
-
-That's it! You can monitor the progress of your deployment in the **Actions** tab of your GitHub repository.
 
 ## Finding Your Live URL
 
