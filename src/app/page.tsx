@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -7,33 +6,22 @@ import { getChildrenForUser } from '@/lib/firebase/client-actions';
 import type { Child } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import { Header } from '@/components/Header';
-import { ChildCard } from '@/components/ChildCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FlyingButterflies } from '@/components/FlyingButterflies';
 import { Logo } from '@/components/Logo';
 import { AlertCircle } from 'lucide-react';
 import { setCache } from '@/lib/cache';
-import { FamilyCycleStatus } from '@/components/FamilyCycleStatus';
-import { FamilyMoodChart } from '@/components/FamilyMoodChart';
+import { CycleStatusWheel } from '@/components/CycleStatusWheel';
+import Link from 'next/link';
 
 const DashboardSkeleton = () => (
-    <div className="flex flex-col lg:flex-row gap-6 items-start">
-        {/* Left Column Skeleton */}
-        <div className="w-full lg:w-1/3 space-y-6">
-            <Skeleton className="h-48 rounded-xl" />
-            <Skeleton className="h-72 rounded-xl" />
-        </div>
-        {/* Right Column Skeleton */}
-        <div className="w-full lg:w-2/3">
-            <div className="mb-6">
-                <Skeleton className="h-8 w-64 mb-2" />
-                <Skeleton className="h-4 w-80" />
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 place-items-center">
+        {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-4">
+                <Skeleton className="h-64 w-64 rounded-full" />
+                <Skeleton className="h-8 w-32" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Skeleton className="h-56 rounded-xl" />
-                <Skeleton className="h-56 rounded-xl" />
-            </div>
-        </div>
+        ))}
     </div>
 );
 
@@ -113,7 +101,7 @@ export default function ParentDashboardPage() {
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto w-full">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-              <h1 className="font-body text-3xl md:text-4xl font-bold">Dashboard</h1>
+              <h1 className="font-body text-3xl md:text-4xl font-bold">Your Family's Cycles</h1>
             </div>
 
             {loading ? (
@@ -123,29 +111,17 @@ export default function ParentDashboardPage() {
             ) : children.length === 0 ? (
                 <EmptyState />
             ) : (
-              <div className="flex flex-col lg:flex-row gap-6 items-start">
-                 {/* Left Column for summaries */}
-                <div className="w-full lg:w-1/3 lg:flex-shrink-0 space-y-6">
-                    <FamilyCycleStatus children={children} />
-                    <FamilyMoodChart children={children} />
-                </div>
-                 {/* Right Column for profiles */}
-                <div className="w-full lg:w-2/3">
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-bold font-body">Your Family's Profiles</h2>
-                        <p className="text-muted-foreground">Manage individual profiles below.</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {children.map((child) => (
-                        <ChildCard 
-                            key={child.id} 
-                            child={child} 
-                            onChildDeleted={fetchChildren}
-                            onChildUpdated={fetchChildren}
-                        />
-                        ))}
-                    </div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 place-items-center">
+                {children.map((child) => (
+                  <Link
+                    key={child.id}
+                    href={`/child/${child.id}`}
+                    className="flex flex-col items-center justify-center gap-2 text-center group"
+                  >
+                    <CycleStatusWheel child={child} />
+                    <h2 className="text-2xl font-bold font-body transition-colors group-hover:text-primary">{child.name}</h2>
+                  </Link>
+                ))}
               </div>
             )}
           </div>
