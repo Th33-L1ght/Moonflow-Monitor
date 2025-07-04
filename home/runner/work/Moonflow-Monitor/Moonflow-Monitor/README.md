@@ -13,7 +13,10 @@ Your app has two one-time setup steps that must be completed to function correct
 For your app to save any data (like user accounts or child profiles), you must connect your code to your Firebase project.
 
 1.  **Get Your Credentials:** Open the [Firebase Console](https://console.firebase.google.com/), select your project (`moonflow-monitor`), go to **Project settings** (⚙️ icon), find your web app, and copy the `Config` values (`apiKey`, `authDomain`, etc.).
-2.  **Add Credentials to Your App:** In the editor here, open the file explorer (📄 icon on the far left). Copy the contents of `.env.example`, paste them into the empty `.env` file, and fill in the values you just copied. Save the file.
+2.  **Add Credentials to Your App:** In the editor, open the empty `.env` file. Copy the contents of `.env.example` into it, and then paste your credentials from the previous step. Save the file.
+
+#### **Your Keys Are Safe!**
+You might be worried about adding secret keys to your project. Don't be! Your `.env` file is listed in a special file called `.gitignore`. This tells GitHub to **never** upload your `.env` file. Your keys will always remain private and secure in your editor environment.
 
 ### 2. Enable Hosting Backend (In the Firebase Console)
 
@@ -38,7 +41,7 @@ That's it! This automatically saves your changes to GitHub and starts the deploy
 
 ### Method 2: Using the Terminal
 
-If you prefer using the command line, or if the "Publish" button isn't working, you can follow these steps:
+If you prefer using the command line, you can follow these steps:
 
 1.  **Open the Terminal** in the editor.
 2.  **Run these three commands** to save your work and deploy it:
