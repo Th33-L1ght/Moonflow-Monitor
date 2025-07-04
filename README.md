@@ -8,12 +8,13 @@ This is a Next.js application built in Firebase Studio for tracking menstrual cy
 
 Your app has two one-time setup steps that must be completed to function correctly.
 
-### 1. Connect Your Code to Firebase (In the Editor)
+### 1. Connect Your Code to Firebase & Google AI (In the Editor)
 
-For your app to save any data (like user accounts or child profiles), you must connect your code to your Firebase project.
+For your app to save data or use AI features, you must connect it to your Firebase project and Google AI.
 
-1.  **Get Your Credentials:** Open the [Firebase Console](https://console.firebase.google.com/), select your project (`moonflow-monitor`), go to **Project settings** (⚙️ icon), find your web app, and copy the `Config` values (`apiKey`, `authDomain`, etc.).
-2.  **Add Credentials to Your App:** In the editor here, open the file explorer (📄 icon on the far left). Copy the contents of `.env.example`, paste them into the empty `.env` file, and fill in the values you just copied. Save the file.
+1.  **Get Your Firebase Credentials:** Open the [Firebase Console](https://console.firebase.google.com/), select your project (`moonflow-monitor`), go to **Project settings** (⚙️ icon), find your web app, and copy the `Config` values (`apiKey`, `authDomain`, etc.).
+2.  **Get Your Google AI Key:** Open the [Google AI Studio](https://aistudio.google.com/app/apikey) and create a new API key.
+3.  **Add Credentials to Your App:** In the editor, open the empty `.env` file. Copy the contents of `.env.example` into it, and then paste your credentials from the previous steps. Save the file.
 
 ### 2. Enable Hosting Backend (In the Firebase Console)
 

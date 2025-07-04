@@ -224,12 +224,10 @@ export default function ChildDetailPage() {
             
             <div className="mt-6">
                 <div hidden={activeTab !== 'overview'}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div className="space-y-6">
                         <CycleStatusWheel child={child} />
-                        <div className="space-y-6">
-                            <AIInsightCard />
-                            <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
-                        </div>
+                        <AIInsightCard />
+                        <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
                     </div>
                 </div>
                 <div hidden={activeTab !== 'calendar'}>
