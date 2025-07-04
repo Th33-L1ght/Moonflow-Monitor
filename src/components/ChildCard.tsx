@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -26,8 +25,6 @@ import {
 import { deleteChildAction, unlinkChildAccountAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { EditChildDialog } from './EditChildDialog';
-
 
 interface ChildCardProps {
   child: Child;
@@ -45,8 +42,6 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
   const [isCreateLoginOpen, setCreateLoginOpen] = useState(false);
   const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isUnlinkConfirmOpen, setUnlinkConfirmOpen] = useState(false);
-  const [isEditOpen, setEditOpen] = useState(false);
-
 
   const statusText = isOnPeriod ? `On Period - Day ${currentDay}` : 'Not on Period';
   const statusColor = isOnPeriod ? 'destructive' : 'secondary';
@@ -119,9 +114,9 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setEditOpen(true)}>
+              <DropdownMenuItem onClick={() => router.push(`/child/${child.id}`)}>
                 <Edit className="mr-2 h-4 w-4" />
-                <span>Edit Profile</span>
+                <span>View & Edit Details</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               {isFirebaseConfigured && hasAccount && (
@@ -163,7 +158,6 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
         <>
             <InviteDialog isOpen={isInviteOpen} setOpen={setInviteOpen} childId={child.id} />
             <CreateChildLoginDialog isOpen={isCreateLoginOpen} setOpen={setCreateLoginOpen} child={child} onLoginCreated={onChildUpdated} />
-            <EditChildDialog isOpen={isEditOpen} setOpen={setEditOpen} child={child} onChildUpdated={onChildUpdated} />
         </>
       )}
       <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
