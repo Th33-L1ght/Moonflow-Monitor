@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -112,3 +113,13 @@
 .butterfly:nth-child(6) { --start-x: 20vw; --start-y: 5vh; --end-x: 70vw; --end-y: 90vh; animation-duration: 22s; animation-delay: -7s; }
 .butterfly:nth-child(7) { --start-x: 75vw; --start-y: 95vh; --end-x: 25vw; --end-y: 5vh; animation-duration: 17s; animation-delay: -3s; }
 .butterfly:nth-child(8) { --start-x: 0vw; --start-y: 50vh; --end-x: 100vw; --end-y: 50vh; animation-duration: 19s; animation-delay: -12s; }
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+}
