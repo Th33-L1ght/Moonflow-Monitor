@@ -49,9 +49,14 @@ There are two ways to allow a child to log in and manage their own profile:
 
 Your application is set up to send all its data, including user feedback and error reports, to your Firebase project.
 
+### Viewing User Login Accounts
+To see the actual user accounts that can log in (both parent emails and child usernames):
+1. In the Firebase Console, navigate to the **Build** section in the left menu.
+2. Click on **Authentication**, and go to the **Users** tab.
+
 ### Viewing Your App's Data (Child Profiles, Feedback, etc.)
 
-All of the data for your app—user accounts, child profiles, cycle logs, and user feedback—is stored in your **Firestore Database**. Think of it as the master spreadsheet for your application.
+All of the data for your app—child profiles, cycle logs, and user feedback—is stored in your **Firestore Database**. Think of it as the master spreadsheet for your application.
 
 1.  In the Firebase Console, navigate to the **Build** section in the left menu.
 2.  Click on **Firestore Database**.
