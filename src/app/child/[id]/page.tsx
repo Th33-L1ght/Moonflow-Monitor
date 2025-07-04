@@ -157,14 +157,14 @@ export default function ChildDetailPage() {
                 {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
             </div>
 
-            <div className="w-full overflow-x-auto scrollbar-hide">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="inline-block min-w-full">
+            <div className="w-full overflow-x-auto scrollbar-hide flex justify-center">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="inline-block">
                 <TabsList className="bg-card mb-6 border">
                   <TabsTrigger value="overview" className="px-2">Overview</TabsTrigger>
                   <TabsTrigger value="calendar" className="px-2">Calendar</TabsTrigger>
                   <TabsTrigger value="charts" className="px-2">Charts</TabsTrigger>
                   <TabsTrigger value="journal" className="px-2">Journal</TabsTrigger>
-                  <TabsTrigger value="log" className="px-2">Log Symptoms</TabsTrigger>
+                  <TabsTrigger value="symptoms" className="px-2">Symptoms</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -189,7 +189,7 @@ export default function ChildDetailPage() {
                 <div hidden={activeTab !== 'journal'}>
                     <JournalView child={child} />
                 </div>
-                <div hidden={activeTab !== 'log'}>
+                <div hidden={activeTab !== 'symptoms'}>
                     <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
                 </div>
             </div>
