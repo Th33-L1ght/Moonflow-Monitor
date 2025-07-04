@@ -17,14 +17,14 @@ import { FamilyCycleStatus } from '@/components/FamilyCycleStatus';
 import { FamilyMoodChart } from '@/components/FamilyMoodChart';
 
 const DashboardSkeleton = () => (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+    <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left Column Skeleton */}
-        <div className="xl:col-span-1 space-y-6">
+        <div className="w-full lg:w-1/3 space-y-6">
             <Skeleton className="h-48 rounded-xl" />
             <Skeleton className="h-72 rounded-xl" />
         </div>
         {/* Right Column Skeleton */}
-        <div className="xl:col-span-2">
+        <div className="w-full lg:w-2/3">
             <div className="mb-6">
                 <Skeleton className="h-8 w-64 mb-2" />
                 <Skeleton className="h-4 w-80" />
@@ -123,14 +123,14 @@ export default function ParentDashboardPage() {
             ) : children.length === 0 ? (
                 <EmptyState />
             ) : (
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+              <div className="flex flex-col lg:flex-row gap-6 items-start">
                  {/* Left Column for summaries */}
-                <div className="xl:col-span-1 space-y-6">
+                <div className="w-full lg:w-1/3 lg:flex-shrink-0 space-y-6">
                     <FamilyCycleStatus children={children} />
                     <FamilyMoodChart children={children} />
                 </div>
                  {/* Right Column for profiles */}
-                <div className="xl:col-span-2">
+                <div className="w-full lg:w-2/3">
                     <div className="mb-6">
                         <h2 className="text-2xl font-bold font-body">Your Family's Profiles</h2>
                         <p className="text-muted-foreground">Manage individual profiles below.</p>
