@@ -6,17 +6,24 @@ import { getChildrenForUser } from '@/lib/firebase/client-actions';
 import type { Child } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import { Header } from '@/components/Header';
+import { ChildCard } from '@/components/ChildCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FlyingButterflies } from '@/components/FlyingButterflies';
 import { Logo } from '@/components/Logo';
 import { AlertCircle } from 'lucide-react';
-import { FamilyCycleStatus } from '@/components/FamilyCycleStatus';
-import { FamilyMoodChart } from '@/components/FamilyMoodChart';
+import { setCache } from '@/lib/cache';
 
 const DashboardSkeleton = () => (
-    <div className="space-y-6">
-        <Skeleton className="h-48 w-full rounded-xl" />
-        <Skeleton className="h-64 w-full rounded-xl" />
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="h-40 rounded-xl" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                </div>
+            </div>
+        ))}
     </div>
 );
 
@@ -61,6 +68,8 @@ export default function ParentDashboardPage() {
       setDashboardError(null);
       try {
         const userChildren = await getChildrenForUser(user.uid);
+        // Add fetched children to the cache to speed up navigation
+        userChildren.forEach(child => setCache(`child-${child.id}`, child));
         setChildren(userChildren || []);
       } catch (error: any) {
         let message = error.message || "Failed to load your dashboard data.";
@@ -92,9 +101,9 @@ export default function ParentDashboardPage() {
       <div className="flex flex-col min-h-screen bg-muted/40">
         <Header onChildAdded={fetchChildren} />
         <main className="flex-1 p-4 md:p-6 lg:p-8">
-          <div className="max-w-4xl mx-auto w-full">
+          <div className="max-w-7xl mx-auto w-full">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-              <h1 className="font-body text-3xl md:text-4xl font-bold">Family Overview</h1>
+              <h1 className="font-body text-3xl md:text-4xl font-bold">Your Family's Cycles</h1>
             </div>
 
             {loading ? (
@@ -104,9 +113,15 @@ export default function ParentDashboardPage() {
             ) : children.length === 0 ? (
                 <EmptyState />
             ) : (
-              <div className="space-y-6">
-                <FamilyCycleStatus children={children} />
-                <FamilyMoodChart children={children} />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {children.map((child) => (
+                  <ChildCard 
+                    key={child.id} 
+                    child={child} 
+                    onChildDeleted={fetchChildren}
+                    onChildUpdated={fetchChildren}
+                  />
+                ))}
               </div>
             )}
           </div>

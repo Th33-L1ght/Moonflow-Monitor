@@ -1,12 +1,13 @@
+
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn, Link2Off } from 'lucide-react';
+import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn } from 'lucide-react';
 import { getCycleStatus } from '@/lib/utils';
 import type { Child } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
@@ -22,9 +23,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { deleteChildAction, unlinkChildAccountAction } from '@/lib/firebase/client-actions';
+import { deleteChildAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { deleteCache } from '@/lib/cache';
+
 
 interface ChildCardProps {
   child: Child;
@@ -33,7 +36,6 @@ interface ChildCardProps {
 }
 
 export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardProps) {
-  const router = useRouter();
   const { toast } = useToast();
   const { isOnPeriod, currentDay } = getCycleStatus(child);
   const { isFirebaseConfigured } = useAuth();
@@ -41,7 +43,6 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
   const [isInviteOpen, setInviteOpen] = useState(false);
   const [isCreateLoginOpen, setCreateLoginOpen] = useState(false);
   const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [isUnlinkConfirmOpen, setUnlinkConfirmOpen] = useState(false);
 
   const statusText = isOnPeriod ? `On Period - Day ${currentDay}` : 'Not on Period';
   const statusColor = isOnPeriod ? 'destructive' : 'secondary';
@@ -49,21 +50,13 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
   const hasAccount = !!child.childUid;
 
   const handleDelete = async () => {
-    if (child.childUid) {
-        toast({
-            title: "Cannot Delete Profile",
-            description: "Please unlink the child's account before deleting the profile.",
-            variant: "destructive",
-        });
-        setDeleteConfirmOpen(false);
-        return;
-    }
     const result = await deleteChildAction(child.id);
     if (result.success) {
         toast({
             title: "Profile Deleted",
             description: `${child.name}'s profile has been removed.`,
         });
+        deleteCache(`child-${child.id}`);
         onChildDeleted();
     } else {
         toast({
@@ -73,24 +66,6 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
         });
     }
     setDeleteConfirmOpen(false);
-  }
-
-  const handleUnlink = async () => {
-    const result = await unlinkChildAccountAction(child.id);
-     if (result.success) {
-        toast({
-            title: "Account Unlinked",
-            description: `The login for ${child.name} has been unlinked.`,
-        });
-        onChildUpdated();
-    } else {
-        toast({
-            title: "Error",
-            description: result.error,
-            variant: "destructive",
-        });
-    }
-    setUnlinkConfirmOpen(false);
   }
 
   return (
@@ -114,17 +89,13 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => router.push(`/child/${child.id}`)}>
-                <Edit className="mr-2 h-4 w-4" />
-                <span>View & Edit Details</span>
+              <DropdownMenuItem asChild>
+                <Link href={`/child/${child.id}`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  <span>View & Edit Details</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {isFirebaseConfigured && hasAccount && (
-                 <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
-                    <Link2Off className="mr-2 h-4 w-4" />
-                    <span>Unlink Account</span>
-                </DropdownMenuItem>
-              )}
               {isFirebaseConfigured && !hasAccount && (
                 <>
                 <DropdownMenuItem onSelect={() => setCreateLoginOpen(true)}>
@@ -137,6 +108,12 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
                 </DropdownMenuItem>
                 </>
               )}
+               {isFirebaseConfigured && hasAccount && (
+                 <DropdownMenuItem disabled>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    <span>Account Linked</span>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setDeleteConfirmOpen(true)} className="text-destructive focus:text-destructive">
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -147,11 +124,13 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
         </CardHeader>
         <CardContent className="flex-1">
             <p className="text-sm text-muted-foreground">
-                Click 'View Dashboard' to see the full calendar, log symptoms, and view charts for {child.name}.
+                Click 'View Dashboard' to see the full calendar, log symptoms, and view charts.
             </p>
         </CardContent>
         <CardFooter>
-            <Button className="w-full" onClick={() => router.push(`/child/${child.id}`)}>View Dashboard</Button>
+            <Button asChild className="w-full">
+              <Link href={`/child/${child.id}`}>View Dashboard</Link>
+            </Button>
         </CardFooter>
       </Card>
       {isFirebaseConfigured && (
@@ -171,20 +150,6 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-       <AlertDialog open={isUnlinkConfirmOpen} onOpenChange={setUnlinkConfirmOpen}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-            <AlertDialogTitle>Unlink {child.name}'s Account?</AlertDialogTitle>
-            <AlertDialogDescription>
-                This will remove their ability to log in with their current username. Their cycle data will NOT be deleted. You can create a new login for them afterwards.
-            </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUnlink}>Unlink</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

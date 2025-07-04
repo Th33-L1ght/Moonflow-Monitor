@@ -6,24 +6,12 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
-import { getChild, updateChild, deleteChildAction, unlinkChildAccountAction } from '@/lib/firebase/client-actions';
+import { getChild, updateChild } from '@/lib/firebase/client-actions';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Edit, MoreVertical, Trash2, Link2Off } from 'lucide-react';
+import { ArrowLeft, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useToast } from '@/hooks/use-toast';
 import { getCyclePrediction } from '@/lib/utils';
 import { PadReminderCard } from '@/components/PadReminderCard';
 import { CycleStatusWheel } from '@/components/CycleStatusWheel';
@@ -35,6 +23,7 @@ import MoodChart from '@/components/MoodChart';
 import CycleLengthChart from '@/components/CycleLengthChart';
 import JournalView from '@/components/JournalView';
 import SymptomTracker from '@/components/SymptomTracker';
+import { getCache, setCache } from '@/lib/cache';
 
 
 const DetailPageSkeleton = () => (
@@ -64,17 +53,23 @@ export default function ChildDetailPage() {
   const childId = Array.isArray(params.id) ? params.id[0] : params.id;
   const { user } = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
   const [child, setChild] = useState<Child | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditChildOpen, setEditChildOpen] = useState(false);
-  const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [isUnlinkConfirmOpen, setUnlinkConfirmOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     if (!user || !childId) return;
 
+    // Attempt to load from cache first for instant navigation
+    const cachedChild = getCache<Child>(`child-${childId}`);
+    if (cachedChild) {
+        setChild(cachedChild);
+        setLoading(false);
+        return;
+    }
+    
+    // Fallback for child user or direct navigation/refresh
     if (user.role === 'child' && user.childProfile && user.childProfile.id === childId) {
       setChild(user.childProfile);
       setLoading(false);
@@ -82,10 +77,15 @@ export default function ChildDetailPage() {
       const fetchChildData = async () => {
         setLoading(true);
         const childData = await getChild(childId);
-        if (childData && (childData.parentUid === user.uid || childData.childUid === user.uid)) {
-          setChild(childData);
+        if (childData) {
+            if (childData.parentUid === user.uid || childData.childUid === user.uid) {
+                setCache(`child-${childId}`, childData); // Populate cache on fetch
+                setChild(childData);
+            } else {
+                setChild(null); // Permission denied
+            }
         } else {
-          setChild(null);
+          setChild(null); // Not found
         }
         setLoading(false);
       };
@@ -96,7 +96,9 @@ export default function ChildDetailPage() {
 
   const handleUpdate = (newChildData: Partial<Omit<Child, 'id'>>) => {
     if (user && child) {
-        setChild(prev => prev ? { ...prev, ...newChildData, cycles: newChildData.cycles || prev.cycles } : null);
+        const updatedChild = { ...child, ...newChildData, cycles: newChildData.cycles || child.cycles };
+        setChild(updatedChild);
+        setCache(`child-${child.id}`, updatedChild);
         updateChild(child.id, newChildData);
     }
   }
@@ -105,47 +107,12 @@ export default function ChildDetailPage() {
     if (childId && user) {
         setLoading(true);
         const childData = await getChild(childId);
+        if (childData) {
+            setCache(`child-${childId}`, childData);
+        }
         setChild(childData);
         setLoading(false);
     }
-  }
-
-  const handleDelete = async () => {
-    if (!child) return;
-    const result = await deleteChildAction(child.id);
-    if (result.success) {
-        toast({
-            title: "Profile Deleted",
-            description: `${child.name}'s profile has been removed.`,
-        });
-        router.push('/');
-    } else {
-        toast({
-            title: "Error",
-            description: result.error,
-            variant: "destructive",
-        });
-    }
-    setDeleteConfirmOpen(false);
-  }
-
-  const handleUnlink = async () => {
-    if (!child) return;
-    const result = await unlinkChildAccountAction(child.id);
-     if (result.success) {
-        toast({
-            title: "Account Unlinked",
-            description: `The login for ${child.name} has been unlinked.`,
-        });
-        handleProfileUpdate();
-    } else {
-        toast({
-            title: "Error",
-            description: result.error,
-            variant: "destructive",
-        });
-    }
-    setUnlinkConfirmOpen(false);
   }
 
   if (loading) {
@@ -164,7 +131,7 @@ export default function ChildDetailPage() {
       <div className="flex min-h-screen w-full flex-col bg-muted/40 text-foreground">
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-4xl mx-auto w-full">
-            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     {user?.role === 'parent' && (
                         <Button variant="outline" size="icon" onClick={() => router.push('/')}>
@@ -179,46 +146,23 @@ export default function ChildDetailPage() {
                       <h1 className="font-body text-2xl md:text-3xl font-bold">{child.name}</h1>
                       <p className="text-muted-foreground">Cycle Dashboard</p>
                     </div>
-                </div>
-                <div className="flex items-center gap-2 self-start sm:self-auto">
-                    {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
-                    {canEdit && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    <MoreVertical className="h-5 w-5" />
-                                    <span className="sr-only">Open menu</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onSelect={() => setEditChildOpen(true)}>
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    <span>Edit Profile</span>
-                                </DropdownMenuItem>
-                                {child.childUid && (
-                                    <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
-                                        <Link2Off className="mr-2 h-4 w-4" />
-                                        <span>Unlink Account</span>
-                                    </DropdownMenuItem>
-                                )}
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onSelect={() => setDeleteConfirmOpen(true)} className="text-destructive focus:text-destructive">
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    <span>Delete Profile</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                     {canEdit && (
+                        <Button variant="ghost" size="icon" onClick={() => setEditChildOpen(true)}>
+                            <Edit className="h-5 w-5" />
+                            <span className="sr-only">Edit Profile</span>
+                        </Button>
                     )}
                 </div>
+                {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-               <TabsList className="flex w-full overflow-x-auto scrollbar-hide bg-card mb-6 border-b pb-0">
-                <TabsTrigger value="overview" className="text-sm">Overview</TabsTrigger>
-                <TabsTrigger value="calendar" className="text-sm">Calendar</TabsTrigger>
-                <TabsTrigger value="charts" className="text-sm">Charts</TabsTrigger>
-                <TabsTrigger value="journal" className="text-sm">Journal</TabsTrigger>
-                <TabsTrigger value="log" className="text-sm">Log</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-card mb-6 border">
+                <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+                <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendar</TabsTrigger>
+                <TabsTrigger value="charts" className="text-xs sm:text-sm">Charts</TabsTrigger>
+                <TabsTrigger value="journal" className="text-xs sm:text-sm">Journal</TabsTrigger>
+                <TabsTrigger value="log" className="text-xs sm:text-sm">Log Symptoms</TabsTrigger>
               </TabsList>
             </Tabs>
             
@@ -258,34 +202,6 @@ export default function ChildDetailPage() {
             onChildUpdated={handleProfileUpdate}
         />
       )}
-      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete {child.name}'s profile and all of their associated data.
-            </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-       <AlertDialog open={isUnlinkConfirmOpen} onOpenChange={setUnlinkConfirmOpen}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-            <AlertDialogTitle>Unlink {child.name}'s Account?</AlertDialogTitle>
-            <AlertDialogDescription>
-                This will remove their ability to log in with their current username. Their cycle data will NOT be deleted. You can create a new login for them afterwards.
-            </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUnlink}>Unlink</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </AuthGuard>
   );
 }
