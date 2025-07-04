@@ -6,12 +6,24 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
-import { getChild, updateChild } from '@/lib/firebase/client-actions';
+import { getChild, updateChild, deleteChildAction, unlinkChildAccountAction } from '@/lib/firebase/client-actions';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Edit } from 'lucide-react';
+import { ArrowLeft, Edit, MoreVertical, Trash2, Link2Off } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from '@/hooks/use-toast';
 import { getCyclePrediction } from '@/lib/utils';
 import { PadReminderCard } from '@/components/PadReminderCard';
 import { CycleStatusWheel } from '@/components/CycleStatusWheel';
@@ -52,9 +64,12 @@ export default function ChildDetailPage() {
   const childId = Array.isArray(params.id) ? params.id[0] : params.id;
   const { user } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
   const [child, setChild] = useState<Child | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditChildOpen, setEditChildOpen] = useState(false);
+  const [isDeleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isUnlinkConfirmOpen, setUnlinkConfirmOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
@@ -95,6 +110,44 @@ export default function ChildDetailPage() {
     }
   }
 
+  const handleDelete = async () => {
+    if (!child) return;
+    const result = await deleteChildAction(child.id);
+    if (result.success) {
+        toast({
+            title: "Profile Deleted",
+            description: `${child.name}'s profile has been removed.`,
+        });
+        router.push('/');
+    } else {
+        toast({
+            title: "Error",
+            description: result.error,
+            variant: "destructive",
+        });
+    }
+    setDeleteConfirmOpen(false);
+  }
+
+  const handleUnlink = async () => {
+    if (!child) return;
+    const result = await unlinkChildAccountAction(child.id);
+     if (result.success) {
+        toast({
+            title: "Account Unlinked",
+            description: `The login for ${child.name} has been unlinked.`,
+        });
+        handleProfileUpdate();
+    } else {
+        toast({
+            title: "Error",
+            description: result.error,
+            variant: "destructive",
+        });
+    }
+    setUnlinkConfirmOpen(false);
+  }
+
   if (loading) {
     return <DetailPageSkeleton />;
   }
@@ -119,21 +172,44 @@ export default function ChildDetailPage() {
                         </Button>
                     )}
                     <Avatar className="h-16 w-16 border">
-                      <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
+                      <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait"/>
                       <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
                       <h1 className="font-body text-2xl md:text-3xl font-bold">{child.name}</h1>
                       <p className="text-muted-foreground">Cycle Dashboard</p>
                     </div>
-                     {canEdit && (
-                        <Button variant="ghost" size="icon" onClick={() => setEditChildOpen(true)}>
-                            <Edit className="h-5 w-5" />
-                            <span className="sr-only">Edit Profile</span>
-                        </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                    {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
+                    {canEdit && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <MoreVertical className="h-5 w-5" />
+                                    <span className="sr-only">Open menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => setEditChildOpen(true)}>
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    <span>Edit Profile</span>
+                                </DropdownMenuItem>
+                                {child.childUid && (
+                                    <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
+                                        <Link2Off className="mr-2 h-4 w-4" />
+                                        <span>Unlink Account</span>
+                                    </DropdownMenuItem>
+                                )}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onSelect={() => setDeleteConfirmOpen(true)} className="text-destructive focus:text-destructive">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    <span>Delete Profile</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     )}
                 </div>
-                {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -184,6 +260,34 @@ export default function ChildDetailPage() {
             onChildUpdated={handleProfileUpdate}
         />
       )}
+      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete {child.name}'s profile and all of their associated data.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+       <AlertDialog open={isUnlinkConfirmOpen} onOpenChange={setUnlinkConfirmOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Unlink {child.name}'s Account?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This will remove their ability to log in with their current username. Their cycle data will NOT be deleted. You can create a new login for them afterwards.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleUnlink}>Unlink</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AuthGuard>
   );
 }
