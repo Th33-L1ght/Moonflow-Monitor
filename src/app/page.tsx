@@ -53,7 +53,7 @@ const EmptyState = () => (
             </div>
             <h2 className="text-2xl font-bold font-body">Welcome to Light Flo</h2>
             <p className="mt-2 text-muted-foreground max-w-md mx-auto">
-                It looks like you haven&apos;t created any profiles yet. Add one from the user menu in the top right to get started.
+                It looks like you haven't created any profiles yet. Add one from the user menu in the top right to get started.
             </p>
         </div>
     </div>
