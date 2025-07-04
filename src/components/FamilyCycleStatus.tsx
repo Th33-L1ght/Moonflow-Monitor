@@ -40,7 +40,7 @@ export default function FamilyCycleStatus({ children }: FamilyCycleStatusProps) 
                   </p>
                 </div>
                 <Badge variant={child.status.isOnPeriod ? 'destructive' : 'secondary'}>
-                  {child.status.isOnPeriod ? 'Active' : 'Inactive'}
+                  {child.status.isOnPeriod ? 'Out' : 'In'}
                 </Badge>
               </li>
             ))}

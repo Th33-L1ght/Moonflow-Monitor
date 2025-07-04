@@ -5,25 +5,25 @@
 
 @layer base {
   :root {
-    --background: 290 100% 98%;
+    --background: 0 0% 94%; /* Light gray from PRD */
     --foreground: 224 71% 10%;
     --card: 0 0% 100%;
     --card-foreground: 224 71% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 10%;
-    --primary: 260 100% 82%; /* Brighter Pastel Purple */
-    --primary-foreground: 260 60% 25%;
+    --primary: 276 100% 84%; /* Soft lavender from PRD */
+    --primary-foreground: 276 60% 25%;
     --secondary: 220 30% 96%;
     --secondary-foreground: 224 71% 10%;
     --muted: 220 30% 92%;
     --muted-foreground: 215 20% 55%;
-    --accent: 260 100% 94%; /* Lighter Pastel Purple */
-    --accent-foreground: 260 60% 25%;
+    --accent: 335 100% 87%; /* Gentle pink from PRD */
+    --accent-foreground: 335 60% 25%;
     --destructive: 345 100% 82%; /* Brighter Pastel Pink */
     --destructive-foreground: 345 60% 25%;
     --border: 220 20% 90%;
     --input: 220 20% 90%;
-    --ring: 260 100% 82%;
+    --ring: 276 100% 84%;
     --chart-1: 210 90% 85%; /* Pastel Blue */
     --chart-2: 145 70% 78%; /* Brighter Pastel Green */
     --chart-3: 35 100% 88%; /* Pastel Orange */
