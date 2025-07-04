@@ -171,9 +171,10 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
                 key={mood}
                 value={mood}
                 aria-label={mood}
-                className="h-20 w-full text-3xl rounded-lg data-[state=on]:bg-primary/20 data-[state=on]:text-primary border"
+                className="flex flex-col h-20 w-full rounded-lg gap-1 data-[state=on]:bg-primary/20 data-[state=on]:text-primary border"
               >
-                {emoji}
+                <span className="text-3xl">{emoji}</span>
+                <span className="text-xs">{mood}</span>
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
