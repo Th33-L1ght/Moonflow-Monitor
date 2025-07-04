@@ -48,8 +48,10 @@ If you prefer using the command line, you can follow these steps:
     ```bash
     # Stage all your changes
     git add .
+
     # Commit the changes with a message describing what you did
     git commit -m "Your descriptive message here"
+
     # Push the changes to GitHub to start the deployment
     git push
     ```
@@ -66,14 +68,25 @@ You can find the public URL for your deployed application in the **Firebase Cons
 Your application is set up to send all its data, including user feedback and error reports, to your Firebase project.
 
 ### Viewing User Login Accounts
-To see the user accounts that have signed up:
+To see the actual user accounts that can log in (both parent emails and child usernames):
 1. In the Firebase Console, navigate to the **Build** section in the left menu.
 2. Click on **Authentication**, and go to the **Users** tab.
 
-### Viewing Your App's Data (Child Profiles, etc.)
-All of the data for your app—child profiles, cycle logs, and user feedback—is stored in your **Firestore Database**.
+### Viewing Your App's Data (Child Profiles, Feedback, etc.)
+
+All of the data for your app—child profiles, cycle logs, and user feedback—is stored in your **Firestore Database**. Think of it as the master spreadsheet for your application.
 
 1.  In the Firebase Console, navigate to the **Build** section in the left menu.
 2.  Click on **Firestore Database**.
 
-**Important:** The database will appear empty at first. As you use the app, "collections" of data will appear automatically. For example, after you add your first child, a `children` collection will be created.
+**Important:** The database will appear empty at first. As you use the app, "collections" of data will appear automatically. For example, after you add your first child, a `children` collection will be created. After you submit feedback through the app, a `feedback` collection will appear here as well.
+
+### Viewing Error Reports
+
+When an error occurs in your app, it is logged to **Firebase Analytics** so you can see if users are having problems.
+
+1.  In the Firebase Console, navigate to the **Release & Monitor** section in the left menu.
+2.  Click on **Analytics**, then select the **Events** tab.
+3.  Look for an event name called `app_error`. (Note: It can take a few hours for new events to appear).
+
+**First Time Setup for Analytics:** If you've just enabled Analytics, it may show a screen asking you to "Add an app to get started". You can ignore this. Your app is already configured. Simply use your live app for a few minutes (e.g., log in and add a child) to send the first event. The screen will then be replaced with the proper Analytics dashboard automatically. This can sometimes take a few hours.

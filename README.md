@@ -73,4 +73,4 @@ All of the data for your app—child profiles, cycle logs, and user feedback—i
 1.  In the Firebase Console, navigate to the **Build** section in the left menu.
 2.  Click on **Firestore Database**.
 
-**Important:** The database will appear empty at first. As you use the app, "collections" of data will appear automatically. For example, after you add your first child, a `children` collection will be created.
+**Important:** The database will appear empty at first. As you use the app, "collections" of data will appear automatically. For example, after you add your first child, a `children` collection will be created. After you submit feedback through the app, a `feedback` collection will appear here as well.
