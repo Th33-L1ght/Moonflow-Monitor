@@ -17,7 +17,7 @@ import type { AppUser } from '@/lib/auth-types';
 import { getChildProfileForUser, deleteAllUserDataAction } from '@/lib/firebase/client-actions';
 import { auth } from '@/lib/firebase/client';
 import { isFirebaseConfigured } from '@/lib/firebase/client';
-import { logError } from '../error-logging';
+import { logError } from '@/lib/error-logging';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
       // Only send verification for real emails, not child username accounts
-      if (!email.endsWith('@moonflow.app')) {
+      if (!email.endsWith('@lightflow.app')) {
         await sendEmailVerification(userCredential.user);
       }
       await setUserStateFromFirebaseUser(userCredential.user);
@@ -118,7 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUpWithDummyEmail = async (username: string, pass: string) => {
     if (!auth) throw new Error("Firebase not configured.");
-    const dummyEmail = `${username.toLowerCase().trim()}@moonflow.app`;
+    const dummyEmail = `${username.toLowerCase().trim()}@lightflow.app`;
     try {
       return await createUserWithEmailAndPassword(auth, dummyEmail, pass);
     } catch(err) {

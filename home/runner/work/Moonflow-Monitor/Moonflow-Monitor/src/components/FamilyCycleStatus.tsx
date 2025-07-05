@@ -2,9 +2,9 @@
 'use client';
 import type { Child } from "@/lib/types";
 import { getCycleStatus } from "@/lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Badge } from "./ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface FamilyCycleStatusProps {
     profiles: Child[];
