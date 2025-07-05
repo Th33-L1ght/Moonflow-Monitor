@@ -18,10 +18,10 @@ import FamilyMoodChart from '@/components/FamilyMoodChart';
 const DashboardSkeleton = () => (
     <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex flex-col items-center justify-center space-y-3 p-4 rounded-3xl aspect-square bg-card border">
-                <Skeleton className="h-20 w-20 rounded-full" />
-                <Skeleton className="h-5 w-24" />
-                <Skeleton className="h-4 w-20" />
+            <div key={i} className="relative flex flex-col items-center justify-center p-4 transition-all bg-card border rounded-3xl aspect-square">
+                 <Skeleton className="h-20 w-20 rounded-full" />
+                <Skeleton className="h-5 w-24 mt-2" />
+                <Skeleton className="h-4 w-20 mt-1" />
             </div>
         ))}
     </div>
