@@ -13,7 +13,6 @@ import { FlyingButterflies } from '@/components/FlyingButterflies';
 import { Logo } from '@/components/Logo';
 import { AlertCircle } from 'lucide-react';
 import { setCache } from '@/lib/cache';
-import FamilyCycleStatus from '@/components/FamilyCycleStatus';
 import FamilyMoodChart from '@/components/FamilyMoodChart';
 
 const DashboardSkeleton = () => (
@@ -131,7 +130,6 @@ export default function ParentDashboardPage() {
                     </div>
                      <aside className="w-full xl:w-1/3 xl:flex-shrink-0">
                         <div className="space-y-6">
-                            <FamilyCycleStatus profiles={childProfiles} />
                             <FamilyMoodChart profiles={childProfiles} />
                         </div>
                     </aside>

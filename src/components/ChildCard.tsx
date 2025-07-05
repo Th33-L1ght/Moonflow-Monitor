@@ -10,7 +10,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn, Link2Off, HeartHandshake } from 'lucide-react';
 import { getCycleStatus, getCyclePrediction } from '@/lib/utils';
 import type { Child } from '@/lib/types';
-import { Badge } from '@/components/ui/badge';
 import { InviteDialog } from './InviteDialog';
 import { CreateChildLoginDialog } from './CreateChildLoginDialog';
 import {
@@ -26,7 +25,6 @@ import {
 import { deleteChildAction, unlinkChildAccountAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
 
 interface ChildCardProps {
   child: Child;
@@ -88,17 +86,16 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
   const averageCycleLength = 28;
 
   let progress = 0;
-  let statusText = 'Not Enough Data';
-  let subText = 'Log a cycle to begin';
+  let statusText = 'Not on Period';
 
   if (isOnPeriod) {
     progress = (currentDay / averagePeriodLength) * 100;
-    statusText = `Day ${currentDay}`;
-    subText = 'Currently on period';
+    statusText = `On Period - Day ${currentDay}`;
   } else if (daysUntilNextCycle !== null) {
-    progress = ((averageCycleLength - daysUntilNextCycle) / averageCycleLength) * 100;
-    statusText = `in ~${daysUntilNextCycle} days`;
-    subText = 'Next predicted period';
+    progress = ((averageCycleLength - (daysUntilNextCycle > 0 ? daysUntilNextCycle : 0)) / averageCycleLength) * 100;
+    statusText = daysUntilNextCycle > 0 ? `Next period in ~${daysUntilNextCycle} days` : `Period expected`;
+  } else if (child.cycles.length < 2) {
+    statusText = "Not Enough Data";
   }
 
   const circumference = 2 * Math.PI * 52;
