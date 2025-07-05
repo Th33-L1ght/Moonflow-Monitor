@@ -53,8 +53,8 @@ export function InviteDialog({ isOpen, setOpen, childId }: InviteDialogProps) {
 
   const handleShare = async () => {
     const shareData = {
-        title: 'Invitation to Light Flow',
-        text: "You've been invited to join a profile on Light Flow. Click this link to get started.",
+        title: 'Invitation to Light Flo',
+        text: "You've been invited to join a profile on Light Flo. Click this link to get started.",
         url: inviteLink,
     };
 

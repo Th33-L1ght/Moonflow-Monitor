@@ -105,7 +105,7 @@ export default function ParentDashboardPage() {
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-7xl">
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-              <h1 className="font-body text-3xl font-bold md:text-4xl">Your Family's Dashboard</h1>
+              <h1 className="font-body text-3xl font-bold md:text-4xl">Your Family Dashboard</h1>
             </div>
 
             {loading ? (

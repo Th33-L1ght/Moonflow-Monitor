@@ -15,7 +15,6 @@ import { PadReminderCard } from '@/components/PadReminderCard';
 import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 import { EditChildDialog } from '@/components/EditChildDialog';
-import { AIInsightCard } from '@/components/AIInsightCard';
 import PeriodCalendar from '@/components/PeriodCalendar';
 import MoodChart from '@/components/MoodChart';
 import CycleLengthChart from '@/components/CycleLengthChart';
@@ -158,7 +157,6 @@ export default function ChildDetailPage() {
                 <div className="space-y-8">
                     <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
                     <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
-                    <AIInsightCard />
                     <JournalView child={child} />
                 </div>
                 {/* Right Column */}
