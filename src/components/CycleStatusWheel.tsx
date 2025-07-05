@@ -1,8 +1,9 @@
+
 'use client';
 
 import type { Child } from '@/lib/types';
 import { getCycleStatus, getCyclePrediction } from '@/lib/utils';
-import UterusIcon from './UterusIcon';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 interface CycleStatusWheelProps {
     child: Child;
@@ -25,7 +26,6 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
     const strokeDashoffset = circumference - (progress / 100) * circumference;
 
     const progressColor = isOnPeriod ? 'hsl(var(--destructive))' : 'hsl(var(--primary))';
-    const iconColorClass = isOnPeriod ? 'text-destructive/80' : 'text-primary/80';
 
 
     let mainText = 'Not Enough Data';
@@ -46,7 +46,7 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
     }
     
     return (
-        <div className="relative flex flex-col items-center justify-center gap-4 my-8">
+        <div className="relative flex flex-col items-center justify-center gap-4 my-2">
             <div className="relative h-56 w-56 sm:h-64 sm:w-64">
                 <svg className="absolute inset-0" viewBox="0 0 120 120">
                     {/* Background Circle */}
@@ -72,10 +72,14 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
                         transform="rotate(-90 60 60)"
                     />
                 </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <UterusIcon className={`w-16 h-16 mb-2 ${iconColorClass}`} />
-                    <p className="font-semibold text-muted-foreground">{subText}</p>
-                    <p className="text-3xl sm:text-4xl font-bold font-body">{mainText}</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+                    <Avatar className="h-20 w-20 border-2 mb-2">
+                      <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait"/>
+                      <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <h1 className="font-body text-2xl font-bold truncate w-full">{child.name}</h1>
+                    <p className="text-sm font-semibold text-muted-foreground">{subText}</p>
+                    <p className="text-xl font-bold">{mainText}</p>
                 </div>
             </div>
         </div>

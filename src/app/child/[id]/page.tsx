@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
 import { getChild, updateChild } from '@/lib/firebase/client-actions';
@@ -132,59 +131,41 @@ export default function ChildDetailPage() {
       <div className="flex min-h-screen w-full flex-col bg-background text-foreground">
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-4xl mx-auto w-full">
-            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    {user?.role === 'parent' && (
-                        <Button variant="outline" size="icon" onClick={() => router.push('/')}>
-                            <ArrowLeft className="h-4 w-4" />
-                        </Button>
-                    )}
-                    <Avatar className="h-16 w-16 border">
-                      <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait"/>
-                      <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h1 className="font-body text-2xl md:text-3xl font-bold">{child.name}</h1>
-                      <p className="text-muted-foreground">Cycle Dashboard</p>
-                    </div>
-                     {canEdit && (
-                        <Button variant="ghost" size="icon" onClick={() => setEditChildOpen(true)}>
-                            <Edit className="h-5 w-5" />
-                            <span className="sr-only">Edit Profile</span>
-                        </Button>
-                    )}
-                </div>
-                {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
+            
+            <div className="relative mb-6 text-center">
+                {user?.role === 'parent' && (
+                    <Button variant="outline" size="icon" onClick={() => router.push('/')} className="absolute top-0 left-0 z-10">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span className="sr-only">Back to Dashboard</span>
+                    </Button>
+                )}
+                {canEdit && (
+                    <Button variant="ghost" size="icon" onClick={() => setEditChildOpen(true)} className="absolute top-0 right-0 z-10">
+                        <Edit className="h-5 w-5" />
+                        <span className="sr-only">Edit Profile</span>
+                    </Button>
+                )}
+                
+                <CycleStatusWheel child={child} />
+            </div>
+            
+            <div className="flex justify-center mb-12">
+                 {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
             </div>
 
-            <div className="mt-6 space-y-8">
-                {/* Overview Block */}
-                <CycleStatusWheel child={child} />
-
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    {/* Left Column */}
-                    <div className="space-y-8">
-                        {/* Symptoms Block */}
-                        <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
-                        
-                        {/* Reminder Block */}
-                        <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
-                        
-                        {/* AI Insights Block (disabled) */}
-                        <AIInsightCard />
-
-                        {/* Journal Block */}
-                        <JournalView child={child} />
-                    </div>
-                    {/* Right Column */}
-                    <div className="space-y-8">
-                        {/* Calendar Block */}
-                        <PeriodCalendar child={child} onUpdate={handleUpdate} canEdit={canEdit} />
-                        
-                        {/* Charts Block */}
-                        <MoodChart child={child} />
-                        <CycleLengthChart child={child} />
-                    </div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                {/* Left Column */}
+                <div className="space-y-8">
+                    <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
+                    <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
+                    <AIInsightCard />
+                    <JournalView child={child} />
+                </div>
+                {/* Right Column */}
+                <div className="space-y-8">
+                    <PeriodCalendar child={child} onUpdate={handleUpdate} canEdit={canEdit} />
+                    <MoodChart child={child} />
+                    <CycleLengthChart child={child} />
                 </div>
             </div>
 
