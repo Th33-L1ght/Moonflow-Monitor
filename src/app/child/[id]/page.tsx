@@ -9,7 +9,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getChild, updateChild } from '@/lib/firebase/client-actions';
 import type { Child } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCyclePrediction } from '@/lib/utils';
@@ -24,11 +23,10 @@ import CycleLengthChart from '@/components/CycleLengthChart';
 import JournalView from '@/components/JournalView';
 import SymptomTracker from '@/components/SymptomTracker';
 import { getCache, setCache } from '@/lib/cache';
-import Link from 'next/link';
 
 
 const DetailPageSkeleton = () => (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+    <div className="flex min-h-screen w-full flex-col bg-background">
         <main className="flex-1 p-4 md:p-8">
             <div className="max-w-4xl mx-auto w-full">
                 <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -42,8 +40,11 @@ const DetailPageSkeleton = () => (
                     </div>
                      <Skeleton className="h-10 w-32" />
                 </div>
-                <Skeleton className="h-10 w-full mb-8" />
                 <Skeleton className="h-96 w-full" />
+                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                    <Skeleton className="h-64 w-full" />
+                    <Skeleton className="h-64 w-full" />
+                 </div>
             </div>
         </main>
     </div>
@@ -57,7 +58,6 @@ export default function ChildDetailPage() {
   const [child, setChild] = useState<Child | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditChildOpen, setEditChildOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     if (!user || !childId) return;
@@ -157,40 +157,34 @@ export default function ChildDetailPage() {
                 {canEdit && <PeriodToggleSwitch child={child} onUpdate={handleUpdate} />}
             </div>
 
-            <div className="w-full overflow-x-auto scrollbar-hide flex justify-center">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="inline-block">
-                <TabsList className="bg-card mb-6 border">
-                  <TabsTrigger value="overview" className="px-2">Overview</TabsTrigger>
-                  <TabsTrigger value="calendar" className="px-2">Calendar</TabsTrigger>
-                  <TabsTrigger value="charts" className="px-2">Charts</TabsTrigger>
-                  <TabsTrigger value="journal" className="px-2">Journal</TabsTrigger>
-                  <TabsTrigger value="symptoms" className="px-2">Symptoms</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-            
-            <div className="mt-6">
-                <div hidden={activeTab !== 'overview'}>
-                    <div className="space-y-6">
-                        <CycleStatusWheel child={child} />
-                        <AIInsightCard />
+            <div className="mt-6 space-y-8">
+                {/* Overview Block */}
+                <CycleStatusWheel child={child} />
+
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    {/* Left Column */}
+                    <div className="space-y-8">
+                        {/* Symptoms Block */}
+                        <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
+                        
+                        {/* Reminder Block */}
                         <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
+                        
+                        {/* AI Insights Block (disabled) */}
+                        <AIInsightCard />
+
+                        {/* Journal Block */}
+                        <JournalView child={child} />
                     </div>
-                </div>
-                <div hidden={activeTab !== 'calendar'}>
-                    <PeriodCalendar child={child} onUpdate={handleUpdate} canEdit={canEdit} />
-                </div>
-                <div hidden={activeTab !== 'charts'}>
-                    <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Right Column */}
+                    <div className="space-y-8">
+                        {/* Calendar Block */}
+                        <PeriodCalendar child={child} onUpdate={handleUpdate} canEdit={canEdit} />
+                        
+                        {/* Charts Block */}
                         <MoodChart child={child} />
                         <CycleLengthChart child={child} />
                     </div>
-                </div>
-                <div hidden={activeTab !== 'journal'}>
-                    <JournalView child={child} />
-                </div>
-                <div hidden={activeTab !== 'symptoms'}>
-                    <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
                 </div>
             </div>
 
