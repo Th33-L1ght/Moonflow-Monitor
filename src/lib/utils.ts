@@ -1,3 +1,4 @@
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { type Child, type Cycle } from "@/lib/types";
@@ -41,16 +42,35 @@ export function getCycleStatus(child: Child | null, today: Date = new Date()) {
 }
 
 export function getCyclePrediction(child: Child | null) {
-  if (!child || child.cycles.length < 2) {
-    return { predictedStartDate: null, daysUntilNextCycle: null };
+  const defaultPeriodLength = 7;
+  const defaultCycleLength = 28;
+
+  if (!child || child.cycles.length < 1) {
+    return { predictedStartDate: null, daysUntilNextCycle: null, averagePeriodLength: defaultPeriodLength, averageCycleLength: defaultCycleLength };
   }
 
   // Sort cycles by start date just in case they are not in order
   const sortedCycles = [...child.cycles].sort((a, b) => toDate(a.startDate).getTime() - toDate(b.startDate).getTime());
 
+  // Calculate average period length
+  let totalPeriodLength = 0;
+  let periodCount = 0;
+  sortedCycles.forEach(cycle => {
+    const periodLength = differenceInDays(toDate(cycle.endDate), toDate(cycle.startDate)) + 1;
+    if (periodLength > 1 && periodLength < 15) { // Basic validation
+      totalPeriodLength += periodLength;
+      periodCount++;
+    }
+  });
+  const averagePeriodLength = periodCount > 0 ? Math.round(totalPeriodLength / periodCount) : defaultPeriodLength;
+
+  // Calculate average cycle length
+  if (sortedCycles.length < 2) {
+    return { predictedStartDate: null, daysUntilNextCycle: null, averagePeriodLength, averageCycleLength: defaultCycleLength };
+  }
+  
   let totalCycleLength = 0;
   let cycleCount = 0;
-
   for (let i = 1; i < sortedCycles.length; i++) {
     const startDate1 = toDate(sortedCycles[i-1].startDate);
     const startDate2 = toDate(sortedCycles[i].startDate);
@@ -64,7 +84,7 @@ export function getCyclePrediction(child: Child | null) {
   }
 
   if (cycleCount === 0) {
-    return { predictedStartDate: null, daysUntilNextCycle: null };
+    return { predictedStartDate: null, daysUntilNextCycle: null, averagePeriodLength, averageCycleLength: defaultCycleLength };
   }
 
   const averageCycleLength = Math.round(totalCycleLength / cycleCount);
@@ -74,7 +94,7 @@ export function getCyclePrediction(child: Child | null) {
   const predictedStartDate = addDays(lastStartDate, averageCycleLength);
   const daysUntilNextCycle = differenceInDays(predictedStartDate, startOfDay(new Date()));
 
-  return { predictedStartDate, daysUntilNextCycle };
+  return { predictedStartDate, daysUntilNextCycle, averagePeriodLength, averageCycleLength };
 }
 
 export async function resizeImage(dataUrl: string, maxWidth: number, maxHeight: number): Promise<string> {

@@ -36,7 +36,11 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
   const router = useRouter();
   const { toast } = useToast();
   const { isOnPeriod, currentDay } = getCycleStatus(child);
-  const { daysUntilNextCycle } = getCyclePrediction(child);
+  const { 
+    daysUntilNextCycle, 
+    averagePeriodLength, 
+    averageCycleLength 
+  } = getCyclePrediction(child);
   const { isFirebaseConfigured } = useAuth();
   
   const [isInviteOpen, setInviteOpen] = useState(false);
@@ -82,9 +86,6 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
     }
   }
   
-  const averagePeriodLength = 7;
-  const averageCycleLength = 28;
-
   let progress = 0;
   let statusText = 'Not on Period';
 
