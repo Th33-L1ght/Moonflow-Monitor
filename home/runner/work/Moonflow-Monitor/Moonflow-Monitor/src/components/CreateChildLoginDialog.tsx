@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -18,6 +19,7 @@ import type { Child } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/error-logging';
 
 interface CreateChildLoginDialogProps {
   isOpen: boolean;
@@ -61,6 +63,7 @@ export function CreateChildLoginDialog({ isOpen, setOpen, child, onLoginCreated 
         }
 
     } catch(error: any) {
+        logError(error, { location: 'CreateChildLoginDialog.handleSubmit', childId: child.id, username });
         let message = 'An unexpected error occurred. Please try again.';
         if (error.code === 'auth/email-already-in-use') {
             message = 'This username is already taken. Please choose another one.';
@@ -100,22 +103,22 @@ export function CreateChildLoginDialog({ isOpen, setOpen, child, onLoginCreated 
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
+            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-x-4 gap-y-2">
+              <Label htmlFor="username" className="md:text-right">
                 Username
               </Label>
               <Input
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="col-span-3"
+                className="md:col-span-3"
                 placeholder="e.g. olivia"
                 required
                 autoComplete="off"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="password" className="text-right">
+            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-x-4 gap-y-2">
+              <Label htmlFor="password" className="md:text-right">
                 Password
               </Label>
               <Input
@@ -123,7 +126,7 @@ export function CreateChildLoginDialog({ isOpen, setOpen, child, onLoginCreated 
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="col-span-3"
+                className="md:col-span-3"
                 required
                 autoComplete="new-password"
               />

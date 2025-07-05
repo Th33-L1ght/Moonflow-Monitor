@@ -51,7 +51,7 @@ const EmptyState = () => (
             <div className="p-4 bg-background/80 backdrop-blur-sm rounded-full mb-4 inline-block">
                  <Logo />
             </div>
-            <h2 className="text-2xl font-bold font-body">Welcome to Light Flo</h2>
+            <h2 className="text-2xl font-bold font-body">Welcome to Moonflow Monitor</h2>
             <p className="mt-2 text-muted-foreground max-w-md mx-auto">
                 It looks like you haven't created any profiles yet. Add one from the user menu in the top right to get started.
             </p>
