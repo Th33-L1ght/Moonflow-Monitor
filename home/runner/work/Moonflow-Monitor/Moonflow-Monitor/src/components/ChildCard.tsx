@@ -25,6 +25,7 @@ import {
 import { deleteChildAction, unlinkChildAccountAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { Progress } from '@/components/ui/progress';
 
 interface ChildCardProps {
   child: Child;
@@ -99,16 +100,11 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
     statusText = "Not Enough Data";
   }
 
-  const circumference = 2 * Math.PI * 52;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
-  const progressColor = isOnPeriod ? 'hsl(var(--destructive))' : 'hsl(var(--primary))';
-
-
   return (
     <>
       <div 
         onClick={() => router.push(`/child/${child.id}`)}
-        className="relative flex flex-col items-center justify-center p-4 transition-all bg-card border rounded-3xl aspect-square cursor-pointer hover:shadow-lg hover:border-primary/50"
+        className="relative flex flex-col justify-between p-4 transition-all bg-card border rounded-2xl cursor-pointer hover:shadow-lg hover:border-primary/50"
         role="button"
         tabIndex={0}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && router.push(`/child/${child.id}`)}
@@ -159,30 +155,25 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
           </DropdownMenu>
         </div>
 
-        <div className="relative h-full w-full flex items-center justify-center">
-            <svg className="absolute inset-0" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="52" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
-                <circle
-                    cx="60" cy="60" r="52" fill="none"
-                    stroke={progressColor} strokeWidth="8"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    strokeLinecap="round" transform="rotate(-90 60 60)"
-                />
-            </svg>
-            <div className="relative flex flex-col items-center justify-center text-center gap-1">
-                <Avatar className="h-16 w-16 mb-1">
+        <div>
+            <div className="flex items-center gap-4">
+                <Avatar className="h-12 w-12">
                     <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
                     <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <CardTitle className="text-base font-bold flex items-center gap-1.5">
-                  {child.isParentProfile && <HeartHandshake className="h-4 w-4 text-primary" />}
-                  {child.name}
-                </CardTitle>
-                <CardDescription className="text-xs font-semibold">{statusText}</CardDescription>
+                <div className="flex-1">
+                    <CardTitle className="text-lg font-bold flex items-center gap-1.5">
+                    {child.isParentProfile && <HeartHandshake className="h-4 w-4 text-primary" />}
+                    {child.name}
+                    </CardTitle>
+                    <CardDescription className="text-sm font-medium">{statusText}</CardDescription>
+                </div>
             </div>
         </div>
 
+        <div className="mt-4">
+            <Progress value={progress} className="h-2" />
+        </div>
       </div>
         
       {isFirebaseConfigured && (
