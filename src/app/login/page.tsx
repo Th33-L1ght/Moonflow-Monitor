@@ -135,7 +135,7 @@ export default function LoginPage() {
 
   if (isLoading && !error) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40">
+      <div className="w-full min-h-screen flex items-center justify-center p-4 bg-background">
         <div className="flex flex-col items-center gap-4 text-center">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
           <h1 className="text-2xl font-bold font-body">Just a moment...</h1>
@@ -149,7 +149,7 @@ export default function LoginPage() {
   const emailPlaceholder = mode === 'login' ? 'you@example.com or username' : 'you@example.com';
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-muted/40">
+    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-sm mx-auto flex flex-col items-center justify-center space-y-6">
         <Logo />
         <Card className="w-full">
@@ -190,7 +190,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  className="bg-background"
+                  className="bg-card border-border"
                   autoComplete="username"
                 />
               </div>
@@ -215,7 +215,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
-                  className="bg-background"
+                  className="bg-card border-border"
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 />
               </div>

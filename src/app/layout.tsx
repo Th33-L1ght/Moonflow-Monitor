@@ -20,7 +20,7 @@ const courgette = Courgette({
 
 export const metadata: Metadata = {
   title: 'Light Flo',
-  description: 'An app for a mother to know which of her children is on their period, track symptoms, and view cycle history.',
+  description: 'A simple, beautiful app to track menstrual cycles for your family.',
 };
 
 export const viewport: Viewport = {

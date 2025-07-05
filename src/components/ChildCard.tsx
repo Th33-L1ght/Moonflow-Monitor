@@ -190,8 +190,8 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             <CreateChildLoginDialog isOpen={isCreateLoginOpen} setOpen={setCreateLoginOpen} child={child} onLoginCreated={onChildUpdated} />
         </>
       )}
-      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={(open) => { if(open) { setDeleteConfirmOpen(true); } else { setDeleteConfirmOpen(false); } }}>
-        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
             <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to delete this profile?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -204,8 +204,8 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-       <AlertDialog open={isUnlinkConfirmOpen} onOpenChange={(open) => { if(open) { setUnlinkConfirmOpen(true); } else { setUnlinkConfirmOpen(false); } }}>
-        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+       <AlertDialog open={isUnlinkConfirmOpen} onOpenChange={setUnlinkConfirmOpen}>
+        <AlertDialogContent>
             <AlertDialogHeader>
             <AlertDialogTitle>Unlink {child.name}'s Account?</AlertDialogTitle>
             <AlertDialogDescription>
