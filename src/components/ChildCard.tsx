@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardDescription, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -99,22 +99,11 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
 
   return (
     <>
-      <Card className="flex flex-col transition-all hover:shadow-lg">
-        <CardHeader className="flex flex-row items-start gap-4 pb-2">
-          <Avatar className="h-12 w-12 border">
-            <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
-            <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <CardTitle className="flex items-center gap-2">
-                {child.isParentProfile && <HeartHandshake className="h-5 w-5 text-primary" />}
-                {child.name}
-            </CardTitle>
-            <CardDescription>{getStatusText()}</CardDescription>
-          </div>
+      <div className="relative flex flex-col items-center text-center p-6 transition-all hover:shadow-lg rounded-3xl bg-card border">
+        <div className="absolute top-2 right-2">
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="-mt-1 -mr-2 h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -155,25 +144,37 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </CardHeader>
-        <CardContent className="flex-1 space-y-4">
+        </div>
+
+        <Avatar className="h-24 w-24 border-2 mb-4">
+            <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
+            <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        
+        <CardTitle className="flex items-center gap-2 text-xl mb-1">
+            {child.isParentProfile && <HeartHandshake className="h-5 w-5 text-primary" />}
+            {child.name}
+        </CardTitle>
+        <CardDescription className="text-xs mb-4">{getStatusText()}</CardDescription>
+
+        <div className="h-12 w-full mb-4 flex flex-col items-center justify-center">
             {isOnPeriod ? (
                  <Badge variant={statusColor}>On Period</Badge>
             ) : daysUntilNextCycle !== null ? (
-                <>
+                <div className="w-full px-4">
                 <Progress value={progress} aria-label={`${progress.toFixed(0)}% until next period`} />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                     Next period predicted in {daysUntilNextCycle} {daysUntilNextCycle === 1 ? 'day' : 'days'}.
                 </p>
-                </>
+                </div>
             ) : (
                  <Badge variant="secondary">No period data</Badge>
             )}
-        </CardContent>
-        <CardFooter>
-            <Button className="w-full font-bold" onClick={() => router.push(`/child/${child.id}`)}>View Dashboard</Button>
-        </CardFooter>
-      </Card>
+        </div>
+
+        <Button className="w-full font-bold mt-auto" onClick={() => router.push(`/child/${child.id}`)}>View Dashboard</Button>
+      </div>
+
       {isFirebaseConfigured && (
         <>
             <InviteDialog isOpen={isInviteOpen} setOpen={setInviteOpen} childId={child.id} />
