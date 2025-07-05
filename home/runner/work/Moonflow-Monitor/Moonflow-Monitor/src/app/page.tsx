@@ -13,18 +13,15 @@ import { FlyingButterflies } from '@/components/FlyingButterflies';
 import { Logo } from '@/components/Logo';
 import { AlertCircle } from 'lucide-react';
 import { setCache } from '@/lib/cache';
-import FamilyCycleStatus from '@/components/FamilyCycleStatus';
 import FamilyMoodChart from '@/components/FamilyMoodChart';
 
 const DashboardSkeleton = () => (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex flex-col space-y-3">
-                <Skeleton className="h-40 rounded-xl" />
-                <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
-                </div>
+    <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+            <div key={i} className="relative flex flex-col items-center justify-center p-4 transition-all bg-card border rounded-3xl aspect-square">
+                 <Skeleton className="h-20 w-20 rounded-full" />
+                <Skeleton className="h-5 w-24 mt-2" />
+                <Skeleton className="h-4 w-20 mt-1" />
             </div>
         ))}
     </div>
@@ -51,7 +48,7 @@ const EmptyState = () => (
             <div className="p-4 bg-background/80 backdrop-blur-sm rounded-full mb-4 inline-block">
                  <Logo />
             </div>
-            <h2 className="text-2xl font-bold font-body">Welcome to Moonflow Monitor</h2>
+            <h2 className="text-2xl font-bold font-body">Welcome to Light Flo</h2>
             <p className="mt-2 text-muted-foreground max-w-md mx-auto">
                 It looks like you haven't created any profiles yet. Add one from the user menu in the top right to get started.
             </p>
@@ -108,7 +105,7 @@ export default function ParentDashboardPage() {
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-7xl">
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-              <h1 className="font-body text-3xl font-bold md:text-4xl">Your Family's Dashboard</h1>
+              <h1 className="font-body text-3xl font-bold md:text-4xl">Family Dashboard ✅</h1>
             </div>
 
             {loading ? (
@@ -119,14 +116,8 @@ export default function ParentDashboardPage() {
                 <EmptyState />
             ) : (
                 <div className="flex flex-col gap-8 xl:flex-row">
-                    <aside className="w-full xl:w-1/3 xl:flex-shrink-0">
-                        <div className="space-y-6">
-                            <FamilyCycleStatus profiles={childProfiles} />
-                            <FamilyMoodChart profiles={childProfiles} />
-                        </div>
-                    </aside>
                     <div className="flex-1">
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
                             {profiles.map((profile) => (
                             <ChildCard 
                                 key={profile.id} 
@@ -137,6 +128,11 @@ export default function ParentDashboardPage() {
                             ))}
                         </div>
                     </div>
+                     <aside className="w-full xl:w-1/3 xl:flex-shrink-0">
+                        <div className="space-y-6">
+                            <FamilyMoodChart profiles={childProfiles} />
+                        </div>
+                    </aside>
                 </div>
             )}
           </div>
