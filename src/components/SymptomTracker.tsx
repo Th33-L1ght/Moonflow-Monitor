@@ -8,15 +8,15 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from './ui/card';
+} from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
 import { getCycleStatus, toDate } from '@/lib/utils';
 import type { Child, CrampLevel, Mood, SymptomLog, PregnancyTestResult } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { isSameDay } from 'date-fns';
-import { Textarea } from './ui/textarea';
-import { Label } from './ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Baby, TestTube2 } from 'lucide-react';
 
 const crampLevels = [

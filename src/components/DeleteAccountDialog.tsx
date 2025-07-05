@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface DeleteAccountDialogProps {
   isOpen: boolean;

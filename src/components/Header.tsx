@@ -12,14 +12,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Logo } from './Logo';
+import { Logo } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useState } from 'react';
-import { EditParentProfileDialog } from './EditParentProfileDialog';
-import { FeedbackDialog } from './FeedbackDialog';
-import { AddChildDialog } from './AddChildDialog';
-import { DeleteAccountDialog } from './DeleteAccountDialog';
+import { EditParentProfileDialog } from '@/components/EditParentProfileDialog';
+import { FeedbackDialog } from '@/components/FeedbackDialog';
+import { AddChildDialog } from '@/components/AddChildDialog';
+import { DeleteAccountDialog } from '@/components/DeleteAccountDialog';
 
 
 export interface HeaderProps {

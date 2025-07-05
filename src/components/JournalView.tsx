@@ -2,12 +2,12 @@
 'use client';
 
 import type { Child, SymptomLog } from '@/lib/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toDate } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
-import { ScrollArea } from './ui/scroll-area';
-import { PadsButterflyIcon } from './PadsButterflyIcon';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { PadsButterflyIcon } from '@/components/PadsButterflyIcon';
 
 interface JournalViewProps {
     child: Child;

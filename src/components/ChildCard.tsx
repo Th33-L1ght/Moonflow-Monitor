@@ -10,8 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn, Link2Off, HeartHandshake } from 'lucide-react';
 import { getCycleStatus, getCyclePrediction } from '@/lib/utils';
 import type { Child } from '@/lib/types';
-import { InviteDialog } from './InviteDialog';
-import { CreateChildLoginDialog } from './CreateChildLoginDialog';
+import { InviteDialog } from '@/components/InviteDialog';
+import { CreateChildLoginDialog } from '@/components/CreateChildLoginDialog';
 import {
   AlertDialog,
   AlertDialogAction,

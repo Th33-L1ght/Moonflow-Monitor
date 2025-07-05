@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { submitFeedbackAction } from '@/lib/firebase/client-actions';
-import { Label } from './ui/label';
+import { Label } from '@/components/ui/label';
 import { logError } from '@/lib/error-logging';
 
 interface FeedbackDialogProps {

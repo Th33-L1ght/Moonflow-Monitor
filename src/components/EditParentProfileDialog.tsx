@@ -14,12 +14,12 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Camera, AlertCircle } from 'lucide-react';
 import { storage } from '@/lib/firebase/client';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { logError } from '@/lib/error-logging';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 interface EditParentProfileDialogProps {

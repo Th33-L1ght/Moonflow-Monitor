@@ -3,7 +3,7 @@
 
 import type { Child } from '@/lib/types';
 import { getCycleStatus, getCyclePrediction } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface CycleStatusWheelProps {
     child: Child;
