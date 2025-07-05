@@ -17,7 +17,7 @@ import {
 } from 'firebase/firestore';
 import type { Child } from '@/lib/types';
 import { db } from './client';
-import { logError } from '../error-logging';
+import { logError } from '@/lib/error-logging';
 
 // Helper function to convert Firestore Timestamps to JS Date objects
 function convertTimestampsToDates(data: any): any {
