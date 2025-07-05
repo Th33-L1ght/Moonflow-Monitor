@@ -99,6 +99,7 @@ export default function ParentDashboardPage() {
   }, [user, fetchProfiles]);
   
   const hasParentProfile = profiles.some(p => p.isParentProfile);
+  const childProfiles = profiles.filter(p => !p.isParentProfile);
 
   return (
     <AuthGuard>
@@ -120,8 +121,8 @@ export default function ParentDashboardPage() {
                 <div className="flex flex-col gap-8 xl:flex-row">
                     <aside className="w-full xl:w-1/3 xl:flex-shrink-0">
                         <div className="space-y-6">
-                            <FamilyCycleStatus children={profiles.filter(p => !p.isParentProfile)} />
-                            <FamilyMoodChart children={profiles.filter(p => !p.isParentProfile)} />
+                            <FamilyCycleStatus profiles={childProfiles} />
+                            <FamilyMoodChart profiles={childProfiles} />
                         </div>
                     </aside>
                     <div className="flex-1">

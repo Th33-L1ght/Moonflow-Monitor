@@ -1,10 +1,11 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import type { Child, Mood } from '@/lib/types';
-import { subDays, startOfDay, isWithinInterval } from 'date-fns';
+import { subDays } from 'date-fns';
 import { toDate } from '@/lib/utils';
 import { useMemo } from 'react';
 
@@ -23,13 +24,12 @@ const chartConfig = {
     )
 } satisfies ChartConfig;
 
-export default function FamilyMoodChart({ children }: { children: Child[] }) {
+export default function FamilyMoodChart({ profiles }: { profiles: Child[] }) {
     const chartData = useMemo(() => {
-        const childProfiles = children.filter(p => !p.isParentProfile);
         const moodCounts: { [key in Mood]?: number } = {};
         const thirtyDaysAgo = subDays(new Date(), 30);
         
-        childProfiles.forEach(child => {
+        profiles.forEach(child => {
             child.cycles.forEach(cycle => {
                 cycle.symptoms.forEach(symptom => {
                     const symptomDate = toDate(symptom.date);
@@ -48,7 +48,7 @@ export default function FamilyMoodChart({ children }: { children: Child[] }) {
             count: moodCounts[mood] || 0,
             fill: `var(--color-${mood})`,
         }));
-    }, [children]);
+    }, [profiles]);
 
     const hasData = chartData.some(d => d.count > 0);
 

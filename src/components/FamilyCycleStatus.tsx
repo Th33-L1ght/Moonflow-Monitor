@@ -1,3 +1,4 @@
+
 'use client';
 import type { Child } from "@/lib/types";
 import { getCycleStatus } from "@/lib/utils";
@@ -6,12 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 
 interface FamilyCycleStatusProps {
-    children: Child[];
+    profiles: Child[];
 }
 
-export default function FamilyCycleStatus({ children }: FamilyCycleStatusProps) {
-  const childProfiles = children.filter(p => !p.isParentProfile);
-  const statuses = childProfiles.map(child => ({
+export default function FamilyCycleStatus({ profiles }: FamilyCycleStatusProps) {
+  const statuses = profiles.map(child => ({
     ...child,
     status: getCycleStatus(child),
   }));
