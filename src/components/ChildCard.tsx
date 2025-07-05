@@ -26,7 +26,7 @@ import {
 import { deleteChildAction, unlinkChildAccountAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { Progress } from './ui/progress';
+import { cn } from '@/lib/utils';
 
 interface ChildCardProps {
   child: Child;
@@ -48,19 +48,6 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
 
   const hasAccount = !!child.childUid;
 
-  const getStatusText = () => {
-    if (isOnPeriod) return `On Period - Day ${currentDay}`;
-    if (daysUntilNextCycle !== null) {
-      if (daysUntilNextCycle <= 0) return 'Period expected';
-      return `Next period in ~${daysUntilNextCycle} days`;
-    }
-    return 'Not on Period';
-  };
-  
-  const statusColor = isOnPeriod ? 'destructive' : 'secondary';
-  const averageCycleLength = getCyclePrediction(child).predictedStartDate ? 30 : 28;
-  const progress = daysUntilNextCycle !== null ? ((averageCycleLength - daysUntilNextCycle) / averageCycleLength) * 100 : 0;
-  
   const handleUnlink = async () => {
     setUnlinkConfirmOpen(false);
     const result = await unlinkChildAccountAction(child.id);
@@ -96,11 +83,39 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
         });
     }
   }
+  
+  const averagePeriodLength = 7;
+  const averageCycleLength = 28;
+
+  let progress = 0;
+  let statusText = 'Not Enough Data';
+  let subText = 'Log a cycle to begin';
+
+  if (isOnPeriod) {
+    progress = (currentDay / averagePeriodLength) * 100;
+    statusText = `Day ${currentDay}`;
+    subText = 'Currently on period';
+  } else if (daysUntilNextCycle !== null) {
+    progress = ((averageCycleLength - daysUntilNextCycle) / averageCycleLength) * 100;
+    statusText = `in ~${daysUntilNextCycle} days`;
+    subText = 'Next predicted period';
+  }
+
+  const circumference = 2 * Math.PI * 52;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  const progressColor = isOnPeriod ? 'hsl(var(--destructive))' : 'hsl(var(--primary))';
+
 
   return (
     <>
-      <div className="relative flex flex-col items-center text-center p-6 transition-all hover:shadow-lg rounded-3xl bg-card border">
-        <div className="absolute top-2 right-2">
+      <div 
+        onClick={() => router.push(`/child/${child.id}`)}
+        className="relative flex flex-col items-center justify-center p-4 transition-all bg-card border rounded-3xl aspect-square cursor-pointer hover:shadow-lg hover:border-primary/50"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && router.push(`/child/${child.id}`)}
+      >
+        <div className="absolute top-2 right-2 z-10" onClick={(e) => e.stopPropagation()}>
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -146,33 +161,30 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
           </DropdownMenu>
         </div>
 
-        <Avatar className="h-24 w-24 border-2 mb-4">
-            <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
-            <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        
-        <CardTitle className="flex items-center gap-2 text-xl mb-1">
-            {child.isParentProfile && <HeartHandshake className="h-5 w-5 text-primary" />}
-            {child.name}
-        </CardTitle>
-        <CardDescription className="text-xs mb-4">{getStatusText()}</CardDescription>
-
-        <div className="h-12 w-full mb-4 flex flex-col items-center justify-center">
-            {isOnPeriod ? (
-                 <Badge variant={statusColor}>On Period</Badge>
-            ) : daysUntilNextCycle !== null ? (
-                <div className="w-full px-4">
-                <Progress value={progress} aria-label={`${progress.toFixed(0)}% until next period`} />
-                <p className="text-xs text-muted-foreground mt-1">
-                    Next period predicted in {daysUntilNextCycle} {daysUntilNextCycle === 1 ? 'day' : 'days'}.
-                </p>
-                </div>
-            ) : (
-                 <Badge variant="secondary">No period data</Badge>
-            )}
+        <div className="relative h-full w-full flex items-center justify-center">
+            <svg className="absolute inset-0" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
+                <circle
+                    cx="60" cy="60" r="52" fill="none"
+                    stroke={progressColor} strokeWidth="8"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round" transform="rotate(-90 60 60)"
+                />
+            </svg>
+            <div className="relative flex flex-col items-center justify-center text-center gap-1">
+                <Avatar className="h-16 w-16 mb-1">
+                    <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
+                    <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <CardTitle className="text-base font-bold flex items-center gap-1.5">
+                  {child.isParentProfile && <HeartHandshake className="h-4 w-4 text-primary" />}
+                  {child.name}
+                </CardTitle>
+                <CardDescription className="text-xs font-semibold">{statusText}</CardDescription>
+            </div>
         </div>
 
-        <Button className="w-full font-bold mt-auto" onClick={() => router.push(`/child/${child.id}`)}>View Dashboard</Button>
       </div>
 
       {isFirebaseConfigured && (
@@ -181,8 +193,8 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             <CreateChildLoginDialog isOpen={isCreateLoginOpen} setOpen={setCreateLoginOpen} child={child} onLoginCreated={onChildUpdated} />
         </>
       )}
-      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
+      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={(open) => { if(open) { setDeleteConfirmOpen(true); } else { setDeleteConfirmOpen(false); } }}>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
             <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to delete this profile?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -195,8 +207,8 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-       <AlertDialog open={isUnlinkConfirmOpen} onOpenChange={setUnlinkConfirmOpen}>
-        <AlertDialogContent>
+       <AlertDialog open={isUnlinkConfirmOpen} onOpenChange={(open) => { if(open) { setUnlinkConfirmOpen(true); } else { setUnlinkConfirmOpen(false); } }}>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
             <AlertDialogHeader>
             <AlertDialogTitle>Unlink {child.name}'s Account?</AlertDialogTitle>
             <AlertDialogDescription>

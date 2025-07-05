@@ -17,14 +17,12 @@ import FamilyCycleStatus from '@/components/FamilyCycleStatus';
 import FamilyMoodChart from '@/components/FamilyMoodChart';
 
 const DashboardSkeleton = () => (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex flex-col space-y-3">
-                <Skeleton className="h-40 rounded-xl" />
-                <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
-                </div>
+    <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center justify-center space-y-3 p-4 rounded-3xl aspect-square bg-card border">
+                <Skeleton className="h-20 w-20 rounded-full" />
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-4 w-20" />
             </div>
         ))}
     </div>
@@ -119,14 +117,8 @@ export default function ParentDashboardPage() {
                 <EmptyState />
             ) : (
                 <div className="flex flex-col gap-8 xl:flex-row">
-                    <aside className="w-full xl:w-1/3 xl:flex-shrink-0">
-                        <div className="space-y-6">
-                            <FamilyCycleStatus profiles={childProfiles} />
-                            <FamilyMoodChart profiles={childProfiles} />
-                        </div>
-                    </aside>
                     <div className="flex-1">
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
                             {profiles.map((profile) => (
                             <ChildCard 
                                 key={profile.id} 
@@ -137,6 +129,12 @@ export default function ParentDashboardPage() {
                             ))}
                         </div>
                     </div>
+                     <aside className="w-full xl:w-1/3 xl:flex-shrink-0">
+                        <div className="space-y-6">
+                            <FamilyCycleStatus profiles={childProfiles} />
+                            <FamilyMoodChart profiles={childProfiles} />
+                        </div>
+                    </aside>
                 </div>
             )}
           </div>
