@@ -4,6 +4,7 @@
 import type { Child } from '@/lib/types';
 import { getCycleStatus, getCyclePrediction } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 interface CycleStatusWheelProps {
     child: Child;
@@ -30,10 +31,12 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
 
     let mainText = 'Not Enough Data';
     let subText = 'Log more cycles';
+    let isDefaultState = true;
 
     if (isOnPeriod) {
         mainText = `Day ${currentDay}`;
         subText = 'Currently on period';
+        isDefaultState = false;
     } else if (daysUntilNextCycle !== null) {
         if (daysUntilNextCycle > 1) {
             mainText = `In ${daysUntilNextCycle} days`;
@@ -43,6 +46,7 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
              mainText = 'Expected';
         }
         subText = 'Next predicted period';
+        isDefaultState = false;
     }
     
     return (
@@ -79,7 +83,12 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
                     </Avatar>
                     <h1 className="font-body text-2xl font-bold truncate w-full">{child.name}</h1>
                     <p className="text-sm font-semibold text-muted-foreground">{subText}</p>
-                    <p className="text-lg font-bold w-full truncate">{mainText}</p>
+                    <p className={cn(
+                        "font-bold w-full truncate",
+                        isDefaultState ? "text-base" : "text-lg"
+                    )}>
+                        {mainText}
+                    </p>
                 </div>
             </div>
         </div>
