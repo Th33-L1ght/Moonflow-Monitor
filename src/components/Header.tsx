@@ -1,7 +1,6 @@
-
 'use client';
 
-import { LogOut, MessageSquare, UserPlus, Trash2, HeartHandshake } from 'lucide-react';
+import { LogOut, MessageSquare, UserPlus, Trash2, HeartHandshake, Pencil } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,9 +22,10 @@ import { DeleteAccountDialog } from '@/components/DeleteAccountDialog';
 export interface HeaderProps {
     onProfileAdded?: () => void;
     hasParentProfile?: boolean;
+    onEditMyProfile?: () => void;
 }
 
-export function Header({ onProfileAdded, hasParentProfile }: HeaderProps) {
+export function Header({ onProfileAdded, hasParentProfile, onEditMyProfile }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [isFeedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [isAddChildDialogOpen, setAddChildDialogOpen] = useState(false);
@@ -85,6 +85,12 @@ export function Header({ onProfileAdded, hasParentProfile }: HeaderProps) {
                         <DropdownMenuItem onSelect={handleAddParentProfile}>
                             <HeartHandshake className="mr-2 h-4 w-4" />
                             <span>Create My Profile</span>
+                        </DropdownMenuItem>
+                    )}
+                     {hasParentProfile && onEditMyProfile && (
+                        <DropdownMenuItem onSelect={onEditMyProfile}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            <span>Edit My Profile</span>
                         </DropdownMenuItem>
                     )}
                 </>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -15,6 +14,7 @@ import { AlertCircle } from 'lucide-react';
 import { setCache } from '@/lib/cache';
 import FamilyMoodChart from '@/components/FamilyMoodChart';
 import FamilyReminders from '@/components/FamilyReminders';
+import { EditChildDialog } from '@/components/EditChildDialog';
 
 const DashboardSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -69,6 +69,7 @@ export default function ParentDashboardPage() {
   const [profiles, setProfiles] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [isEditMyProfileOpen, setEditMyProfileOpen] = useState(false);
 
   const fetchProfiles = useCallback(async () => {
     if (user) {
@@ -104,12 +105,17 @@ export default function ParentDashboardPage() {
   }, [user, fetchProfiles]);
   
   const hasParentProfile = profiles.some(p => p.isParentProfile);
+  const parentProfile = profiles.find(p => p.isParentProfile);
   const childProfiles = profiles.filter(p => !p.isParentProfile);
 
   return (
     <AuthGuard>
       <div className="flex min-h-screen flex-col bg-background">
-        <Header onProfileAdded={fetchProfiles} hasParentProfile={hasParentProfile} />
+        <Header 
+            onProfileAdded={fetchProfiles} 
+            hasParentProfile={hasParentProfile}
+            onEditMyProfile={() => setEditMyProfileOpen(true)}
+        />
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-7xl">
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -147,6 +153,14 @@ export default function ParentDashboardPage() {
           </div>
         </main>
       </div>
+      {parentProfile && (
+        <EditChildDialog
+          isOpen={isEditMyProfileOpen}
+          setOpen={setEditMyProfileOpen}
+          child={parentProfile}
+          onChildUpdated={fetchProfiles}
+        />
+      )}
     </AuthGuard>
   );
 }
