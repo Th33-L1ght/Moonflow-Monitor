@@ -52,13 +52,18 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
 
-  const { isOnPeriod, activeCycleId } = getCycleStatus(child);
+  const { activeCycleId } = getCycleStatus(child);
   const isButtonDisabled = isLoading || !canEdit;
 
   // Set initial state based on today's log if it exists
   React.useEffect(() => {
-    if (activeCycleId) {
-        const activeCycle = child.cycles.find(c => c.id === activeCycleId);
+    let cycleId = activeCycleId;
+    if (child.isParentProfile && !cycleId && child.cycles.length > 0) {
+        cycleId = child.cycles[child.cycles.length - 1].id;
+    }
+
+    if (cycleId) {
+        const activeCycle = child.cycles.find(c => c.id === cycleId);
         const todayLog = activeCycle?.symptoms.find(s => isSameDay(toDate(s.date), new Date()));
         if (todayLog) {
             setCramp(String(todayLog.crampLevel));
@@ -73,7 +78,7 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
             setPregnancyTest(undefined);
         }
     } else {
-        // Reset form if not on period
+        // Reset form if no active cycle
         setCramp('1');
         setMood('Happy');
         setNote('');
@@ -83,10 +88,16 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
 
 
   const handleSaveLog = async () => {
-    if (!activeCycleId && !child.isParentProfile) {
+    let currentCycleId = activeCycleId;
+    // For parents, we allow logging even outside the period, to the last known cycle.
+    if (child.isParentProfile && !currentCycleId && child.cycles.length > 0) {
+        currentCycleId = child.cycles[child.cycles.length - 1].id;
+    }
+
+    if (!currentCycleId) {
         toast({
-            title: 'Not on period',
-            description: "Symptoms can only be logged during a period.",
+            title: 'No Active Cycle',
+            description: "Symptoms can only be logged if there is an active or previous cycle.",
             variant: 'destructive'
         });
         return;
@@ -104,7 +115,7 @@ export default function SymptomTracker({ child, onUpdate, canEdit }: SymptomTrac
 
     const updatedCycles = child.cycles.map(cycle => {
         // Find the active cycle to update
-        if (cycle.id === activeCycleId) {
+        if (cycle.id === currentCycleId) {
             const existingLogIndex = cycle.symptoms.findIndex(symptom => 
                 isSameDay(toDate(symptom.date), toDate(newSymptomLog.date))
             );

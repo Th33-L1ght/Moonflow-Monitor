@@ -90,7 +90,9 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
   let progress = 0;
   let statusText = 'Not on Period';
 
-  if (isOnPeriod) {
+  if (child.isParentProfile && child.cycles.some(c => c.isPregnancy)) {
+      statusText = 'Pregnancy Logged';
+  } else if (isOnPeriod) {
     progress = (currentDay / averagePeriodLength) * 100;
     statusText = `On Period - Day ${currentDay}`;
   } else if (daysUntilNextCycle !== null) {
@@ -116,11 +118,21 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
         
         <div className="flex-1 space-y-1">
             <CardTitle className="text-lg font-bold flex items-center gap-2">
+                {isOnPeriod && (
+                  <span className="flex h-3 w-3 relative" title="On Period">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
+                  </span>
+                )}
                 {child.isParentProfile && <HeartHandshake className="h-4 w-4 text-primary" />}
                 {child.name}
             </CardTitle>
             <CardDescription className="text-sm font-medium">{statusText}</CardDescription>
-            <Progress value={progress} className="h-2 !mt-2" />
+            <Progress 
+                value={progress} 
+                className="h-2 !mt-2"
+                indicatorClassName={isOnPeriod ? "bg-destructive" : ""}
+            />
         </div>
 
         <div className="pl-4" onClick={(e) => e.stopPropagation()}>
