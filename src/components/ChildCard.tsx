@@ -116,7 +116,7 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
             <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
         </Avatar>
         
-        <div className="flex-1 space-y-1">
+        <div className="flex-1 space-y-1 overflow-hidden">
             <CardTitle className="text-lg font-bold flex items-center gap-2">
                 {isOnPeriod && (
                   <span className="flex h-3 w-3 relative" title="On Period">
@@ -125,9 +125,9 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
                   </span>
                 )}
                 {child.isParentProfile && <HeartHandshake className="h-4 w-4 text-primary" />}
-                {child.name}
+                <span className="truncate">{child.name}</span>
             </CardTitle>
-            <CardDescription className="text-sm font-medium">{statusText}</CardDescription>
+            <CardDescription className="text-sm font-medium truncate">{statusText}</CardDescription>
             <Progress 
                 value={progress} 
                 className="h-2 !mt-2"
