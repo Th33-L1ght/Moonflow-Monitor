@@ -5,37 +5,30 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     match /children/{childId} {
-      // Create: A logged-in user can create a profile if they are listed as the parent.
+      // CREATE: Allow a logged-in user to create a profile if they set themselves as the parent.
       allow create: if request.auth != null && request.auth.uid == request.resource.data.parentUid;
 
-      // Read: The parent or the linked child can read the profile.
+      // READ: Allow a user to read a profile if they are the parent or the linked child.
       allow read: if request.auth != null && (request.auth.uid == resource.data.parentUid || request.auth.uid == resource.data.childUid);
 
-      // Update: The parent or linked child can update, but cannot change the parent.
-      allow update: if request.auth != null && 
-                     (request.auth.uid == resource.data.parentUid || request.auth.uid == resource.data.childUid) &&
-                     request.resource.data.parentUid == resource.data.parentUid;
+      // UPDATE: Allow a user to update a profile if they are the parent or the linked child.
+      allow update: if request.auth != null && (request.auth.uid == resource.data.parentUid || request.auth.uid == resource.data.childUid);
+      
+      // DELETE: Allow a user to delete a profile only if they are the parent.
+      allow delete: if request.auth != null && request.auth.uid == resource.data.parentUid;
+    }
 
-      // Delete: Only the parent can delete. A profile cannot be deleted if a child account is linked.
-      allow delete: if request.auth != null && 
-                     request.auth.uid == resource.data.parentUid &&
-                     (resource.data.childUid == null || !exists(resource.data.childUid));
+    match /feedback/{feedbackId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // No one can read/update/delete feedback directly.
+      allow read, update, delete: if false;
     }
 
     match /invites/{inviteId} {
-      // Create: Only the parent can create an invite.
       allow create: if request.auth != null && request.auth.uid == request.resource.data.parentUid;
-      
-      // Read: Anyone can read an invite if it's pending (to get the child's name). The parent can always read.
-      allow read: if resource.data.status == 'pending' || (request.auth != null && request.auth.uid == resource.data.parentUid);
-      
-      // Update: The parent can update (e.g., to cancel), and the invited child can update to accept.
-      allow update: if request.auth != null;
-    }
-    
-    match /feedback/{feedbackId} {
-       // Create: Any logged-in user can create feedback.
-       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Any authenticated user can read or update an invite to check its status or accept it.
+      allow read, update: if request.auth != null;
+      allow delete: if false;
     }
   }
 }
