@@ -129,7 +129,7 @@ export default function ParentDashboardPage() {
             ) : profiles.length === 0 ? (
                 <EmptyState />
             ) : (
-                <div className="flex flex-col gap-8 xl:flex-row">
+                <div className="flex flex-col gap-8 lg:flex-row">
                     <div className="flex-1">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {profiles.map((profile) => (
@@ -142,7 +142,7 @@ export default function ParentDashboardPage() {
                             ))}
                         </div>
                     </div>
-                     <aside className="w-full xl:w-1/3 xl:flex-shrink-0">
+                     <aside className="w-full lg:w-1/3 lg:flex-shrink-0">
                         <div className="space-y-6">
                             <FamilyReminders profiles={childProfiles} />
                             <FamilyMoodChart profiles={childProfiles} />
