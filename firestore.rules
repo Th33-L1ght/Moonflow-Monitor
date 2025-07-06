@@ -3,39 +3,39 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions to check user roles against a document
-    function isParent(docData) {
-      return request.auth.uid == docData.parentUid;
+    
+    function isParent(resource) {
+      return request.auth.uid == resource.data.parentUid;
     }
 
-    function isLinkedChild(docData) {
-      return 'childUid' in docData && request.auth.uid == docData.childUid;
+    function isLinkedChild(resource) {
+      return request.auth.uid == resource.data.childUid;
     }
     
     match /children/{childId} {
-      // Who can read? The parent OR the linked child.
-      allow read: if isParent(resource.data) || isLinkedChild(resource.data);
-      
-      // Who can update? The parent OR the linked child.
-      allow update: if isParent(resource.data) || isLinkedChild(resource.data);
+      allow read, write: if request.auth != null && (
+        // CREATE: The user creating the profile must be the parentUid in the new document.
+        (request.method == 'create' && request.auth.uid == request.resource.data.parentUid) ||
 
-      // Who can create? Any authenticated user creating a profile for themself.
-      // request.resource.data refers to the document as it would be after the create operation.
-      allow create: if request.auth.uid == request.resource.data.parentUid;
+        // READ / UPDATE: The user must be the parent of the profile, or the linked child.
+        (request.method in ['get', 'list', 'update'] && (isParent(resource) || isLinkedChild(resource))) ||
 
-      // Who can delete? Only the parent.
-      allow delete: if isParent(resource.data);
+        // DELETE: The user must be the parent of the profile.
+        (request.method == 'delete' && isParent(resource))
+      );
     }
 
     match /invites/{inviteId} {
-      allow create: if request.auth.uid == request.resource.data.parentUid;
-      allow read: if request.auth.uid == resource.data.parentUid;
-      allow update: if request.auth.uid == resource.data.parentUid;
+      // Only the parent who created the invite can read it.
+      allow read: if request.auth != null && request.auth.uid == resource.data.parentUid;
+      // Any authenticated user can create an invite (the function checks ownership).
+      allow create: if request.auth != null;
+      // Any authenticated user can accept an invite (the function checks validity).
+      allow update: if request.auth != null;
     }
-
+    
     match /feedback/{feedbackId} {
-      allow create: if request.auth.uid == request.resource.data.userId;
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
   }
 }
