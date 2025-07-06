@@ -30,7 +30,8 @@ export default function FamilyReminders({ profiles }: FamilyRemindersProps) {
       }
       return null;
     })
-    .filter((r): r is { childId: string; childName: string; days: number; } => r !== null);
+    .filter((r): r is { childId: string; childName: string; days: number; } => r !== null)
+    .sort((a, b) => a.days - b.days);
 
   if (reminders.length === 0) {
     return null;
