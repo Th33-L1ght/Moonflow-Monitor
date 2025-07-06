@@ -95,7 +95,13 @@ export function AddChildDialog({ isOpen, setOpen, onProfileAdded, isForParent }:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !name.trim() || !avatarUrl) {
-        setError('Please enter a name and select an avatar.');
+        const message = 'Please enter a name and select an avatar to continue.';
+        setError(message);
+        toast({
+            title: 'Missing Information',
+            description: message,
+            variant: 'destructive',
+        });
         return;
     }
 
@@ -224,7 +230,7 @@ export function AddChildDialog({ isOpen, setOpen, onProfileAdded, isForParent }:
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading || isProcessingImage || !name.trim() || !avatarUrl}>
+            <Button type="submit" disabled={loading || isProcessingImage}>
               {loading ? 'Adding...' : 'Add Profile'}
             </Button>
           </DialogFooter>
