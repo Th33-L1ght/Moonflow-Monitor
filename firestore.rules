@@ -1,36 +1,32 @@
-rules_version = '2';
 
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if the requester is the owner of a given user ID.
-    function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
-    }
-
+    // Rules for 'children' collection
     match /children/{childId} {
-      // CREATE: A logged-in user can create a profile if they set themselves as the parent.
-      allow create: if isOwner(request.resource.data.parentUid);
-
-      // READ, UPDATE: The parent OR the linked child can read or update the profile.
-      allow read, update: if isOwner(resource.data.parentUid) || isOwner(resource.data.childUid);
-
-      // DELETE: Only the parent can delete a profile.
-      allow delete: if isOwner(resource.data.parentUid);
+      // A logged-in user can create a profile if they set themselves as the parent.
+      allow create: if request.auth != null && request.resource.data.parentUid == request.auth.uid;
+      
+      // The parent or the linked child can read or update the profile.
+      allow read, update: if request.auth != null && (
+                            resource.data.parentUid == request.auth.uid || 
+                            resource.data.childUid == request.auth.uid
+                          );
+      
+      // Only the parent can delete a profile.
+      allow delete: if request.auth != null && resource.data.parentUid == request.auth.uid;
     }
-
+    
+    // Rules for 'feedback' collection
     match /feedback/{feedbackId} {
-      // CREATE: A logged-in user can create a feedback document.
-      allow create: if isOwner(request.resource.data.userId);
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
 
+    // Rules for 'invites' collection
     match /invites/{inviteId} {
-      // READ: Anyone can read an invite document (to get the child's name).
-      allow read: if true;
-      // CREATE: Only the parent can create an invite for their child.
-      allow create: if isOwner(request.resource.data.parentUid);
-      // UPDATE: The parent can update it, or it can be updated once if it's pending.
-      allow update: if isOwner(resource.data.parentUid) || resource.data.status == 'pending';
+        allow create: if request.auth != null && request.resource.data.parentUid == request.auth.uid;
+        allow read, update: if request.auth != null; // Allow any authenticated user to read/update for invite acceptance
     }
   }
 }
