@@ -1,28 +1,38 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /children/{childId} {
-      // Allow create if the user is logged in and is the parentUid in the new document.
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.parentUid;
-      
-      // Allow read/update if the user is the parent or the linked child.
-      allow read, update: if request.auth != null && 
-                          (request.auth.uid == resource.data.parentUid || request.auth.uid == resource.data.childUid);
 
-      // Only the parent can delete.
-      allow delete: if request.auth != null && request.auth.uid == resource.data.parentUid;
+    // Helper function to check if a user is the owner of a profile.
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
 
+    // Rules for the 'children' collection
+    match /children/{childId} {
+      // Logged-in users can create profiles for themselves (parentUid must match their own UID).
+      allow create: if isOwner(request.resource.data.parentUid);
+
+      // Users can only read, update, or delete profiles they own.
+      // This applies to both parents (via parentUid) and linked children (via childUid).
+      allow read, update, delete: if isOwner(resource.data.parentUid) || isOwner(resource.data.get('childUid', ''));
+    }
+
+    // Rules for the 'invites' collection
     match /invites/{inviteId} {
-      // Parent can create an invite for their own child profile
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.parentUid;
-      // Any authenticated user can read an invite (to see child name)
-      // and update it (to accept it).
-      allow read, update: if request.auth != null;
+        // Anyone can read an invite to get the child's name, but only for pending invites.
+        allow read: if resource.data.status == 'pending';
+        // Only the parent owner can create an invite.
+        allow create: if isOwner(request.resource.data.parentUid);
+        // An invite can only be updated if its status is changing to 'accepted'.
+        // This prevents other malicious updates.
+        allow update: if request.resource.data.status == 'accepted' && resource.data.status == 'pending';
     }
     
+    // Rules for the 'feedback' collection
     match /feedback/{feedbackId} {
-        allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+        // Any authenticated user can submit feedback.
+        allow create: if request.auth != null && isOwner(request.resource.data.userId);
     }
   }
 }
