@@ -1,10 +1,8 @@
-
 'use client';
 
 import type { Child } from '@/lib/types';
 import { getCycleStatus, getCyclePrediction } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
 
 interface CycleStatusWheelProps {
     child: Child;
@@ -29,8 +27,8 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
     const progressColor = isOnPeriod ? 'hsl(var(--destructive))' : 'hsl(var(--primary))';
 
 
-    let mainText = 'Not Enough Data';
-    let subText = 'Log more cycles';
+    let mainText = '';
+    let subText = '';
     let isDefaultState = true;
 
     if (isOnPeriod) {
@@ -82,13 +80,14 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
                       <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <h1 className="font-body text-2xl font-bold truncate w-full">{child.name}</h1>
-                    <p className="text-sm font-semibold text-muted-foreground">{subText}</p>
-                    <p className={cn(
-                        "font-bold w-full truncate",
-                        isDefaultState ? "text-base" : "text-lg"
-                    )}>
-                        {mainText}
-                    </p>
+                    {!isDefaultState && (
+                        <>
+                            <p className="text-sm font-semibold text-muted-foreground">{subText}</p>
+                            <p className="font-bold w-full truncate text-lg">
+                                {mainText}
+                            </p>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
