@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -106,9 +107,7 @@ export function AddChildDialog({ isOpen, setOpen, onProfileAdded, isForParent }:
 
         let finalAvatarUrl = avatarUrl;
         
-        // Only upload to storage if it's a new file upload (base64 image data)
-        // Default avatars are already public-friendly data URIs but we upload them for consistency
-        if (avatarUrl.startsWith('data:image/jpeg') || avatarUrl.startsWith('data:image/png') || avatarUrl.startsWith('data:image/gif') || avatarUrl.startsWith('data:image/svg+xml')) {
+        if (avatarUrl.startsWith('data:image')) {
             const filePath = `avatars/${user.uid}/${Date.now()}`;
             const storageRef = ref(storage, filePath);
             await uploadString(storageRef, avatarUrl, 'data_url');
@@ -126,12 +125,24 @@ export function AddChildDialog({ isOpen, setOpen, onProfileAdded, isForParent }:
         setOpen(false);
         resetForm();
         } else {
-        setError(result.error || 'An unexpected error occurred.');
+            const errorMessage = result.error || 'An unexpected error occurred.';
+            setError(errorMessage);
+            toast({
+                title: 'Creation Failed',
+                description: errorMessage,
+                variant: 'destructive',
+            });
         }
 
     } catch (err: any) {
         logError(err, { location: 'AddChildDialog.handleSubmit' });
-        setError(err.message || 'Failed to create profile.');
+        const errorMessage = err.message || 'Failed to create profile.';
+        setError(errorMessage);
+        toast({
+            title: 'Creation Failed',
+            description: errorMessage,
+            variant: 'destructive',
+        });
     } finally {
         setLoading(false);
     }

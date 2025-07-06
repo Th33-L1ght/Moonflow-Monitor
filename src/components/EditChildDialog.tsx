@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -99,7 +100,7 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
     try {
       let finalAvatarUrl = child.avatarUrl;
       
-      if (avatarUrl && avatarUrl !== child.avatarUrl) {
+      if (avatarUrl && avatarUrl !== child.avatarUrl && avatarUrl.startsWith('data:image')) {
           if (!storage) throw new Error("Storage not configured.");
           const filePath = `avatars/${user.uid}/${child.id}/${Date.now()}`;
           const storageRef = ref(storage, filePath);
@@ -127,7 +128,13 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
       setOpen(false);
     } catch (err: any) {
       logError(err, { location: 'EditChildDialog.handleSubmit', childId: child.id });
-      setError(err.message || 'Failed to update profile.');
+      const errorMessage = err.message || 'Failed to update profile.';
+      setError(errorMessage);
+      toast({
+        title: "Update Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
