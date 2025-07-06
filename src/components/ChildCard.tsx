@@ -10,8 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { MoreHorizontal, UserPlus, Trash2, Edit, LogIn, Link2Off, HeartHandshake } from 'lucide-react';
 import { getCycleStatus, getCyclePrediction } from '@/lib/utils';
 import type { Child } from '@/lib/types';
-import { InviteDialog } from '@/components/InviteDialog';
-import { CreateChildLoginDialog } from '@/components/CreateChildLoginDialog';
+import { InviteDialog } from './InviteDialog';
+import { CreateChildLoginDialog } from './CreateChildLoginDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +25,7 @@ import {
 import { deleteChildAction, unlinkChildAccountAction } from '@/lib/firebase/client-actions';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { Progress } from '@/components/ui/progress';
 
 interface ChildCardProps {
   child: Child;
@@ -99,98 +100,83 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
     statusText = "Not Enough Data";
   }
 
-  const circumference = 2 * Math.PI * 52;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
-  const progressColor = isOnPeriod ? 'hsl(var(--destructive))' : 'hsl(var(--primary))';
-
-
   return (
     <>
       <div 
         onClick={() => router.push(`/child/${child.id}`)}
-        className="relative flex flex-col items-center justify-center p-4 transition-all bg-card border rounded-3xl aspect-square cursor-pointer hover:shadow-lg hover:border-primary/50"
+        className="relative flex items-center gap-4 p-4 transition-all bg-card border rounded-2xl cursor-pointer hover:shadow-lg hover:border-primary/50"
         role="button"
         tabIndex={0}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && router.push(`/child/${child.id}`)}
       >
-        <div className="absolute top-2 right-2 z-10" onClick={(e) => e.stopPropagation()}>
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => router.push(`/child/${child.id}`)}>
-                <Edit className="mr-2 h-4 w-4" />
-                <span>View & Edit Details</span>
-              </DropdownMenuItem>
+        <Avatar className="h-14 w-14">
+            <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
+            <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        
+        <div className="flex-1 space-y-1">
+            <CardTitle className="text-lg font-bold flex items-center gap-2">
+                {child.isParentProfile && <HeartHandshake className="h-4 w-4 text-primary" />}
+                {child.name}
+            </CardTitle>
+            <CardDescription className="text-sm font-medium">{statusText}</CardDescription>
+            <Progress value={progress} className="h-2 !mt-2" />
+        </div>
 
-              {!child.isParentProfile && (
-                <>
-                    <DropdownMenuSeparator />
-                    {isFirebaseConfigured && !hasAccount && (
+        <div className="pl-4" onClick={(e) => e.stopPropagation()}>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => router.push(`/child/${child.id}`)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>View & Edit Details</span>
+                    </DropdownMenuItem>
+
+                    {!child.isParentProfile && (
                         <>
-                        <DropdownMenuItem onSelect={() => setCreateLoginOpen(true)}>
-                            <LogIn className="mr-2 h-4 w-4" />
-                            <span>Create Child Login</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => setInviteOpen(true)}>
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            <span>Invite via Email</span>
-                        </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {isFirebaseConfigured && !hasAccount && (
+                                <>
+                                <DropdownMenuItem onSelect={() => setCreateLoginOpen(true)}>
+                                    <LogIn className="mr-2 h-4 w-4" />
+                                    <span>Create Child Login</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setInviteOpen(true)}>
+                                    <UserPlus className="mr-2 h-4 w-4" />
+                                    <span>Invite via Email</span>
+                                </DropdownMenuItem>
+                                </>
+                            )}
+                            {isFirebaseConfigured && hasAccount && (
+                                <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
+                                    <Link2Off className="mr-2 h-4 w-4" />
+                                    <span>Unlink Account</span>
+                                </DropdownMenuItem>
+                            )}
                         </>
                     )}
-                    {isFirebaseConfigured && hasAccount && (
-                        <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
-                            <Link2Off className="mr-2 h-4 w-4" />
-                            <span>Unlink Account</span>
-                        </DropdownMenuItem>
-                    )}
-                </>
-              )}
-              
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => setDeleteConfirmOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                <Trash2 className="mr-2 h-4 w-4" />
-                <span>Delete Profile</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                    
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => setDeleteConfirmOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete Profile</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
-
-        <div className="relative h-full w-full flex items-center justify-center">
-            <svg className="absolute inset-0" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="52" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
-                <circle
-                    cx="60" cy="60" r="52" fill="none"
-                    stroke={progressColor} strokeWidth="8"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    strokeLinecap="round" transform="rotate(-90 60 60)"
-                />
-            </svg>
-            <div className="relative flex flex-col items-center justify-center text-center gap-1">
-                <Avatar className="h-16 w-16 mb-1">
-                    <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
-                    <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <CardTitle className="text-base font-bold flex items-center gap-1.5">
-                  {child.isParentProfile && <HeartHandshake className="h-4 w-4 text-primary" />}
-                  {child.name}
-                </CardTitle>
-                <CardDescription className="text-xs font-semibold">{statusText}</CardDescription>
-            </div>
-        </div>
-
       </div>
-
+        
       {isFirebaseConfigured && (
-        <>
+          <>
             <InviteDialog isOpen={isInviteOpen} setOpen={setInviteOpen} childId={child.id} />
             <CreateChildLoginDialog isOpen={isCreateLoginOpen} setOpen={setCreateLoginOpen} child={child} onLoginCreated={onChildUpdated} />
-        </>
+          </>
       )}
+
       <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
             <AlertDialogHeader>

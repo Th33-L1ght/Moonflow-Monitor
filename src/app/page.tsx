@@ -16,12 +16,16 @@ import { setCache } from '@/lib/cache';
 import FamilyMoodChart from '@/components/FamilyMoodChart';
 
 const DashboardSkeleton = () => (
-    <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-            <div key={i} className="relative flex flex-col items-center justify-center p-4 transition-all bg-card border rounded-3xl aspect-square">
-                 <Skeleton className="h-20 w-20 rounded-full" />
-                <Skeleton className="h-5 w-24 mt-2" />
-                <Skeleton className="h-4 w-20 mt-1" />
+    <div className="flex flex-col gap-4">
+        {[...Array(3)].map((_, i) => (
+            <div key={i} className="p-4 bg-card border rounded-2xl flex items-center gap-4">
+                <Skeleton className="h-14 w-14 rounded-full" />
+                <div className="flex-1 space-y-2">
+                    <Skeleton className="h-5 w-1/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-2 w-full !mt-3" />
+                </div>
+                 <Skeleton className="h-8 w-8 rounded-md" />
             </div>
         ))}
     </div>
@@ -105,7 +109,7 @@ export default function ParentDashboardPage() {
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-7xl">
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-              <h1 className="font-body text-3xl font-bold md:text-4xl">Your Family Dashboard</h1>
+              <h1 className="font-body text-3xl font-bold md:text-4xl">Family Dashboard</h1>
             </div>
 
             {loading ? (
@@ -117,7 +121,7 @@ export default function ParentDashboardPage() {
             ) : (
                 <div className="flex flex-col gap-8 xl:flex-row">
                     <div className="flex-1">
-                        <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+                        <div className="flex flex-col gap-4">
                             {profiles.map((profile) => (
                             <ChildCard 
                                 key={profile.id} 
