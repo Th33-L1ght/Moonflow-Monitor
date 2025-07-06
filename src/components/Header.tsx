@@ -59,59 +59,61 @@ export function Header({ onProfileAdded, hasParentProfile }: HeaderProps) {
 
   return (
     <>
-      <header className="flex h-20 items-center justify-between px-4 md:px-6">
+      <header className="flex h-20 items-center px-4 md:px-6">
         <Link href="/">
           <Logo />
         </Link>
         
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
-              <Avatar className="h-12 w-12">
-                <AvatarImage src={user?.photoURL ?? undefined} alt="User avatar" />
-                <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-              </Avatar>
-              <span className="sr-only">Toggle user menu</span>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>{user?.email || 'My Account'}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {canEditProfile && (
-              <>
-                <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Edit My Avatar</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={handleAddChild}>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    <span>Add Child Profile</span>
-                </DropdownMenuItem>
-                 {!hasParentProfile && (
-                    <DropdownMenuItem onSelect={handleAddParentProfile}>
-                        <HeartHandshake className="mr-2 h-4 w-4" />
-                        <span>Create My Profile</span>
+        <div className="ml-auto pl-4">
+            <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+                <Avatar className="h-12 w-12">
+                    <AvatarImage src={user?.photoURL ?? undefined} alt="User avatar" />
+                    <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                </Avatar>
+                <span className="sr-only">Toggle user menu</span>
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{user?.email || 'My Account'}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {canEditProfile && (
+                <>
+                    <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        <span>Edit My Avatar</span>
                     </DropdownMenuItem>
-                 )}
-              </>
-            )}
-            <DropdownMenuItem onSelect={() => setFeedbackDialogOpen(true)}>
-                <MessageSquare className="mr-2 h-4 w-4" />
-                <span>Feedback</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {canEditProfile && (
-                <DropdownMenuItem onSelect={() => setDeleteAccountDialogOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    <span>Delete Account</span>
+                    <DropdownMenuItem onSelect={handleAddChild}>
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        <span>Add Child Profile</span>
+                    </DropdownMenuItem>
+                    {!hasParentProfile && (
+                        <DropdownMenuItem onSelect={handleAddParentProfile}>
+                            <HeartHandshake className="mr-2 h-4 w-4" />
+                            <span>Create My Profile</span>
+                        </DropdownMenuItem>
+                    )}
+                </>
+                )}
+                <DropdownMenuItem onSelect={() => setFeedbackDialogOpen(true)}>
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    <span>Feedback</span>
                 </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <DropdownMenuSeparator />
+                {canEditProfile && (
+                    <DropdownMenuItem onSelect={() => setDeleteAccountDialogOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete Account</span>
+                    </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
       </header>
       {canEditProfile && (
         <>
