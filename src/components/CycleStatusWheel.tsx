@@ -79,7 +79,7 @@ export function CycleStatusWheel({ child }: CycleStatusWheelProps) {
                     </Avatar>
                     <h1 className="font-body text-2xl font-bold truncate w-full">{child.name}</h1>
                     <p className="text-sm font-semibold text-muted-foreground">{subText}</p>
-                    <p className="text-xl font-bold">{mainText}</p>
+                    <p className="text-lg font-bold w-full truncate">{mainText}</p>
                 </div>
             </div>
         </div>
