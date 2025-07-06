@@ -14,7 +14,6 @@ import {
   deleteDoc,
   Timestamp,
   deleteField,
-  setDoc,
 } from 'firebase/firestore';
 import type { Child } from '@/lib/types';
 import { db } from './client';
@@ -117,11 +116,9 @@ export async function getChildrenForUser(userId: string): Promise<Child[]> {
 export async function addChildForUser(userId: string, profileName: string, avatarUrl: string, isParentProfile: boolean): Promise<{ success: boolean; error?: string }> {
     if (!db) return { success: false, error: 'Firebase not configured.'};
     try {
-        // Generate a new ID on the client
-        const newProfileRef = doc(collection(db, 'children'));
-        
-        const newProfileData: Child = {
-            id: newProfileRef.id,
+        // Reverting to the simpler `addDoc` method as it's more standard for creating new documents.
+        // Firestore will automatically generate the document ID.
+        const newProfileData = {
             name: profileName,
             avatarUrl,
             cycles: [],
@@ -129,8 +126,7 @@ export async function addChildForUser(userId: string, profileName: string, avata
             isParentProfile: isParentProfile,
         };
 
-        // Use setDoc with the new reference
-        await setDoc(newProfileRef, newProfileData);
+        await addDoc(collection(db, 'children'), newProfileData);
         
         return { success: true };
     } catch (error: any) {
@@ -138,12 +134,11 @@ export async function addChildForUser(userId: string, profileName: string, avata
       let message = error.message || 'An unknown error occurred while adding the profile.';
       if (error.code === 'permission-denied') {
         message = 'Permission Denied: Your database security rules are blocking this request. Please update your rules in the Firebase Console.';
-      } else if (error.code === 'failed-precondition') {
-          message = "Your database needs a special index to work correctly. Please check the developer console (press F12) for a link to create it.";
       }
       return { success: false, error: message };
     }
 }
+
 
 async function getInvite(inviteId: string): Promise<Invite | null> {
     if (!db) return null;

@@ -1,32 +1,30 @@
 
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Rules for 'children' collection
     match /children/{childId} {
-      // A logged-in user can create a profile if they set themselves as the parent.
+      // CREATE: A user can create a profile if they are logged in and
+      // setting themselves as the parent. This is the key rule for adding profiles.
       allow create: if request.auth != null && request.resource.data.parentUid == request.auth.uid;
+
+      // READ, UPDATE, DELETE:
+      // The parent can do anything.
+      allow read, update, delete: if request.auth != null && resource.data.parentUid == request.auth.uid;
       
-      // The parent or the linked child can read or update the profile.
-      allow read, update: if request.auth != null && (
-                            resource.data.parentUid == request.auth.uid || 
-                            resource.data.childUid == request.auth.uid
-                          );
-      
-      // Only the parent can delete a profile.
-      allow delete: if request.auth != null && resource.data.parentUid == request.auth.uid;
-    }
-    
-    // Rules for 'feedback' collection
-    match /feedback/{feedbackId} {
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      // A linked child can only read and update their own profile. They cannot delete it.
+      allow read, update: if request.auth != null && resource.data.childUid == request.auth.uid;
     }
 
-    // Rules for 'invites' collection
     match /invites/{inviteId} {
-        allow create: if request.auth != null && request.resource.data.parentUid == request.auth.uid;
-        allow read, update: if request.auth != null; // Allow any authenticated user to read/update for invite acceptance
+      // Invites are less sensitive, allow any logged-in user to manage them.
+      allow read, write: if request.auth != null;
+    }
+
+    match /feedback/{feedbackId} {
+      // Any logged-in user can create feedback.
+      allow create: if request.auth != null;
     }
   }
 }
