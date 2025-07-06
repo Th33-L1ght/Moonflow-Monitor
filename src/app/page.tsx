@@ -14,18 +14,22 @@ import { Logo } from '@/components/Logo';
 import { AlertCircle } from 'lucide-react';
 import { setCache } from '@/lib/cache';
 import FamilyMoodChart from '@/components/FamilyMoodChart';
+import FamilyReminders from '@/components/FamilyReminders';
 
 const DashboardSkeleton = () => (
-    <div className="flex flex-col gap-4">
-        {[...Array(3)].map((_, i) => (
-            <div key={i} className="p-4 bg-card border rounded-2xl flex items-center gap-4">
-                <Skeleton className="h-14 w-14 rounded-full" />
-                <div className="flex-1 space-y-2">
-                    <Skeleton className="h-5 w-1/3" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-2 w-full !mt-3" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => (
+            <div key={i} className="p-4 bg-card border rounded-2xl flex flex-col justify-between h-32">
+                <div className="flex items-center gap-4">
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                    </div>
                 </div>
-                 <Skeleton className="h-8 w-8 rounded-md" />
+                <div className="mt-4">
+                    <Skeleton className="h-2 w-full" />
+                </div>
             </div>
         ))}
     </div>
@@ -121,7 +125,7 @@ export default function ParentDashboardPage() {
             ) : (
                 <div className="flex flex-col gap-8 xl:flex-row">
                     <div className="flex-1">
-                        <div className="flex flex-col gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {profiles.map((profile) => (
                             <ChildCard 
                                 key={profile.id} 
@@ -134,6 +138,7 @@ export default function ParentDashboardPage() {
                     </div>
                      <aside className="w-full xl:w-1/3 xl:flex-shrink-0">
                         <div className="space-y-6">
+                            <FamilyReminders profiles={childProfiles} />
                             <FamilyMoodChart profiles={childProfiles} />
                         </div>
                     </aside>

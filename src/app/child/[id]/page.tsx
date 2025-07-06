@@ -11,7 +11,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCyclePrediction } from '@/lib/utils';
-import { PadReminderCard } from '@/components/PadReminderCard';
 import { CycleStatusWheel } from '@/components/CycleStatusWheel';
 import { PeriodToggleSwitch } from '@/components/PeriodToggleSwitch';
 import { EditChildDialog } from '@/components/EditChildDialog';
@@ -122,7 +121,6 @@ export default function ChildDetailPage() {
     notFound();
   }
   
-  const { daysUntilNextCycle } = getCyclePrediction(child);
   const canEdit = user?.role === 'parent' || user?.uid === child.childUid;
 
   return (
@@ -156,7 +154,6 @@ export default function ChildDetailPage() {
                 {/* Left Column */}
                 <div className="space-y-8">
                     <SymptomTracker child={child} onUpdate={handleUpdate} canEdit={canEdit} />
-                    <PadReminderCard daysUntilNextCycle={daysUntilNextCycle} />
                     <JournalView child={child} />
                 </div>
                 {/* Right Column */}
