@@ -109,11 +109,13 @@ export function AddChildDialog({ isOpen, setOpen, onProfileAdded, isForParent }:
     setError(null);
     
     try {
-        if (!storage) throw new Error("Storage not configured.");
-
         let finalAvatarUrl = avatarUrl;
         
-        if (avatarUrl.startsWith('data:image')) {
+        const isDefaultAvatar = defaultAvatars.includes(avatarUrl);
+
+        // Only upload to storage if it's a custom avatar (i.e. a non-default data URI)
+        if (avatarUrl.startsWith('data:image') && !isDefaultAvatar) {
+            if (!storage) throw new Error("Storage not configured.");
             const filePath = `avatars/${user.uid}/${Date.now()}`;
             const storageRef = ref(storage, filePath);
             await uploadString(storageRef, avatarUrl, 'data_url');

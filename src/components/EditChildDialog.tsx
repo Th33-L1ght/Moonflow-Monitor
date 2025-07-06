@@ -98,9 +98,11 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
     setError(null);
 
     try {
-      let finalAvatarUrl = child.avatarUrl;
+      let finalAvatarUrl = avatarUrl;
+      const isDefaultAvatar = defaultAvatars.includes(avatarUrl ?? '');
       
-      if (avatarUrl && avatarUrl !== child.avatarUrl && avatarUrl.startsWith('data:image')) {
+      // Only upload to storage if the avatar has changed to a new, custom, data:image URL
+      if (avatarUrl && avatarUrl !== child.avatarUrl && avatarUrl.startsWith('data:image') && !isDefaultAvatar) {
           if (!storage) throw new Error("Storage not configured.");
           const filePath = `avatars/${user.uid}/${child.id}/${Date.now()}`;
           const storageRef = ref(storage, filePath);
