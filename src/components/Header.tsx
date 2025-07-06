@@ -1,8 +1,7 @@
 
 'use client';
 
-import { LogOut, User as UserIcon, MessageSquare, UserPlus, Trash2, HeartHandshake } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { LogOut, MessageSquare, UserPlus, Trash2, HeartHandshake } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +15,6 @@ import { Logo } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useState } from 'react';
-import { EditParentProfileDialog } from '@/components/EditParentProfileDialog';
 import { FeedbackDialog } from '@/components/FeedbackDialog';
 import { AddChildDialog } from '@/components/AddChildDialog';
 import { DeleteAccountDialog } from '@/components/DeleteAccountDialog';
@@ -29,7 +27,6 @@ export interface HeaderProps {
 
 export function Header({ onProfileAdded, hasParentProfile }: HeaderProps) {
   const { user, signOut } = useAuth();
-  const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
   const [isFeedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [isAddChildDialogOpen, setAddChildDialogOpen] = useState(false);
   const [isCreatingParentProfile, setCreatingParentProfile] = useState(false);
@@ -80,10 +77,6 @@ export function Header({ onProfileAdded, hasParentProfile }: HeaderProps) {
                 <DropdownMenuSeparator />
                 {canEditProfile && (
                 <>
-                    <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        <span>Edit My Avatar</span>
-                    </DropdownMenuItem>
                     <DropdownMenuItem onSelect={handleAddChild}>
                         <UserPlus className="mr-2 h-4 w-4" />
                         <span>Add Child Profile</span>
@@ -117,7 +110,6 @@ export function Header({ onProfileAdded, hasParentProfile }: HeaderProps) {
       </header>
       {canEditProfile && (
         <>
-          <EditParentProfileDialog isOpen={isProfileDialogOpen} setOpen={setProfileDialogOpen} />
           <AddChildDialog 
             isOpen={isAddChildDialogOpen} 
             setOpen={setAddChildDialogOpen} 
