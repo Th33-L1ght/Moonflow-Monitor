@@ -14,6 +14,7 @@ import {
   deleteDoc,
   Timestamp,
   deleteField,
+  setDoc,
 } from 'firebase/firestore';
 import type { Child } from '@/lib/types';
 import { db } from './client';
@@ -116,14 +117,21 @@ export async function getChildrenForUser(userId: string): Promise<Child[]> {
 export async function addChildForUser(userId: string, profileName: string, avatarUrl: string, isParentProfile: boolean): Promise<{ success: boolean; error?: string }> {
     if (!db) return { success: false, error: 'Firebase not configured.'};
     try {
-        const newProfileData: Omit<Child, 'id'> = {
+        // Generate a new ID on the client
+        const newProfileRef = doc(collection(db, 'children'));
+        
+        const newProfileData: Child = {
+            id: newProfileRef.id,
             name: profileName,
             avatarUrl,
             cycles: [],
             parentUid: userId,
             isParentProfile: isParentProfile,
         };
-        await addDoc(collection(db, 'children'), newProfileData);
+
+        // Use setDoc with the new reference
+        await setDoc(newProfileRef, newProfileData);
+        
         return { success: true };
     } catch (error: any) {
       logError(error, { location: 'client-actions.addChildForUser', userId, profileName });
