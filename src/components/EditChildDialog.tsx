@@ -39,7 +39,7 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
   const [error, setError] = useState<string | null>(null);
   
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
 
 
   useEffect(() => {
@@ -67,7 +67,17 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
         avatarUrl: avatarUrl,
       };
 
-      await updateChild(child.id, updatedData);
+      if (child.isParentProfile) {
+        // If this is the parent's own profile, update both the Firestore doc and the Auth user profile
+        await Promise.all([
+          updateChild(child.id, updatedData),
+          updateUserProfile({ photoURL: avatarUrl })
+        ]);
+      } else {
+        // Otherwise, just update the child's Firestore doc
+        await updateChild(child.id, updatedData);
+      }
+
       toast({
         title: "Profile Updated",
         description: (
@@ -98,7 +108,7 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Edit {child.name}'s Profile</DialogTitle>
+            <DialogTitle>Edit {child.isParentProfile ? 'My Profile' : `${child.name}'s Profile`}</DialogTitle>
             <DialogDescription>
               Update the name or avatar for this profile.
             </DialogDescription>
@@ -121,7 +131,7 @@ export function EditChildDialog({ isOpen, setOpen, child, onChildUpdated }: Edit
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Olivia"
                 required
-                disabled={!!child.isParentProfile}
+                disabled={child.isParentProfile}
               />
             </div>
              <div className="space-y-2">
