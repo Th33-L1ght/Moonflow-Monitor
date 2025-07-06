@@ -19,8 +19,8 @@ const courgette = Courgette({
 
 
 export const metadata: Metadata = {
-  title: 'Moonflow Monitor',
-  description: 'An app for a mother to know which of her children is on their period, track symptoms, and view cycle history.',
+  title: 'Light Flo',
+  description: 'A simple, beautiful app to track menstrual cycles for your family.',
 };
 
 export const viewport: Viewport = {

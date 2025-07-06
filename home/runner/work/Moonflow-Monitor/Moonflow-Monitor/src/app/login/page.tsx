@@ -57,7 +57,7 @@ export default function LoginPage() {
 
     let loginIdentifier = email.trim();
     if (loginIdentifier && !loginIdentifier.includes('@')) {
-        loginIdentifier = `${loginIdentifier.toLowerCase()}@moonflow.app`;
+        loginIdentifier = `${loginIdentifier.toLowerCase()}@lightflow.app`;
     }
 
     try {
