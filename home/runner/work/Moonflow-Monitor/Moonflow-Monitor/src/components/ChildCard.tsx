@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -104,75 +103,79 @@ export function ChildCard({ child, onChildDeleted, onChildUpdated }: ChildCardPr
     <>
       <div 
         onClick={() => router.push(`/child/${child.id}`)}
-        className="relative flex flex-col justify-between p-4 transition-all bg-card border rounded-2xl cursor-pointer hover:shadow-lg hover:border-primary/50"
+        className="relative flex items-center gap-4 p-4 transition-all bg-card border rounded-2xl cursor-pointer hover:shadow-lg hover:border-primary/50"
         role="button"
         tabIndex={0}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && router.push(`/child/${child.id}`)}
       >
-        <div className="absolute top-2 right-2 z-10" onClick={(e) => e.stopPropagation()}>
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => router.push(`/child/${child.id}`)}>
-                <Edit className="mr-2 h-4 w-4" />
-                <span>View & Edit Details</span>
-              </DropdownMenuItem>
+        <Avatar className="h-14 w-14">
+            <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
+            <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        
+        <div className="flex-1 space-y-1">
+            <CardTitle className="text-lg font-bold flex items-center gap-2">
+                {isOnPeriod && (
+                  <span className="flex h-3 w-3 relative" title="On Period">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
+                  </span>
+                )}
+                {child.isParentProfile && <HeartHandshake className="h-4 w-4 text-primary" />}
+                {child.name}
+            </CardTitle>
+            <CardDescription className="text-sm font-medium">{statusText}</CardDescription>
+            <Progress 
+                value={progress} 
+                className="h-2 !mt-2"
+                indicatorClassName={isOnPeriod ? "bg-destructive" : ""}
+            />
+        </div>
 
-              {!child.isParentProfile && (
-                <>
-                    <DropdownMenuSeparator />
-                    {isFirebaseConfigured && !hasAccount && (
+        <div className="pl-4" onClick={(e) => e.stopPropagation()}>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => router.push(`/child/${child.id}`)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>View & Edit Details</span>
+                    </DropdownMenuItem>
+
+                    {!child.isParentProfile && (
                         <>
-                        <DropdownMenuItem onSelect={() => setCreateLoginOpen(true)}>
-                            <LogIn className="mr-2 h-4 w-4" />
-                            <span>Create Child Login</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => setInviteOpen(true)}>
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            <span>Invite via Email</span>
-                        </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {isFirebaseConfigured && !hasAccount && (
+                                <>
+                                <DropdownMenuItem onSelect={() => setCreateLoginOpen(true)}>
+                                    <LogIn className="mr-2 h-4 w-4" />
+                                    <span>Create Child Login</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setInviteOpen(true)}>
+                                    <UserPlus className="mr-2 h-4 w-4" />
+                                    <span>Invite via Email</span>
+                                </DropdownMenuItem>
+                                </>
+                            )}
+                            {isFirebaseConfigured && hasAccount && (
+                                <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
+                                    <Link2Off className="mr-2 h-4 w-4" />
+                                    <span>Unlink Account</span>
+                                </DropdownMenuItem>
+                            )}
                         </>
                     )}
-                    {isFirebaseConfigured && hasAccount && (
-                        <DropdownMenuItem onSelect={() => setUnlinkConfirmOpen(true)}>
-                            <Link2Off className="mr-2 h-4 w-4" />
-                            <span>Unlink Account</span>
-                        </DropdownMenuItem>
-                    )}
-                </>
-              )}
-              
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => setDeleteConfirmOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                <Trash2 className="mr-2 h-4 w-4" />
-                <span>Delete Profile</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div>
-            <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12">
-                    <AvatarImage src={child.avatarUrl} alt={child.name} data-ai-hint="child portrait" />
-                    <AvatarFallback>{child.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                    <CardTitle className="text-lg font-bold flex items-center gap-1.5">
-                    {child.isParentProfile && <HeartHandshake className="h-4 w-4 text-primary" />}
-                    {child.name}
-                    </CardTitle>
-                    <CardDescription className="text-sm font-medium">{statusText}</CardDescription>
-                </div>
-            </div>
-        </div>
-
-        <div className="mt-4">
-            <Progress value={progress} className="h-2" />
+                    
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => setDeleteConfirmOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete Profile</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </div>
         
